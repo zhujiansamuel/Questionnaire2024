@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.core",
     "django.contrib.admin",
-    "psychologySurvey",
+    "dashboards",
     "bootstrapform",
     "survey",
 
@@ -133,7 +133,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-AUTH_USER_MODEL = "psychologySurvey.ApplicationUser"
+AUTH_USER_MODEL = "dashboards.ApplicationUser"
 
 
 LOGIN_REDIRECT_URL = '/'

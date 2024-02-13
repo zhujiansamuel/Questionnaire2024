@@ -17,11 +17,22 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Answer(models.Model):
+    subsidiary_issues = {
+        ("majority","多数派"),
+        ("minority","少数派"),
+    }
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name=_("Question"), related_name="answers")
     response = models.ForeignKey(Response, on_delete=models.CASCADE, verbose_name=_("Response"), related_name="answers")
     created = models.DateTimeField(_("Creation date"), auto_now_add=True)
     updated = models.DateTimeField(_("Update date"), auto_now=True)
     body = models.TextField(_("Content"), blank=True, null=True)
+    # change
+    subsidiary = models.CharField(
+        _("前の質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？"),
+        choices=subsidiary_issues,
+        max_length=9,
+        default="majority"
+    )
 
     def __init__(self, *args, **kwargs):
         try:

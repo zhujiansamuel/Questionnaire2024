@@ -11,6 +11,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 class SurveyDetail(View):
+    # 这里是问题显示的后台逻辑
+    # 对应着两个url，分别是首个问题和之后的问题
+    # sam-todo 1
+    # 每个问题后的结果提示
+    # 每N个问题时候的分析
+    # 每个类别取L个问题
+    # 回答过的问题不在回答
     @survey_available
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")

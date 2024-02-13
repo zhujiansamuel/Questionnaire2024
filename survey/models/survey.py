@@ -28,7 +28,7 @@ class Survey(models.Model):
     need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"))
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
     display_method = models.SmallIntegerField(
-        _("Display method"), choices=DISPLAY_METHOD_CHOICES, default=ALL_IN_ONE_PAGE
+        _("Display method"), choices=DISPLAY_METHOD_CHOICES, default=BY_CATEGORY
     )
     template = models.CharField(_("Template"), max_length=255, null=True, blank=True)
     publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now)
@@ -38,6 +38,10 @@ class Survey(models.Model):
     class Meta:
         verbose_name = _("survey")
         verbose_name_plural = _("surveys")
+        permissions = (
+            ("participant","Questionnaires can be filled out"),
+            ("experimenter","Possibility to edit the survey"),
+        )
 
     def __str__(self):
         return str(self.name)

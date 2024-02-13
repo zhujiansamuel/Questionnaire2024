@@ -80,6 +80,11 @@ class ResponseForm(models.ModelForm):
             for question in qs_for_step:
                 self.add_question(question, data)
         else:
+            # sam-todo
+            # 这里就是所有修改的源头
+            # 可能需要配合修改model
+            # 或者在这里直接修改
+            # 由于需要显示分析页面，可能需要新增一个model-》result
             for i, question in enumerate(self.survey.questions.all()):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -224,6 +229,7 @@ class ResponseForm(models.ModelForm):
 
     def add_question(self, question, data):
         """Add a question to the form.
+
 
         :param Question question: The question to add.
         :param dict data: The pre-existing values from a post request."""

@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from dashboards.views import HomeIndexView
 
 
 urlpatterns = [
@@ -25,8 +26,8 @@ urlpatterns = [
 
 urlpatterns += [
     path('accounts/', include('django.contrib.auth.urls')),
-    path("psychologySurvey/", include('psychologySurvey.urls')),
+    path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
-    path("", include("psychologySurvey.urls"))
+    path("", HomeIndexView.as_view(), name="home"),
 ]
 

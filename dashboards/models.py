@@ -34,7 +34,6 @@ except ImportError:  # pragma: no cover
 LOGGER = logging.getLogger(__name__)
 
 
-# Create your models here.
 
 ############################################################
 ############################################################
