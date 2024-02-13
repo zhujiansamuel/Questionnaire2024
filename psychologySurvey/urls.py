@@ -7,9 +7,9 @@ except ImportError:
     # See https://stackoverflow.com/a/70319607/2519059
     from django.urls import re_path as url
 
-from survey.views import ConfirmView, IndexView, SurveyCompleted, SurveyDetail
-from survey.views.survey_result import serve_result_csv
+from psychologySurvey.views import HomeIndexView
 
 urlpatterns = [
+    url(r"^$", HomeIndexView.as_view(), name="home"),
 
 ]
