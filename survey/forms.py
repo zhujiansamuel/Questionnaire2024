@@ -48,9 +48,13 @@ class ResponseForm(models.ModelForm):
         super().__init__(*args, **kwargs)
         self.uuid = uuid.uuid4().hex
 
-        self.categories = self.survey.non_empty_categories()
-        self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
+        # 此方法返回由order与id排序的分类
+        # self.categories = self.survey.non_empty_categories()
 
+        # 此方法返回由order与random_order排序的伪随机的分类
+        self.categories = self.survey.random_categories()
+
+        self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
         if self.survey.display_method == Survey.BY_CATEGORY:
             self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
         else:
@@ -58,11 +62,10 @@ class ResponseForm(models.ModelForm):
         # will contain prefetched data to avoid multiple db calls
         self.response = False
         self.answers = False
+        # -------------------------------------------------------------------
 
         self.add_questions(kwargs.get("data"))
-
         self._get_preexisting_response()
-
         if not self.survey.editable_answers and self.response is not None:
             for name in self.fields.keys():
                 self.fields[name].widget.attrs["disabled"] = True
@@ -70,21 +73,25 @@ class ResponseForm(models.ModelForm):
     def add_questions(self, data):
         # add a field for each survey question, corresponding to the question
         # type as appropriate.
-
+        # -------------------------------------------------------------------
         if self.survey.display_method == Survey.BY_CATEGORY and self.step is not None:
-            if self.step == len(self.categories):
-                qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
-            else:
-                qs_for_step = self.survey.questions.filter(category=self.categories[self.step])
-
-            for question in qs_for_step:
-                self.add_question(question, data)
-        else:
             # sam-todo
             # 这里就是所有修改的源头
             # 可能需要配合修改model
             # 或者在这里直接修改
             # 由于需要显示分析页面，可能需要新增一个model-》result
+            if self.step == len(self.categories):
+                # 初始状态，第一次获取问题
+                qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
+            else:
+                # 获取之后的问题
+                qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
+                                                                                                # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
+
+            # 获取一定数量的问题
+            for question in qs_for_step:
+                self.add_question(question, data)
+        else:
             for i, question in enumerate(self.survey.questions.all()):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -104,6 +111,8 @@ class ResponseForm(models.ModelForm):
             return self.categories + extras
 
     def _get_preexisting_response(self):
+        # sam-todo
+        # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover a pre-existing response in database.
 
         The user must be logged. Will store the response retrieved in an attribute
@@ -126,6 +135,8 @@ class ResponseForm(models.ModelForm):
         return self.response
 
     def _get_preexisting_answers(self):
+        # sam-todo
+        # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover pre-existing answers in database.
 
         The user must be logged. A Response containing the Answer must exists.
@@ -148,6 +159,8 @@ class ResponseForm(models.ModelForm):
         return self.answers
 
     def _get_preexisting_answer(self, question):
+        # sam-todo
+        # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover a pre-existing answer in database.
 
         The user must be logged. A Response containing the Answer must exists.
@@ -295,7 +308,6 @@ class ResponseForm(models.ModelForm):
                     answer = Answer(question=question)
                 if question.type == Question.SELECT_IMAGE:
                     value, img_src = field_value.split(":", 1)
-                    # TODO Handling of SELECT IMAGE
                     LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
                 answer.body = field_value
                 data["responses"].append((answer.question.id, answer.body))

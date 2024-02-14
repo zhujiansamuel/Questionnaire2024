@@ -64,7 +64,12 @@ class Survey(models.Model):
         return reverse("survey-detail", kwargs={"id": self.pk})
 
     def non_empty_categories(self):
+        # 这里显示由order与id控制分类显示的顺序
         return [x for x in list(self.categories.order_by("order", "id")) if x.questions.count() > 0]
+
+    def random_categories(self):
+        return [x for x in list(self.categories.order_by("order", "random_order")) if x.questions.count() > 0]
+
 
     def is_all_in_one_page(self):
         return self.display_method == self.ALL_IN_ONE_PAGE

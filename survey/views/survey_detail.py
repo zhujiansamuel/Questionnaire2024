@@ -1,4 +1,5 @@
 import logging
+import random
 
 from django.conf import settings
 from django.shortcuts import redirect, render, reverse
@@ -10,6 +11,7 @@ from survey.forms import ResponseForm
 LOGGER = logging.getLogger(__name__)
 
 
+
 class SurveyDetail(View):
     # 这里是问题显示的后台逻辑
     # 对应着两个url，分别是首个问题和之后的问题
@@ -18,6 +20,7 @@ class SurveyDetail(View):
     # 每N个问题时候的分析
     # 每个类别取L个问题
     # 回答过的问题不在回答
+    #
     @survey_available
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
@@ -31,7 +34,7 @@ class SurveyDetail(View):
                 template_name = "survey/survey.html"
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
+        # -------------------------------------------------------------------
         form = ResponseForm(survey=survey, user=request.user, step=step)
         categories = form.current_categories()
 
