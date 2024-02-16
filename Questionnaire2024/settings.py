@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os
 from pathlib import Path
+from django.conf import settings
 
 
 
@@ -70,6 +71,10 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -148,3 +153,6 @@ USER_DID_NOT_ANSWER = "NAA"
 from pathlib import Path
 TEX_CONFIGURATION_FILE = Path("tex", "tex.conf")
 SURVEY_DEFAULT_PIE_COLOR = "blue!50"
+
+
+

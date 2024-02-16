@@ -43,6 +43,7 @@ class SurveyDetail(View):
             "flatpickr": any(field.widget.attrs.get("class") == "date" for _, field in form.fields.items())
         }
         context = {
+            # ->
             "response_form": form,
             "survey": survey,
             "categories": categories,
@@ -54,6 +55,7 @@ class SurveyDetail(View):
 
     @survey_available
     def post(self, request, *args, **kwargs):
+        # 添加结果页面，考虑增加逻辑
         survey = kwargs.get("survey")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
@@ -103,6 +105,7 @@ class SurveyDetail(View):
         # if there is a next step
         if next_url is not None:
             return redirect(next_url)
+
         del request.session[session_key]
         if response is None:
             return redirect(reverse("survey-list"))

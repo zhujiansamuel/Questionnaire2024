@@ -18,10 +18,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 CHOICES_HELP_TEXT = _(
-    """The choices field is only used if the question type
+    """
+    The choices field is only used if the question type
 if the question type is 'radio', 'select', or
 'select multiple' provide a comma-separated list of
-options for this question ."""
+options for this question .
+When entering options, use "|" to separate different options. For example, a|b|c.
+
+"""
 )
 
 
@@ -46,10 +50,11 @@ class SortAnswer:
 
 
 class Question(models.Model):
+    SELECT = "select"
+
     TEXT = "text"
     SHORT_TEXT = "short-text"
     RADIO = "radio"
-    SELECT = "select"
     SELECT_IMAGE = "select_image"
     SELECT_MULTIPLE = "select-multiple"
     INTEGER = "integer"
@@ -57,10 +62,10 @@ class Question(models.Model):
     DATE = "date"
 
     QUESTION_TYPES = (
+        (SELECT, _("select")),
         (TEXT, _("text (multiple line)")),
         (SHORT_TEXT, _("short text (one line)")),
         (RADIO, _("radio")),
-        (SELECT, _("select")),
         (SELECT_MULTIPLE, _("Select Multiple")),
         (SELECT_IMAGE, _("Select Image")),
         (INTEGER, _("integer")),
@@ -68,16 +73,32 @@ class Question(models.Model):
         (DATE, _("date")),
     )
 
+    MAJORITY_MINORITY = (
+        ("majority", _("多数派")),
+        ("minority", _("少数派")),
+    )
+
+    SUBSIDIARY_TYPE = (
+        ("majority_minority",_("majority_minority")),
+        ("certainty_degree",_("certainty_degree")),
+    )
+
     text = models.TextField(_("Text"))
     order = models.IntegerField(_("Order"))
     required = models.BooleanField(_("Required"))
+    # ---->
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, verbose_name=_("Category"), blank=True, null=True, related_name="questions"
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
+    # ---->
     type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=TEXT)
     choices = models.TextField(_("Choices"), blank=True, null=True, help_text=CHOICES_HELP_TEXT)
 
+    subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority")
+    majority_minority = models.CharField(_("前の質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？"), max_length=200, choices=MAJORITY_MINORITY, default="majority")
+    certainty_degree = models.IntegerField(_("degree of certainty"),default=50)
+    majority_choices = models.CharField(max_length=200,default="Null")
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")

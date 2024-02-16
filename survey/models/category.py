@@ -15,11 +15,14 @@ def random_number():
 
 class Category(models.Model):
     name = models.CharField(_("Name"), max_length=400)
+    # ---->
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="categories")
+    # ---->
     order = models.IntegerField(_("Display order"), blank=True, null=True)
     description = models.CharField(_("Description"), max_length=2000, blank=True, null=True)
     # random_order由100000开始意味着order字段具有优先性，被赋予order的类别总是优先显示（暂时这样吧）
     random_order = models.IntegerField(_("random order"),blank=False, default=random_number)
+    display_num = models.IntegerField(_("Number of questions displayed"), blank=True, default=0)
     class Meta:
         # pylint: disable=too-few-public-methods
         verbose_name = _("category")

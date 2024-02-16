@@ -3,9 +3,10 @@ import uuid
 
 from django import forms
 from django.conf import settings
-from django.forms import models
+from django.forms import models,widgets,fields
 from django.urls import reverse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.signals import survey_completed
@@ -15,6 +16,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ResponseForm(models.ModelForm):
+
     FIELDS = {
         Question.TEXT: forms.CharField,
         Question.SHORT_TEXT: forms.CharField,
@@ -33,9 +35,11 @@ class ResponseForm(models.ModelForm):
         Question.SELECT_MULTIPLE: forms.CheckboxSelectMultiple,
     }
 
+
     class Meta:
         model = Response
         fields = ()
+
 
     def __init__(self, *args, **kwargs):
         """Expects a survey object to be passed in initially"""
@@ -65,6 +69,7 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
 
         self.add_questions(kwargs.get("data"))
+        # 不需要看到已经回答的问题
         self._get_preexisting_response()
         if not self.survey.editable_answers and self.response is not None:
             for name in self.fields.keys():
@@ -75,11 +80,6 @@ class ResponseForm(models.ModelForm):
         # type as appropriate.
         # -------------------------------------------------------------------
         if self.survey.display_method == Survey.BY_CATEGORY and self.step is not None:
-            # sam-todo
-            # 这里就是所有修改的源头
-            # 可能需要配合修改model
-            # 或者在这里直接修改
-            # 由于需要显示分析页面，可能需要新增一个model-》result
             if self.step == len(self.categories):
                 # 初始状态，第一次获取问题
                 qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
@@ -87,11 +87,18 @@ class ResponseForm(models.ModelForm):
                 # 获取之后的问题
                 qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
                                                                                                 # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
-
             # 获取一定数量的问题
             for question in qs_for_step:
                 self.add_question(question, data)
         else:
+            # 实际使用BY_QUESTION方式显示，所以修改这一部分
+            # sam-todo
+            # 这里就是所有修改的源头
+            # 可能需要配合修改model
+            # 或者在这里直接修改
+            # 由于需要显示分析页面，可能需要新增一个model-》result
+
+            #这里需要改为选取N个问题
             for i, question in enumerate(self.survey.questions.all()):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -178,6 +185,7 @@ class ResponseForm(models.ModelForm):
         :param dict data: Value from a POST request.
         :rtype: String or None"""
         initial = None
+        # ------------------------
         answer = self._get_preexisting_answer(question)
         if answer:
             # Initialize the field with values from the database if any
@@ -196,6 +204,7 @@ class ResponseForm(models.ModelForm):
                     initial.append(slugify(answer.body))
             else:
                 initial = answer.body
+        # ------------------------
         if data:
             # Initialize the field field from a POST request, if any.
             # Replace values from the database
@@ -241,12 +250,14 @@ class ResponseForm(models.ModelForm):
             return forms.ChoiceField(**kwargs)
 
     def add_question(self, question, data):
+        MAJORITY_MINORITY = (
+            ("majority", _("多数派")),
+            ("minority", _("少数派")),
+        )
         """Add a question to the form.
-
-
         :param Question question: The question to add.
         :param dict data: The pre-existing values from a post request."""
-        kwargs = {"label": question.text, "required": question.required}
+        kwargs = {"label": question.text, "required": question.required, "help_text": "help_ltext"}
         initial = self.get_question_initial(question, data)
         if initial:
             kwargs["initial"] = initial
@@ -256,6 +267,7 @@ class ResponseForm(models.ModelForm):
         widget = self.get_question_widget(question)
         if widget:
             kwargs["widget"] = widget
+
         field = self.get_question_field(question, **kwargs)
         field.widget.attrs["category"] = question.category.name if question.category else ""
 
@@ -263,6 +275,11 @@ class ResponseForm(models.ModelForm):
             field.widget.attrs["class"] = "date"
         # logging.debug("Field for %s : %s", question, field.__dict__)
         self.fields["question_%d" % question.pk] = field
+
+        title = fields.ChoiceField(choices=MAJORITY_MINORITY,
+                                   label="この質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？")
+
+        self.fields["question_a_%d" % question.pk] = title
 
     def has_next_step(self):
         if not self.survey.is_all_in_one_page():
