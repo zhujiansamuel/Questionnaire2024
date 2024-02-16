@@ -7,6 +7,7 @@ from django.views.generic import View
 
 from survey.decorators import survey_available
 from survey.forms import ResponseForm
+from survey.models import Answer, Category, Question, Response, Survey
 
 LOGGER = logging.getLogger(__name__)
 
@@ -104,7 +105,9 @@ class SurveyDetail(View):
                     LOGGER.warning("A step of the multipage form failed but should have been discovered before.")
         # if there is a next step
         if next_url is not None:
-            return redirect(next_url)
+            context = self.result_pre_question(form, next_url)
+            template_name = "survey/result_pre_question.html"
+            return render(request, template_name, context)
 
         del request.session[session_key]
         if response is None:
@@ -115,3 +118,40 @@ class SurveyDetail(View):
                 del request.session["next"]
             return redirect(next_)
         return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
+
+
+
+    def result_pre_question(self,form,next_url):
+        for field_name, field_value in list(form.cleaned_data.items()):
+            if field_name.startswith("question_subsidiary_"):
+                qqqq = field_value
+                pk = int(field_name.split("_")[2])
+                question = Question.objects.get(pk=pk)
+                if question.majority_choices == "Null":
+                    not_enough = True
+                    msg = "There isn`t enough answers."
+                else:
+                    not_enough = False
+                    if question.subsidiary_type == "majority_minority":
+                        if question.majority_choices == "majority":
+                            if qqqq == "majority":
+                                msg = "正解、多数派ー多数派"
+                            else:
+                                msg = "不正解、多数派ー少数派"
+                        else:
+                            if qqqq == "minority":
+                                msg = "正解、少数派ー少数派"
+                            else:
+                                msg = "不正解、少数派ー多数派"
+            else:
+                not_enough = True
+                msg = "Error"
+
+        context = {
+            "next_url": next_url,
+            "not_enough": not_enough,
+            "msg": msg,
+
+        }
+
+        return context

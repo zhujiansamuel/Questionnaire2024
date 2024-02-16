@@ -257,7 +257,7 @@ class ResponseForm(models.ModelForm):
         """Add a question to the form.
         :param Question question: The question to add.
         :param dict data: The pre-existing values from a post request."""
-        kwargs = {"label": question.text, "required": question.required, "help_text": "help_ltext"}
+        kwargs = {"label": question.text, "required": question.required, "help_text": question.subsidiary_type}
         initial = self.get_question_initial(question, data)
         if initial:
             kwargs["initial"] = initial
@@ -276,10 +276,12 @@ class ResponseForm(models.ModelForm):
         # logging.debug("Field for %s : %s", question, field.__dict__)
         self.fields["question_%d" % question.pk] = field
 
-        title = fields.ChoiceField(choices=MAJORITY_MINORITY,
-                                   label="この質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？")
-
-        self.fields["question_a_%d" % question.pk] = title
+        if question.subsidiary_type == "majority_minority":
+            subsidiary_question = fields.ChoiceField(choices=MAJORITY_MINORITY,
+                                       label="この質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？")
+        else:
+            subsidiary_question = fields.IntegerField(label="確信度？",initial=50)
+        self.fields["question_subsidiary_%d" % question.pk] = subsidiary_question
 
     def has_next_step(self):
         if not self.survey.is_all_in_one_page():
@@ -315,21 +317,39 @@ class ResponseForm(models.ModelForm):
         # response.
         for field_name, field_value in list(self.cleaned_data.items()):
             if field_name.startswith("question_"):
-                # warning: this way of extracting the id is very fragile and
-                # entirely dependent on the way the question_id is encoded in
-                # the field name in the __init__ method of this form class.
-                q_id = int(field_name.split("_")[1])
-                question = Question.objects.get(pk=q_id)
-                answer = self._get_preexisting_answer(question)
-                if answer is None:
-                    answer = Answer(question=question)
-                if question.type == Question.SELECT_IMAGE:
-                    value, img_src = field_value.split(":", 1)
-                    LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
-                answer.body = field_value
-                data["responses"].append((answer.question.id, answer.body))
-                LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type, field_value)
-                answer.response = response
-                answer.save()
+                field_name_split = field_name.split("_")
+                if field_name_split[1] != "subsidiary":
+                    # warning: this way of extracting the id is very fragile and
+                    # entirely dependent on the way the question_id is encoded in
+                    # the field name in the __init__ method of this form class.
+                    q_id = int(field_name.split("_")[1])
+                    question = Question.objects.get(pk=q_id)
+                    answer = self._get_preexisting_answer(question)
+                    if answer is None:
+                        answer = Answer(question=question)
+                    if question.type == Question.SELECT_IMAGE:
+                        value, img_src = field_value.split(":", 1)
+                        LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
+                    answer.body = field_value
+                    data["responses"].append((answer.question.id, answer.body))
+                    LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type, field_value)
+                    answer.response = response
+                    answer.save()
+                elif field_name_split[1] == "subsidiary":
+                    q_id = int(field_name.split("_")[2])
+                    question = Question.objects.get(pk=q_id)
+                    answer = self._get_preexisting_answer(question)
+                    if answer is None:
+                        answer = Answer(question=question)
+                    # if question.type == Question.SELECT_IMAGE:
+                    #     value, img_src = field_value.split(":", 1)
+                    #     LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
+                    answer.subsidiary = field_value
+                    # data["responses"].append((answer.question.id, answer.body))
+                    data["responses"].append((answer.question_id,answer.subsidiary))
+                    LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type,
+                                 field_value)
+                    answer.response = response
+                    answer.save()
         survey_completed.send(sender=Response, instance=response, data=data)
         return response
