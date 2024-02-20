@@ -56,13 +56,20 @@ class ResponseForm(models.ModelForm):
         # self.categories = self.survey.non_empty_categories()
 
         # 此方法返回由order与random_order排序的伪随机的分类
+        # sam-todo 问题取得方法-根据随机数选取类别
         self.categories = self.survey.random_categories()
 
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
+
+        # ---->
         if self.survey.display_method == Survey.BY_CATEGORY:
             self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
         else:
+            # ---->
+            # sam-todo 问题取得方法-问题取得
+            # sam-todo 问题取得方法-步数设定
             self.steps_count = len(self.survey.questions.all())
+
         # will contain prefetched data to avoid multiple db calls
         self.response = False
         self.answers = False
@@ -81,24 +88,16 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
         if self.survey.display_method == Survey.BY_CATEGORY and self.step is not None:
             if self.step == len(self.categories):
-                # 初始状态，第一次获取问题
                 qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
             else:
-                # 获取之后的问题
                 qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
                                                                                                 # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
             # 获取一定数量的问题
             for question in qs_for_step:
                 self.add_question(question, data)
         else:
-            # 实际使用BY_QUESTION方式显示，所以修改这一部分
-            # sam-todo
-            # 这里就是所有修改的源头
-            # 可能需要配合修改model
-            # 或者在这里直接修改
-            # 由于需要显示分析页面，可能需要新增一个model-》result
-
             #这里需要改为选取N个问题
+            # sam-todo 问题取得方法-顺序取得所有问题
             for i, question in enumerate(self.survey.questions.all()):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -118,8 +117,6 @@ class ResponseForm(models.ModelForm):
             return self.categories + extras
 
     def _get_preexisting_response(self):
-        # sam-todo
-        # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover a pre-existing response in database.
 
         The user must be logged. Will store the response retrieved in an attribute
@@ -142,7 +139,7 @@ class ResponseForm(models.ModelForm):
         return self.response
 
     def _get_preexisting_answers(self):
-        # sam-todo
+        # sam-todo 既有答案中的meta选项的选取
         # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover pre-existing answers in database.
 
@@ -166,7 +163,7 @@ class ResponseForm(models.ModelForm):
         return self.answers
 
     def _get_preexisting_answer(self, question):
-        # sam-todo
+        # sam-todo 既有答案中的meta选项的选取
         # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
         """Recover a pre-existing answer in database.
 
@@ -297,6 +294,10 @@ class ResponseForm(models.ModelForm):
     def current_step_url(self):
         return reverse("survey-detail-step", kwargs={"id": self.survey.id, "step": self.step})
 
+    def get_current_question_subsidiary_type(self):
+        return
+
+
     def save(self, commit=True):
         """Save the response object"""
         # Recover an existing response from the database if any
@@ -311,17 +312,11 @@ class ResponseForm(models.ModelForm):
         if self.user.is_authenticated:
             response.user = self.user
         response.save()
-        # response "raw" data as dict (for signal)
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
-        # create an answer object for each question and associate it with this
-        # response.
         for field_name, field_value in list(self.cleaned_data.items()):
             if field_name.startswith("question_"):
                 field_name_split = field_name.split("_")
                 if field_name_split[1] != "subsidiary":
-                    # warning: this way of extracting the id is very fragile and
-                    # entirely dependent on the way the question_id is encoded in
-                    # the field name in the __init__ method of this form class.
                     q_id = int(field_name.split("_")[1])
                     question = Question.objects.get(pk=q_id)
                     answer = self._get_preexisting_answer(question)

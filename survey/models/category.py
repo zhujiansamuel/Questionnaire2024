@@ -23,6 +23,7 @@ class Category(models.Model):
     # random_order由100000开始意味着order字段具有优先性，被赋予order的类别总是优先显示（暂时这样吧）
     random_order = models.IntegerField(_("random order"),blank=False, default=random_number)
     display_num = models.IntegerField(_("Number of questions displayed"), blank=True, default=0)
+
     class Meta:
         # pylint: disable=too-few-public-methods
         verbose_name = _("category")

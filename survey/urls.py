@@ -16,7 +16,3 @@ urlpatterns = [
     url(r"^(?P<id>\d+)-(?P<step>\d+)/", SurveyDetail.as_view(), name="survey-detail-step"),
     url(r"^confirm/(?P<uuid>\w+)/", ConfirmView.as_view(), name="survey-confirmation"),
 ]
-
-# sam-todo 1
-# 每个问题后的结果提示
-# 每N个问题时候的分析

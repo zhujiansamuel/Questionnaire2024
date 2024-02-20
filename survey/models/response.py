@@ -24,11 +24,12 @@ class Response(models.Model):
 
     created = models.DateTimeField(_("Creation date"), auto_now_add=True)
     updated = models.DateTimeField(_("Update date"), auto_now=True)
-    # ---->
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="responses")
     user = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("User"), null=True, blank=True)
-    # ---->
+    Majority_Rate = models.CharField(_("Majority Rate"), default="0", max_length=20)
+    Correctness_Rate = models.CharField(_("Correctness Rate"), default="0", max_length=20)
     interview_uuid = models.CharField(_("Interview unique identifier"), max_length=36)
+
 
     class Meta:
         verbose_name = _("Set of answers to surveys")

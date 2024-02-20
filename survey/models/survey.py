@@ -34,6 +34,7 @@ class Survey(models.Model):
     publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now)
     expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day)
     redirect_url = models.URLField(_("Redirect URL"), blank=True)
+    diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10)
 
     class Meta:
         verbose_name = _("survey")

@@ -8,20 +8,15 @@ from django.views.generic import View
 from survey.decorators import survey_available
 from survey.forms import ResponseForm
 from survey.models import Answer, Category, Question, Response, Survey
+from survey.utility.diagnostic import Diagnostic_Analyze
+
 
 LOGGER = logging.getLogger(__name__)
 
 
 
+
 class SurveyDetail(View):
-    # 这里是问题显示的后台逻辑
-    # 对应着两个url，分别是首个问题和之后的问题
-    # sam-todo 1
-    # 每个问题后的结果提示
-    # 每N个问题时候的分析
-    # 每个类别取L个问题
-    # 回答过的问题不在回答
-    #
     @survey_available
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
@@ -44,14 +39,12 @@ class SurveyDetail(View):
             "flatpickr": any(field.widget.attrs.get("class") == "date" for _, field in form.fields.items())
         }
         context = {
-            # ->
             "response_form": form,
             "survey": survey,
             "categories": categories,
             "step": step,
             "asset_context": asset_context,
         }
-
         return render(request, template_name, context)
 
     @survey_available
@@ -85,12 +78,35 @@ class SurveyDetail(View):
         return render(request, template_name, context)
 
     def treat_valid_form(self, form, kwargs, request, survey):
+        diagnostic_session_key = "diagnostic_{}_{}".format(request.user,kwargs["survey"].name)
+        if diagnostic_session_key not in request.session:
+            request.session[diagnostic_session_key]={}
+            request.session[diagnostic_session_key]["Majority_Rate"] = "0"
+            request.session[diagnostic_session_key]["Correctness_Rate"] = "0"
+        majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
+        correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
         session_key = "survey_{}".format(kwargs["id"])
+        for field_name, field_value in list(form.cleaned_data.items()):
+            if field_name.startswith("question_"):
+                q_id = int(field_name.split("_")[1])
+                question = Question.objects.get(pk=q_id)
+                break
         if session_key not in request.session:
             request.session[session_key] = {}
         for key, value in list(form.cleaned_data.items()):
             request.session[session_key][key] = value
             request.session.modified = True
+            if question.subsidiary_type == "majority_minority":
+                if key.startswith("question_subsidiary_"):
+                    if value == "majority":
+                        request.session[diagnostic_session_key]["Majority_Rate"]=str(majority_rate+1)
+                        if question.majority_choices == "majority":
+                            request.session[diagnostic_session_key]["Correctness_Rate"]=str(correctness_rate+1)
+                    elif value == "minority":
+                        if question.majority_choices == "minority":
+                            request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+            elif question.subsidiary_type == "certainty_degree":
+                pass
         next_url = form.next_step_url()
         response = None
         if survey.is_all_in_one_page():
@@ -105,9 +121,15 @@ class SurveyDetail(View):
                     LOGGER.warning("A step of the multipage form failed but should have been discovered before.")
         # if there is a next step
         if next_url is not None:
-            context = self.result_pre_question(form, next_url)
-            template_name = "survey/result_pre_question.html"
-            return render(request, template_name, context)
+            step = int(kwargs.get("step", 0)) + 1
+            if step % survey.diagnosis_stages_qs_num != 0:
+                context = self.result_pre_question(form, next_url, request)
+                template_name = "survey/result_pre_question.html"
+                return render(request, template_name, context)
+            elif step % survey.diagnosis_stages_qs_num == 0:
+                context = self.Diagnostic_Result(form, next_url, request, kwargs)
+                template_name = "survey/results.html"
+                return render(request, template_name, context)
 
         del request.session[session_key]
         if response is None:
@@ -119,14 +141,25 @@ class SurveyDetail(View):
             return redirect(next_)
         return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
 
+    def Diagnostic_Result(self, form, next_url, request, kwargs):
+        context = self.result_pre_question(form, next_url, request)
+        diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
+        majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
+        correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
+
+        msg,diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
+        context["diagnostic_result"] = diagnostic_result_msg
+        context["msg"] = msg
+        return context
 
 
-    def result_pre_question(self,form,next_url):
+    def result_pre_question(self,form,next_url, request):
         for field_name, field_value in list(form.cleaned_data.items()):
             if field_name.startswith("question_subsidiary_"):
                 qqqq = field_value
                 pk = int(field_name.split("_")[2])
                 question = Question.objects.get(pk=pk)
+
                 if question.majority_choices == "Null":
                     not_enough = True
                     msg = "There isn`t enough answers."
