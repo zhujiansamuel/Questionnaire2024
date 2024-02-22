@@ -92,7 +92,7 @@ class Question(models.Model):
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
     # ---->
-    type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=TEXT)
+    type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT)
     choices = models.TextField(_("Choices"), blank=True, null=True, help_text=CHOICES_HELP_TEXT)
 
     subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority")
