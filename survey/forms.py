@@ -56,19 +56,67 @@ class ResponseForm(models.ModelForm):
         # self.categories = self.survey.non_empty_categories()
 
         # 此方法返回由order与random_order排序的伪随机的分类
-        # sam-todo 问题取得方法-根据随机数选取类别
         self.categories = self.survey.random_categories()
+
 
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
 
-        # ---->
         if self.survey.display_method == Survey.BY_CATEGORY:
             self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
         else:
-            # ---->
-            # sam-todo 问题取得方法-问题取得
-            # sam-todo 问题取得方法-步数设定
             self.steps_count = len(self.survey.questions.all())
+
+        self.hiding_question_category = [x for x in list(self.survey.categories.order_by("id")) if x.name == "hiding_question"]
+        if self.hiding_question_category:
+            self.hiding_question = self.hiding_question_category[0].questions.all()
+        else:
+            self.hiding_question = []
+        self.question_to_display = []
+
+        j_category=1
+        for i_category,category in enumerate(self.categories):
+            if category.display_num <= len(category.questions.all()):
+                # 如果设置的显示数量小于或者等于问题数目，那么按照设定的显示数量显示问题
+                question_s = category.questions.all()[:int(category.display_num)]
+            elif category.display_num>len(category.questions.all()):
+                # 如果设置的显示数量大于问题数目，那么显示全部的问题，忽略设定的显示数量
+                question_s = category.questions.all()
+            else:
+                question_s = []
+            if category.hiding_question_order and self.hiding_question:
+                question_add = []
+                if "|" in category.hiding_question_order:
+                    orders = category.hiding_question_order.split("|")
+                    for i, question in enumerate(question_s):
+                        for order in orders:
+                            try:
+                                order_int = int(order)
+                            except ValueError:
+                                continue
+                            else:
+                                if i + 1 == order_int:
+                                    for hq in self.hiding_question:
+                                        if j_category == hq.hiding_question_category_order:
+                                            j_category += 1
+                                            question_add.append(hq)
+                        question_add.append(question)
+                elif "|" not in category.hiding_question_order:
+                    try:
+                        order = int(category.hiding_question_order)
+                    except ValueError:
+                        pass
+                    else:
+                        for i, question in enumerate(question_s):
+                            if i + 1 == order:
+                                for hq in self.hiding_question:
+                                    if j_category == hq.hiding_question_category_order:
+                                        j_category += 1
+                                        question_add.append(hq)
+                            question_add.append(question)
+
+                self.question_to_display += question_add
+
+        print("生成的问题",self.question_to_display)
 
         # will contain prefetched data to avoid multiple db calls
         self.response = False
@@ -76,6 +124,7 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
 
         self.add_questions(kwargs.get("data"))
+
         # 不需要看到已经回答的问题
         self._get_preexisting_response()
         if not self.survey.editable_answers and self.response is not None:
@@ -87,18 +136,17 @@ class ResponseForm(models.ModelForm):
         # type as appropriate.
         # -------------------------------------------------------------------
         if self.survey.display_method == Survey.BY_CATEGORY and self.step is not None:
-            if self.step == len(self.categories):
-                qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
-            else:
-                qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
-                                                                                                # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
-            # 获取一定数量的问题
-            for question in qs_for_step:
-                self.add_question(question, data)
+            pass
+            # if self.step == len(self.categories):
+            #     qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
+            # else:
+            #     qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
+            #                                                                                     # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
+            # # 获取一定数量的问题
+            # for question in qs_for_step:
+            #     self.add_question(question, data)
         else:
-            #这里需要改为选取N个问题
-            # sam-todo 问题取得方法-顺序取得所有问题
-            for i, question in enumerate(self.survey.questions.all()):
+            for i, question in enumerate(self.question_to_display):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
                     continue
@@ -106,15 +154,16 @@ class ResponseForm(models.ModelForm):
 
     def current_categories(self):
         if self.survey.display_method == Survey.BY_CATEGORY:
-            if self.step is not None and self.step < len(self.categories):
-                return [self.categories[self.step]]
-            return [Category(name="No category", description="No cat desc")]
+            pass
+            # if self.step is not None and self.step < len(self.categories):
+            #     return [self.categories[self.step]]
+            # return [Category(name="No category", description="No cat desc")]
         else:
             extras = []
             if self.qs_with_no_cat:
                 extras = [Category(name="No category", description="No cat desc")]
 
-            return self.categories + extras
+            return self.categories + extras + self.hiding_question_category
 
     def _get_preexisting_response(self):
         """Recover a pre-existing response in database.
@@ -278,7 +327,9 @@ class ResponseForm(models.ModelForm):
                                        label="この質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？")
         else:
             subsidiary_question = fields.IntegerField(label="確信度？",initial=50)
+
         self.fields["question_subsidiary_%d" % question.pk] = subsidiary_question
+        self.fields["question_subsidiary_%d" % question.pk].widget.attrs["category"] = question.category.name if question.category else ""
 
     def has_next_step(self):
         if not self.survey.is_all_in_one_page():

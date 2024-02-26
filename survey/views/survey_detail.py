@@ -154,6 +154,8 @@ class SurveyDetail(View):
 
 
     def result_pre_question(self,form,next_url, request):
+        # not_enough = True
+        # msg=""
         for field_name, field_value in list(form.cleaned_data.items()):
             if field_name.startswith("question_subsidiary_"):
                 qqqq = field_value

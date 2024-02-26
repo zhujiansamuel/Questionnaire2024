@@ -36,6 +36,7 @@ class Survey(models.Model):
     redirect_url = models.URLField(_("Redirect URL"), blank=True)
     diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10)
 
+
     class Meta:
         verbose_name = _("survey")
         verbose_name_plural = _("surveys")
@@ -46,6 +47,7 @@ class Survey(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
     @property
     def safe_name(self):
@@ -69,8 +71,18 @@ class Survey(models.Model):
         return [x for x in list(self.categories.order_by("order", "id")) if x.questions.count() > 0]
 
     def random_categories(self):
-        return [x for x in list(self.categories.order_by("order", "random_order")) if x.questions.count() > 0]
+        return [x for x in list(self.categories.order_by("order", "random_order")) if x.questions.count() > 0 and x.name != "hiding_question"]
 
 
     def is_all_in_one_page(self):
         return self.display_method == self.ALL_IN_ONE_PAGE
+
+    def create_hiding_questions(self):
+        self.categories.create(
+            name="hiding_question",
+            order=0,
+            description="Every newly created survey file has this default category.",
+            random_order=0,
+            display_num=100
+        )
+

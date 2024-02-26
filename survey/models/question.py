@@ -99,6 +99,7 @@ class Question(models.Model):
     majority_minority = models.CharField(_("前の質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？"), max_length=200, choices=MAJORITY_MINORITY, default="majority")
     certainty_degree = models.IntegerField(_("degree of certainty"),default=50)
     majority_choices = models.CharField(max_length=200,default="Null")
+    hiding_question_category_order = models.IntegerField(_("88"), default=0)
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")
