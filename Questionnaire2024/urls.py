@@ -19,6 +19,7 @@ from django.urls import include
 from dashboards.views import HomeIndexView
 
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 

@@ -16,7 +16,15 @@ except (ImportError, AttributeError):
 
 
 class Response(models.Model):
+    INITIAL_STATE = "Initial state"
+    IN_PROGRESS = "In progress"
+    COMPLETED = "Completed"
 
+    COMPLETION_STATUS_CHOICE = (
+        (INITIAL_STATE, _("Initial state")),
+        (IN_PROGRESS, _("In progress")),
+        (COMPLETED, _("Completed")),
+    )
     """
     A Response object is a collection of questions and answers with a
     unique interview uuid.
@@ -29,7 +37,8 @@ class Response(models.Model):
     Majority_Rate = models.CharField(_("Majority Rate"), default="0", max_length=20)
     Correctness_Rate = models.CharField(_("Correctness Rate"), default="0", max_length=20)
     interview_uuid = models.CharField(_("Interview unique identifier"), max_length=36)
-
+    repeat_order = models.IntegerField(_("repeat_order"), default=0)
+    completion_status = models.CharField(_("completion_status"), max_length=50, choices=COMPLETION_STATUS_CHOICE, default="Initial state")
 
     class Meta:
         verbose_name = _("Set of answers to surveys")

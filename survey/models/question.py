@@ -1,5 +1,5 @@
 import logging
-
+import random
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -28,6 +28,46 @@ When entering options, use "|" to separate different options. For example, a|b|c
 """
 )
 
+TEXT_HELP_TEXT = _("""
+
+""")
+
+ORDER_HELP_TEXT = _("""
+
+""")
+
+REQUIRED_HELP_TEXT = _("""
+
+""")
+
+TYPE_HELP_TEXT = _("""
+
+""")
+
+SUBSIDIARY_TYPE_HELP_TEXT = _("""
+
+""")
+
+MAJORITY_MINORITY_HELP_TEXT = _("""
+
+""")
+
+CERTAINTY_DEGREE_HELP_TEXT = _("""
+
+""")
+
+MAJORITY_CHOICES_HELP_TEXT = _("""
+
+""")
+
+HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT = _("""
+
+""")
+
+# RANDOM_ORDER_Q_HELP_TEXT = _("""
+#
+# """)
+
 
 def validate_choices(choices):
     """Verifies that there is at least two choices in choices
@@ -42,6 +82,14 @@ def validate_choices(choices):
         msg = "The selected field requires an associated list of choices."
         msg += " Choices must contain more than one item."
         raise ValidationError(msg)
+
+def random_number():
+    not_unique = True
+    while not_unique:
+        unique_ref = random.randint(100000, 999999)
+        if not Question.objects.filter(random_order_q=unique_ref):
+            not_unique = False
+    return unique_ref
 
 
 class SortAnswer:
@@ -83,23 +131,23 @@ class Question(models.Model):
         ("certainty_degree",_("certainty_degree")),
     )
 
-    text = models.TextField(_("Text"))
-    order = models.IntegerField(_("Order"))
-    required = models.BooleanField(_("Required"))
-    # ---->
+    text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
+    order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT)
+    required = models.BooleanField(_("Required"), help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, verbose_name=_("Category"), blank=True, null=True, related_name="questions"
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
-    # ---->
-    type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT)
+    type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT, help_text=TYPE_HELP_TEXT)
     choices = models.TextField(_("Choices"), blank=True, null=True, help_text=CHOICES_HELP_TEXT)
 
-    subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority")
-    majority_minority = models.CharField(_("前の質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？"), max_length=200, choices=MAJORITY_MINORITY, default="majority")
-    certainty_degree = models.IntegerField(_("degree of certainty"),default=50)
-    majority_choices = models.CharField(max_length=200,default="Null")
-    hiding_question_category_order = models.IntegerField(_("88"), default=0)
+    subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority", help_text=SUBSIDIARY_TYPE_HELP_TEXT)
+    majority_minority = models.CharField(_("majority_minority"), max_length=200, choices=MAJORITY_MINORITY, default="majority", help_text=MAJORITY_MINORITY_HELP_TEXT)
+    certainty_degree = models.IntegerField(_("degree of certainty"), default=50, help_text=CERTAINTY_DEGREE_HELP_TEXT)
+    majority_choices = models.CharField(max_length=200,default="Null", help_text=MAJORITY_CHOICES_HELP_TEXT)
+    hiding_question_category_order = models.IntegerField(_("hiding_question_category_order"), default=0, help_text=HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT)
+    # random_order_q = models.IntegerField(_("random_order_q"), blank=False, default=random_number, help_text=RANDOM_ORDER_Q_HELP_TEXT)
+
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")

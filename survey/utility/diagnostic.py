@@ -2,16 +2,19 @@
 def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
     step = int(kwargs.get("step", 0))+1
     majority_rate_r = majority_rate/step
-    if majority_rate_r<0.55:
+    if majority_rate_r < 0.55:
         msg_1 = "D"
-    elif majority_rate_r<0.65:
+    elif majority_rate_r < 0.65:
         msg_1 = "C"
-    elif majority_rate_r<0.75:
+    elif majority_rate_r < 0.75:
         msg_1 = "B"
     elif majority_rate_r >= 0.75:
         msg_1 = "A"
-    correctness_rate_r = majority_rate/step
-    if correctness_rate_r < 0.55:
+    correctness_rate_r = correctness_rate/step
+    if correctness_rate_r == 0:
+        msg_2 = "Zero"
+        msg_1 = "Zero"
+    elif correctness_rate_r < 0.55:
         msg_2 = "IV"
     elif correctness_rate_r < 0.65:
         msg_2 = "III"
@@ -20,8 +23,12 @@ def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
     elif correctness_rate_r >= 0.75:
         msg_2 = "I"
 
-    msg = msg_1 +"-"+ msg_2
+    msg = msg_1 + "-" + msg_2
     match msg:
+        case "Zero-Zero":
+            result_msg = """
+            Sorry,we don't haven enough answers yet.
+            """
         case "A-I":
             result_msg = """
             You are quite ordinary and know yourself very much. 

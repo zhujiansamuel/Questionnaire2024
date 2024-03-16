@@ -10,11 +10,7 @@ from survey.forms import ResponseForm
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.utility.diagnostic import Diagnostic_Analyze
 
-
 LOGGER = logging.getLogger(__name__)
-
-
-
 
 class SurveyDetail(View):
     @survey_available
@@ -29,9 +25,17 @@ class SurveyDetail(View):
             else:
                 template_name = "survey/survey.html"
         if survey.need_logged_user and not request.user.is_authenticated:
+            # todo: 自定义登录url
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+
+        session_random_list = request.session.get("session_random_list",False)
+        if not session_random_list:
+            request.session["session_random_list"] = {}
+            for i in range(1,100):
+                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+
         # -------------------------------------------------------------------
-        form = ResponseForm(survey=survey, user=request.user, step=step)
+        form = ResponseForm(survey=survey, user=request.user, step=step, requests=request)
         categories = form.current_categories()
 
         asset_context = {
@@ -49,12 +53,11 @@ class SurveyDetail(View):
 
     @survey_available
     def post(self, request, *args, **kwargs):
-        # 添加结果页面，考虑增加逻辑
         survey = kwargs.get("survey")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
-        form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0))
+        form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0), requests=request)
         categories = form.current_categories()
 
         if not survey.editable_answers and form.response is not None:
@@ -78,13 +81,18 @@ class SurveyDetail(View):
         return render(request, template_name, context)
 
     def treat_valid_form(self, form, kwargs, request, survey):
-        diagnostic_session_key = "diagnostic_{}_{}".format(request.user,kwargs["survey"].name)
+        diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
         if diagnostic_session_key not in request.session:
-            request.session[diagnostic_session_key]={}
+            request.session[diagnostic_session_key] = {}
+            request.session.modified = True
             request.session[diagnostic_session_key]["Majority_Rate"] = "0"
+            request.session.modified = True
             request.session[diagnostic_session_key]["Correctness_Rate"] = "0"
+            request.session.modified = True
+
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
+
         session_key = "survey_{}".format(kwargs["id"])
         for field_name, field_value in list(form.cleaned_data.items()):
             if field_name.startswith("question_"):
@@ -96,25 +104,39 @@ class SurveyDetail(View):
         for key, value in list(form.cleaned_data.items()):
             request.session[session_key][key] = value
             request.session.modified = True
+
             if question.subsidiary_type == "majority_minority":
                 if key.startswith("question_subsidiary_"):
                     if value == "majority":
-                        request.session[diagnostic_session_key]["Majority_Rate"]=str(majority_rate+1)
+                        request.session[diagnostic_session_key]["Majority_Rate"] = str(majority_rate + 1)
+                        request.session.modified = True
                         if question.majority_choices == "majority":
-                            request.session[diagnostic_session_key]["Correctness_Rate"]=str(correctness_rate+1)
+                            request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+                            request.session.modified = True
                     elif value == "minority":
                         if question.majority_choices == "minority":
                             request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+                            request.session.modified = True
+
             elif question.subsidiary_type == "certainty_degree":
                 pass
+        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+            print(" ------------------------------------------------------------ ")
+            print("request.session[diagnostic_session_key][Correctness_Rate]",
+                  request.session[diagnostic_session_key]["Correctness_Rate"])
+            print("request.session[diagnostic_session_key][Majority_Rate]",
+                  request.session[diagnostic_session_key]["Majority_Rate"])
+            print(" -------- ")
         next_url = form.next_step_url()
         response = None
         if survey.is_all_in_one_page():
+            # 如果是单页调查问卷，那么提交意味着答题结束
             response = form.save()
         else:
             # when it's the last step
             if not form.has_next_step():
-                save_form = ResponseForm(request.session[session_key], survey=survey, user=request.user)
+                # 如果没有next_step,那么意味着答题结束
+                save_form = ResponseForm(request.session[session_key], survey=survey, user=request.user, requests=request)
                 if save_form.is_valid():
                     response = save_form.save()
                 else:
@@ -132,6 +154,10 @@ class SurveyDetail(View):
                 return render(request, template_name, context)
 
         del request.session[session_key]
+        del request.session[diagnostic_session_key]
+        del request.session["session_random_list"]
+        # todo 是不是需要同时删除 session_random_order
+
         if response is None:
             return redirect(reverse("survey-list"))
         next_ = request.session.get("next", None)
@@ -147,13 +173,12 @@ class SurveyDetail(View):
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
 
-        msg,diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
+        msg, diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
         context["diagnostic_result"] = diagnostic_result_msg
         context["msg"] = msg
         return context
 
-
-    def result_pre_question(self,form,next_url, request):
+    def result_pre_question(self, form, next_url, request):
         # not_enough = True
         # msg=""
         for field_name, field_value in list(form.cleaned_data.items()):

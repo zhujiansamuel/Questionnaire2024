@@ -35,7 +35,6 @@ class Answer(models.Model):
         default="majority"
     )
 
-
     def __init__(self, *args, **kwargs):
         try:
             question = Question.objects.get(pk=kwargs["question_id"])

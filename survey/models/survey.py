@@ -7,6 +7,32 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 
+
+NAME_HELP_TEXT = _("""
+
+""")
+
+DESCRIPTION_HELP_TEXT = _("""
+
+""")
+
+IS_PUBLISHED_HELP_TEXT = _("""
+
+""")
+
+PUBLISH_DATE_HELP_TEXT = _("""
+
+""")
+
+EXPIRE_DATE_HELP_TEXT = _("""
+
+""")
+
+DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT = _("""
+
+""")
+
+
 def in_duration_day():
     return now() + timedelta(days=settings.DEFAULT_SURVEY_PUBLISHING_DURATION)
 
@@ -22,20 +48,21 @@ class Survey(models.Model):
         (ALL_IN_ONE_PAGE, _("All in one page")),
     ]
 
-    name = models.CharField(_("Name"), max_length=400)
-    description = models.TextField(_("Description"))
-    is_published = models.BooleanField(_("Users can see it and answer it"), default=True)
+    name = models.CharField(_("Name"), max_length=400, help_text=NAME_HELP_TEXT)
+    description = models.TextField(_("Description"), help_text=DESCRIPTION_HELP_TEXT)
+    is_published = models.BooleanField(_("Users can see it and answer it"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
+
     need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"))
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
     display_method = models.SmallIntegerField(
         _("Display method"), choices=DISPLAY_METHOD_CHOICES, default=BY_QUESTION
     )
-    template = models.CharField(_("Template"), max_length=255, null=True, blank=True)
-    publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now)
-    expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day)
-    redirect_url = models.URLField(_("Redirect URL"), blank=True)
-    diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10)
 
+    template = models.CharField(_("Template"), max_length=255, null=True, blank=True)
+    publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now, help_text=PUBLISH_DATE_HELP_TEXT)
+    expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day, help_text=EXPIRE_DATE_HELP_TEXT)
+    redirect_url = models.URLField(_("Redirect URL"), blank=True)
+    diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
 
     class Meta:
         verbose_name = _("survey")
@@ -47,7 +74,6 @@ class Survey(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
     @property
     def safe_name(self):
@@ -71,8 +97,7 @@ class Survey(models.Model):
         return [x for x in list(self.categories.order_by("order", "id")) if x.questions.count() > 0]
 
     def random_categories(self):
-        return [x for x in list(self.categories.order_by("order", "random_order")) if x.questions.count() > 0 and x.name != "hiding_question"]
-
+        return [x for x in list(self.categories.order_by("id")) if x.questions.count() > 0 and x.name != "hiding_question"]
 
     def is_all_in_one_page(self):
         return self.display_method == self.ALL_IN_ONE_PAGE

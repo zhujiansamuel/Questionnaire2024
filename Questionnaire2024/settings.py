@@ -143,8 +143,7 @@ AUTH_USER_MODEL = "dashboards.ApplicationUser"
 
 LOGIN_REDIRECT_URL = '/'
 
-
-#
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 EXCEL_COMPATIBLE_CSV = True
 CHOICES_SEPARATOR = "|"
@@ -154,5 +153,5 @@ from pathlib import Path
 TEX_CONFIGURATION_FILE = Path("tex", "tex.conf")
 SURVEY_DEFAULT_PIE_COLOR = "blue!50"
 
-
-
+DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION = True
+SESSION_SAVE_EVERY_REQUEST = True

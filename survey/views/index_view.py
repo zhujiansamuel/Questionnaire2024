@@ -8,7 +8,7 @@ from survey.models import Survey
 
 class IndexView(PermissionRequiredMixin,TemplateView):
     template_name = "survey/list.html"
-    permission_required = ('survey.participant','survey.experimenter')
+    permission_required = ('survey.participant', 'survey.experimenter')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
