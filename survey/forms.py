@@ -41,6 +41,7 @@ class ResponseForm(models.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """Expects a survey object to be passed in initially"""
+
         self.survey = kwargs.pop("survey")
         self.user = kwargs.pop("user")
         self.requests = kwargs.pop("requests")
@@ -54,6 +55,7 @@ class ResponseForm(models.ModelForm):
 
         self.response = False
         self.answers = False
+        # 注意：self._get_preexisting_response()方法内部直接设定self.response
         self.preexisting_response = self._get_preexisting_response()
 
         # 以下内容用于实现产生新的response
@@ -69,32 +71,60 @@ class ResponseForm(models.ModelForm):
             self.repeat_order = max(repeat_order_list) + 1
             self.response = None
         elif self.response and self.response.count() == 1:
-            self.repeat_order = self.response.repeat_order + 1
+            self.repeat_order = 1
             self.response = None
         else:
             self.repeat_order = 0
-        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-            print(" ---------------------after----------------------------- ")
-            print("self.preexisting_response:    ",self.preexisting_response)
-            print("self.repeat_order:   ",self.repeat_order)
-            print("self.response:  ",self.response)
-            print(" ------------------------------------------------------------ ")
 
+        # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+        #     print(" ---------------------after----------------------------- ")
+        #     print("self.preexisting_response:    ",self.preexisting_response)
+        #     print("self.repeat_order:   ",self.repeat_order)
+        #     print("self.response:  ",self.response)
+        #     print(" ------------------------------------------------------------ ")
 
+        self.questions_answered = []
 
-            # print(" ----------------------已经回答的问题-------------------------- ")
-            # if self.preexisting_response.count() > 1:
-            #     for response_temp in self.preexisting_response:
-            #         questions = Question.objects.filter(survey=response_temp.survey).prefetch_related("answers")
-            #         questions_a = [q for q in questions if q.answers is None]
-            #         print("-->> questions_a",questions_a)
-                # for question in questions_a:
+        # print(" ----------------------已经回答的问题-------------------------- ")
+        if self.preexisting_response.count() > 1:
+            for response_temp in self.preexisting_response:
+                # questions = Question.objects.filter(survey=response_temp.survey).prefetch_related("answers")
+                # questions_a = [q for q in questions if q.answers is not None]
+
+                answers = Answer.objects.filter(response_id=response_temp.id).prefetch_related("question")
+                if answers.count() > 1:
+                    questions_a = [q.question for q in answers]
+                elif answers.count() == 1:
+                    questions_a = answers.first().question
+                else:
+                    questions_a = []
+
+                self.questions_answered.append(questions_a)
+                # print("-->> questions_a",self.questions_answered)
+                # for question in self.questions_answered:
                 #     print("----> question:    ",question)
                 #     print("------> question.answers:    ", question.answers)
-                #     print("---------> question.answers.IS:    ", question.answers is None)
+                #     print("---------> question.answers.IS:    ", question.answers is not None)
+        elif self.preexisting_response.count() == 1:
+            # questions = Question.objects.filter(survey=self.preexisting_response.first().survey).prefetch_related("answers")
+            # questions_a = [q for q in questions if q.answers is None]
 
-                # print("response_temp.survey.questions",response_temp.survey.questions)
+            answers = Answer.objects.filter(response_id=self.preexisting_response.first().id).prefetch_related("question")
+            if answers.count() > 1:
+                questions_a = [q.question for q in answers]
+            elif answers.count() == 1:
+                questions_a = answers.first().question
+            else:
+                questions_a = []
+            self.questions_answered.append(questions_a)
 
+        flat = lambda L: sum(map(flat, L), []) if isinstance(L, list) else [L]
+        if self.questions_answered:
+            self.questions_answered = flat(list(self.questions_answered))
+
+        for i, question in enumerate(self.questions_answered):
+            print("回答过的问题：  ", str(i), " :", question.text, "    ", question.category.name)
+        print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
@@ -130,39 +160,48 @@ class ResponseForm(models.ModelForm):
 
         categories_s = self.survey.random_categories()
         categories_dic = {}
-        for i,category in enumerate(categories_s):
+        for i, category in enumerate(categories_s):
             random_order = session_random_list[str(i+1)]
             categories_dic[random_order] = category
         categories_dic_sorted = sorted(categories_dic.items(), key=lambda x:x[0] )
-        self.categories = [v for i,v in categories_dic_sorted]
+        self.categories = [v for i, v in categories_dic_sorted]
 
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
+        if self.qs_with_no_cat:
+            self.qs_with_no_cat = self.eliminate_answered_questions(self.self.qs_with_no_cat)
+
+
 
         # TranslateComments
         # 获取隐藏问题，它们将被安插进允许由隐藏问题的类别中
         self.hiding_question_category = [x for x in list(self.survey.categories.order_by("id")) if x.name == "hiding_question"]
+        self.hiding_question_category = self.eliminate_answered_questions(self.hiding_question_category)
         if self.hiding_question_category:
             self.hiding_question = list(self.hiding_question_category[0].questions.order_by("-hiding_question_category_order"))
+            self.hiding_question = self.eliminate_answered_questions(self.hiding_question)
         else:
             self.hiding_question = []
 
         # TranslateComments
         # self.question_to_display是可以显示在调查问卷中的问题的list
         self.question_to_display = []
-        for i_category,category in enumerate(self.categories):
+        for i_category, category in enumerate(self.categories):
+            category_question_all = self.eliminate_answered_questions(category.questions.all())
             if category.block_type == "sequence":
                 # TranslateComments
                 # 对于1类类别，可加入隐藏问题
                 # 隐藏类别的问题并不会独立显示而是根据category.hiding_question_order决定放在该类别的那个位置
                 # 隐藏问题在第几个block中显示由question.hiding_question_category_order设定
-                if category.display_num <= len(category.questions.all()):
+                if category.display_num <= len(category_question_all):
                     # TranslateComments
                     # 如果设置的显示数量小于或者等于问题数目，那么按照设定的显示数量显示问题
-                    question_s = category.questions.all()[:int(category.display_num)]
-                elif category.display_num>len(category.questions.all()):
+                    question_s = category_question_all[:int(category.display_num)]
+
+                elif category.display_num>len(category_question_all):
                     # TranslateComments
                     # 如果设置的显示数量大于问题数目，那么显示全部的问题，忽略设定的显示数量
-                    question_s = category.questions.all()
+                    question_s = category_question_all
+
                 else:
                     question_s = []
 
@@ -196,6 +235,7 @@ class ResponseForm(models.ModelForm):
                                         pass
                                     else:
                                         question_add.append(hq)
+
                             question_add.append(question)
 
                         if orders_int:
@@ -226,13 +266,16 @@ class ResponseForm(models.ModelForm):
                                             question_add.append(hq)
                                     question_add.append(question)
                             else:
+
                                 question_add += question_s
                                 try:
                                     hq = self.hiding_question.pop()
                                 except IndexError:
                                     pass
                                 else:
-                                    question_add += hq
+                                    # print(question_add)
+                                    # print(hq)
+                                    question_add.append(hq)
 
                     # TranslateComments
                     # 汇总各类别的问题，形成最终的调查问题列表
@@ -246,13 +289,22 @@ class ResponseForm(models.ModelForm):
                 # 同时保留添加隐藏问题的可能
                 # 由category.hiding_question_order判定是否需要添加隐藏问题
                 # category.hiding_question_order为0的时候意味着该类别中不添加隐藏问题
-                all_question = category.questions.all()
+                all_question = self.eliminate_answered_questions(category.questions.all())
+                # print(all_question)
+                # print(category.questions.all())
+                # ----->
                 random_question_dic = {}
                 for i, question in enumerate(all_question):
                     random_order = session_random_list[str(i + 10)]
                     random_question_dic[random_order] = question
                 random_question_dic_sorted = sorted(random_question_dic.items(), key=lambda x: x[0])
-                random_question = [v for i, v in random_question_dic_sorted][0]
+                if isinstance(random_question_dic_sorted, list):
+                    if len(random_question_dic_sorted) > 1:
+                        random_question = [v for i, v in random_question_dic_sorted][0]
+                    elif len(random_question_dic_sorted) == 1:
+                        random_question = random_question_dic_sorted
+                    else:
+                        random_question = []
 
                 question_add = []
                 # TranslateComments
@@ -316,6 +368,9 @@ class ResponseForm(models.ModelForm):
                     if random_question:
                         self.question_to_display.append(random_question)
 
+        if self.qs_with_no_cat:
+            self.question_to_display.append(self.qs_with_no_cat)
+        self.question_to_display = flat(self.question_to_display)
         # -------------------------------------------------------------------
         if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
             print(" ------------------------------------------------------------ ")
@@ -346,6 +401,11 @@ class ResponseForm(models.ModelForm):
         # if not self.survey.editable_answers and self.response is not None:
         #     for name in self.fields.keys():
         #         self.fields[name].widget.attrs["disabled"] = True
+
+    def eliminate_answered_questions(self, question_sequence):
+        return [q for q in question_sequence if q not in self.questions_answered]
+
+
 
     def add_questions(self, data):
         # add a field for each survey question, corresponding to the question
@@ -586,8 +646,11 @@ class ResponseForm(models.ModelForm):
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
         for field_name, field_value in list(self.cleaned_data.items()):
             if field_name.startswith("question_"):
+                print("field_name:      ", field_name)
                 field_name_split = field_name.split("_")
+                print("field_name_split:      ", field_name_split)
                 if field_name_split[1] != "subsidiary":
+
                     q_id = int(field_name.split("_")[1])
                     question = Question.objects.get(pk=q_id)
 
@@ -613,8 +676,10 @@ class ResponseForm(models.ModelForm):
                     # if answer is None:
                     # answer = Answer(question=question)
                     try:
-                        answers = Answer.objects.filter(response=response).prefetch_related("question")
-                        answers_dict = {answer.question.id: answer for answer in answers.all()}
+                        answers = Answer.objects.filter(response=response, question=question).prefetch_related("question").first()
+                        # answers_dict = {answer.question.pk: answer for answer in answers.all()}
+                        answers.subsidiary = field_value
+                        answers.save()
                     except Answer.DoesNotExist:
                         print("Error:")
 
@@ -624,14 +689,13 @@ class ResponseForm(models.ModelForm):
                         print("q_id:  ", q_id)
                         print(" ------------------------------------------------------------ ")
 
-
-                    answer = answers_dict[str(q_id)]
+                    # print("answers_dict:     ", answers_dict)
+                    # answer = answers_dict[str(q_id)]
 
                     # if question.type == Question.SELECT_IMAGE:
                     #     value, img_src = field_value.split(":", 1)
                     #     LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
-                    answer.subsidiary = field_value
-                    answer.save()
+
                     # data["responses"].append((answer.question.id, answer.body))
                     # data["responses"].append((answer.question_id,answer.subsidiary))
                     # LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type,
