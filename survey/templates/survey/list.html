@@ -3,7 +3,7 @@
 
 {% block body %}
 <div id="intro">
-	<h1>{% trans "メタ認知能力ゲーム"%}</h1>
+    <h1>{% trans "メタ認知能力ゲーム"%}</h1>
     {% if messages %}
         <p>
             {% for message in messages %}
@@ -14,11 +14,24 @@
         </p>
     {% endif %}
 
-	<ul>
-		{% for survey in surveys %}
-{#	<li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
-    <li><a href="{{ survey.get_absolute_url }}">{{survey.name}}</a></li>
-		{% endfor %}
-	</div>
+    <ul>
+        {% if user.is_authenticated %}
+            <li><a href="{% url 'admin:index' %}">Access to the management platform</a></li>
+        {% endif %}
+
+        {% for survey in surveys %}
+{#  <li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
+    <li><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></li>
+        {% endfor %}
+    </div>
 </div>
+
+<style>
+    ul{
+        padding:0px;
+    }
+    li{
+        list-style-type: none;
+    }
+</style>
 {% endblock %}

@@ -10,19 +10,27 @@
 {% block context %}
 <h1> </h1>
 <div class="container text-center">
-  <div class="row">
-    <div class="col">
-          <h1><a href="{% url "survey-list" %}">私は実験参加者</a></h1>
+  <div class="row container_row">
+       <div class="col">
+          <h1><a href="{% url "survey-list" %}">
+            <button class="login_button">私は実験参加者</button>
+          </a></h1>
     <h5>I am a participant and I want to answer the questionnaire.</h5>
     <h5>私は参加者で、アンケートに答えたいと思っています。</h5>
     </div>
+  </div>
+  <div class="row container_row">
     <div class="col">
-          <h1><a href="{% url "survey-list" %}">私は実験者</a></h1>
-    <h5>I am the experimenter and I want to manage the experiment or view the results.</h5>
-    <h5>私は実験者で、実験を管理したり結果を見たりしたいと思っています。</h5>
+      <h1><a href="{% url "survey-list" %}">
+        <button class="login_button">
+          私は実験者
+        </button>
+      </a></h1>
+      <h5>I am the experimenter and I want to manage the experiment or view the results.</h5>
+      <h5>私は実験者で、実験を管理したり結果を見たりしたいと思っています。</h5>
     </div>
   </div>
-  <div class="row">
+  <!-- <div class="row">
     <div class="col">
         <h1> </h1>
     </div>
@@ -32,14 +40,25 @@
     <div class="col">
         <h1> </h1>
     </div>
-  </div>
+  </div> -->
 
   <div class="row">
     <div class="col">
-       <h1><a href="{% url "logout" %}">ログアウト</a></h1>
+       <h5><a href="{% url "logout" %}">ログアウト</a></h5>
+       <!-- <h5><a href="{% url 'home' %}">ログアウト2</a></h5> -->
     </div>
   </div>
 
 </div>
+
+<style>
+  .container_row{
+        margin:30px 0;
+    }
+
+    .login_button{
+        border-radius: 10px;
+    }
+</style>
 
 {% endblock %}
