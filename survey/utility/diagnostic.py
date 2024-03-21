@@ -24,12 +24,13 @@ def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
         msg_2 = "I"
 
     msg = msg_1 + "-" + msg_2
-    match msg:
-        case "Zero-Zero":
+    if msg=="Zero-Zero":
+        # case "Zero-Zero":
             result_msg = """
             Sorry,we don't haven enough answers yet.
             """
-        case "A-I":
+    elif msg == "A-I":
+        # case "A-I":
             result_msg = """
             You are quite ordinary and know yourself very much. 
 It is your strength that you know how other people would think. 
@@ -41,7 +42,7 @@ At the same time, continue the game and you may still find unexpected aspect of 
 そしてそれが、他の人とは違う考え方をしようとするきっかけになるかもしれない！
 同時に、ゲームを続ければ、自分の意外な一面を発見できるかもしれない。
             """
-        case "A-II":
+    elif msg =="A-II":
             result_msg = """
 You are quite ordinary and know yourself enough. 
 And this may give you a reason to try to think differently than others! 
@@ -51,7 +52,7 @@ At the same time, continue the game and better understand yourself. You may stil
 そしてこのことが、他の人とは違う考え方をしようとする理由になるかもしれない！
 同時に、ゲームを続け、自分自身をよりよく理解しよう。自分の意外な一面を発見できるかもしれない。
             """
-        case "B-I":
+    elif msg =="B-I":
             result_msg = """
 You are generally ordinary and know yourself very much. 
 It is your strength that you know how other people would think. 
@@ -63,7 +64,7 @@ At the same time, continue the game and you may still find unexpected aspect of 
 そしてこのことが、他の人とは違う考え方をしようとする理由になるかもしれない！
 同時に、ゲームを続ければ、自分の意外な一面を発見できるかもしれない。
             """
-        case "B-II":
+    elif msg == "B-II":
             result_msg = """
 You are generally ordinary and know yourself enough. 
 And this may give you a reason to try to think differently than others! 
@@ -73,7 +74,7 @@ At the same time, continue the game and better understand yourself. You may stil
 そしてこのことが、他の人とは違う考え方をしようとする理由になるかもしれない！
 同時に、ゲームを続け、自分自身をよりよく理解しよう。自分の意外な一面を発見できるかもしれない。
             """
-        case "A-III":
+    elif msg == "A-III":
             result_msg = """
 You are not so unique or unusual as you think. 
 It is better for you to revise your self-image. 
@@ -83,7 +84,7 @@ Train yourself through this game, and know yourself better by learning how other
 自己イメージを見直した方がいい。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をよりよく知ることができる。
             """
-        case "B-III":
+    elif msg == "B-III":
             result_msg = """
 You are not so unique or unusual as you think. 
 It is better for you to revise your self-image. 
@@ -93,7 +94,7 @@ Train yourself through this game, and know yourself better by learning how other
 自己イメージを見直した方がいい。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をよりよく知ることができる。
             """
-        case "A-IV":
+    elif msg == "A-IV":
             result_msg = """
 Know yourself better! 
 You are not at all unique or unusual as you think. 
@@ -105,7 +106,7 @@ Train yourself through this game, and know yourself better by learning how other
 間違った自己イメージを持つことは非常に危険だ。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をもっとよく知ろう。
             """
-        case "B-IV":
+    elif msg == "B-IV":
             result_msg = """
 Know yourself better! 
 You are not at all unique or unusual as you think. 
@@ -117,7 +118,7 @@ Train yourself through this game, and know yourself better by learning how other
 間違った自己イメージを持つことは非常に危険だ。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をもっとよく知ろう。
             """
-        case "C-I":
+    elif msg == "C-I":
             result_msg = """
 You are a little different from others and you know yourself very well. 
 This is your virtue and strength. 
@@ -129,7 +130,7 @@ Continue the game and you may still find unexpected aspect of yourself here.
 おめでとう！
 ゲームを続ければ、自分の意外な一面を発見できるかもしれません。
             """
-        case "C-II":
+    elif msg == "C-II":
             result_msg = """
 You are a little different from others and you know yourself enough. 
 This is your virtue and strength. 
@@ -143,7 +144,7 @@ Continue the game and better understand yourself. You may still find unexpected 
 でも、このゲームを通して、自分自身への理解を深めることはできます。
 ゲームを続けて、もっと自分を理解してください。自分の意外な一面を発見できるかもしれません。
             """
-        case "C-III":
+    elif msg == "C-III":
             result_msg = """
 You are a little different from others, but you seem to be unaware of yourself in relation to other people. 
 You are not so ordinary or usual as you think. 
@@ -153,7 +154,7 @@ Train yourself through this game, and know yourself better by learning how other
 あなたが思っているほど、あなたは普通でもなんでもない。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をもっとよく知ろう。
             """
-        case "C-IV":
+    elif msg == "C-IV":
             result_msg = """
 You are a little different from others, but it is very risky for you to remain ignorant of your uniqueness. 
 You are not at all ordinary or usual as you think. 
@@ -163,7 +164,7 @@ Train yourself through this game, and know yourself better by learning how other
 あなたが思っているほど、あなたは普通でもなんでもない。
 このゲームを通して自分を鍛え、他の人がどう考えるかを知ることで、自分をよりよく知ることができる。
             """
-        case "D-I":
+    elif msg == "D-I":
             result_msg = """
 It is your virtue that you are very different from others, and it is your strength that you are well aware of your uniqueness. 
 Congratulations!
@@ -173,7 +174,7 @@ Continue the game and you may still find unexpected aspect of yourself here.
 おめでとう！
 ゲームを続ければ、自分の意外な一面を発見できるかもしれない。
             """
-        case "D-II":
+    elif msg == "D-II":
             result_msg = """
 It is your virtue that you are very different from others, and you are generally aware of your uniqueness. 
 Continue the game and better understand yourself. You may still find unexpected aspect of yourself here. 
@@ -181,7 +182,7 @@ Continue the game and better understand yourself. You may still find unexpected 
 自分が他の人とは全く違うということは、あなたの美徳であり、あなたは自分のユニークさを一般的に自覚している。
 ゲームを続けて、自分自身をもっと理解してください。自分の意外な一面を発見できるかもしれない。
             """
-        case "D-III":
+    elif msg == "D-III":
             result_msg = """
 It is your virtue that you are very different from others. However, you seem to be unaware of your uniqueness. 
 You are not so ordinary or usual as you think. 
@@ -191,7 +192,7 @@ Train yourself through this game, and know yourself better by learning how other
 あなたが思っているほど、あなたは普通でもなんでもない。
 このゲームを通して自分を鍛え、他の人がどう考えるかを学ぶことで、自分をよりよく知ることができる。
             """
-        case "D-IV":
+    elif msg == "D-IV":
             result_msg = """
 Know yourself better! You are not at all ordinary or usual as you think. 
 It is your virtue that you are very different from others. However, it is very risky for you to remain ignorant of your uniqueness. 
