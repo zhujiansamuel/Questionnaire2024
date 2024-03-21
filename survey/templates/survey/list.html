@@ -19,10 +19,20 @@
 {#  <li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
             <li><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></li>
                 <p>　　　</p>
-            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>
+{#            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>#}
 
         {% endfor %}
     </div>
+
+        {% if user_logged %}
+          <div class="row">
+            <div class="col">
+               <h5><a href="{% url "logout" %}">ログアウト</a></h5>
+               <!-- <h5><a href="{% url 'home' %}">ログアウト2</a></h5> -->
+            </div>
+          </div>
+        {% endif %}
+
 </div>
 
 <style>

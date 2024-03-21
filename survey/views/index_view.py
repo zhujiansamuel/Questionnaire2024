@@ -23,6 +23,7 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         if not self.request.user.is_authenticated:
             surveys = surveys.filter(need_logged_user=True)
         context["surveys"] = surveys
+        context["user_logged"] = self.request.user.is_authenticated,
         return context
 
 
@@ -67,3 +68,4 @@ def download_csv(request, survey_id):
                 all_order += 1
 
     return response
+

@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from dashboards.views import HomeIndexView
-
+from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 
 
 urlpatterns = [
@@ -26,7 +26,21 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/login/', LoginView.as_view(
+        template_name='./registration/login.html'
+    ),
+         name='login'),
+    path('accounts/logout/', LogoutView.as_view(
+        template_name='./registration/logout.html'
+    ),
+         name='logout'),
+    path('accounts/password-reset/', PasswordResetView.as_view(
+        template_name='./registration/password_reset_form.html'
+    ),
+         name='password-reset'),
+
+
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("", HomeIndexView.as_view(), name="home"),

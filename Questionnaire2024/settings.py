@@ -143,6 +143,7 @@ AUTH_USER_MODEL = "dashboards.ApplicationUser"
 
 LOGIN_REDIRECT_URL = '/'
 
+
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 EXCEL_COMPATIBLE_CSV = True

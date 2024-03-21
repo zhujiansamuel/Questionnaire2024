@@ -41,14 +41,14 @@
         <h1> </h1>
     </div>
   </div> -->
-
+    {% if user_logged %}
   <div class="row">
     <div class="col">
        <h5><a href="{% url "logout" %}">ログアウト</a></h5>
        <!-- <h5><a href="{% url 'home' %}">ログアウト2</a></h5> -->
     </div>
   </div>
-
+    {% endif %}
 </div>
 
 <style>

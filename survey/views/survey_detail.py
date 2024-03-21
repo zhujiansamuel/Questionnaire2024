@@ -48,6 +48,7 @@ class SurveyDetail(View):
             "categories": categories,
             "step": step,
             "asset_context": asset_context,
+            "user_logged": request.user.is_authenticated,
         }
         return render(request, template_name, context)
 
