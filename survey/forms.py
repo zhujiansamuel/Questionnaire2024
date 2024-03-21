@@ -675,6 +675,7 @@ class ResponseForm(models.ModelForm):
                     # answer = self._get_preexisting_answer(question)
                     # if answer is None:
                     # answer = Answer(question=question)
+
                     try:
                         answers = Answer.objects.filter(response=response, question=question).prefetch_related("question").first()
                         # answers_dict = {answer.question.pk: answer for answer in answers.all()}
@@ -688,6 +689,16 @@ class ResponseForm(models.ModelForm):
                         print("answers:   ", answers)
                         print("q_id:  ", q_id)
                         print(" ------------------------------------------------------------ ")
+
+                    # sam-todo 更新最多回答的记录
+                    answers_all_saved = Answer.objects.filter(question=question)
+                    if answers_all_saved.count() >= 10:
+                        majority_choices_list = []
+                        for ans in answers_all_saved:
+                            majority_choices_list.append(ans.subsidiary)
+                        question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
+                    else:
+                        pass
 
                     # print("answers_dict:     ", answers_dict)
                     # answer = answers_dict[str(q_id)]

@@ -15,13 +15,12 @@
     {% endif %}
 
     <ul>
-        {% if user.is_authenticated %}
-            <li><a href="{% url 'admin:index' %}">Access to the management platform</a></li>
-        {% endif %}
-
         {% for survey in surveys %}
 {#  <li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
-    <li><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></li>
+            <li><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></li>
+                <p>　　　</p>
+            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>
+
         {% endfor %}
     </div>
 </div>
