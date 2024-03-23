@@ -23,9 +23,15 @@ class UserAdmin(BaseUserAdmin):
 
 class QuestionInline(admin.StackedInline):
     model = Question
-    ordering = ("order", "category")
-    # fields = ["text", "category"]
-    extra = 1
+    ordering = ("order", 'category')
+    # fields = ["text", "category", 'choices', 'majority_choices', 'hiding_question_category_order']
+    fieldsets = [
+        ("Edit Question", {
+            'fields': ['text', 'choices', 'category', 'hiding_question_category_order', 'majority_choices'],
+        }),
+    ]
+    extra = 0
+
 
     def get_formset(self, request, survey_obj, *args, **kwargs):
         formset = super().get_formset(request, survey_obj, *args, **kwargs)
@@ -34,9 +40,12 @@ class QuestionInline(admin.StackedInline):
         return formset
 
 
-class CategoryInline(admin.TabularInline):
+class CategoryInline(admin.StackedInline):
     model = Category
     extra = 0
+    fields = [('name', 'display_num'), 'hiding_question_order', 'block_type', 'description']
+    show_change_link = True
+
 
 
 class SurveyAdmin(admin.ModelAdmin):
@@ -44,6 +53,18 @@ class SurveyAdmin(admin.ModelAdmin):
     list_filter = ("is_published", "publish_date")
     ordering = ("name",)
     search_fields = ("name",)
+    fieldsets = [
+        ("General Information", {
+            'description': 'The name of the survey and a brief description of that survey can be changed here.',
+            'fields': ['name', 'description'],
+        }),
+
+        ("Privilege Management", {
+            'description': 'The name of the survey and a brief description of that survey can be changed here.',
+            'fields': ['is_published', 'publish_date', 'expire_date'],
+        }),
+    ]
+
     inlines = [CategoryInline, QuestionInline]
     actions = [make_published, Survey2Csv.export_as_csv, Survey2Tex.export_as_tex]
 

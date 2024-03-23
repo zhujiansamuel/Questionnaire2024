@@ -54,8 +54,8 @@ class Category(models.Model):
     order = models.IntegerField(_("Display order"), blank=True, null=True, help_text=ORDER_HELP_TEXT)
     description = models.CharField(_("Description"), max_length=2000, blank=True, null=True, help_text=DESCRIPTION_HELP_TEXT)
     display_num = models.IntegerField(_("Number of questions displayed"), blank=True, default=10, help_text=DISPLAY_NUM_HELP_TEXT)
-    hiding_question_order = models.CharField(_("a"),blank=True, null=True, max_length=6, default="0", help_text=HIDING_QUESTION_ORDER_HELP_TEXT)
-    block_type = models.CharField(_("block type"), max_length=200, choices=BLOCKTYPE, default=SEQUENCE, help_text=BLOCK_TYPE_HELP_TEXT)
+    hiding_question_order = models.CharField(_("Hiding question order"),blank=True, null=True, max_length=6, default="0", help_text=HIDING_QUESTION_ORDER_HELP_TEXT)
+    block_type = models.CharField(_("Block type"), max_length=200, choices=BLOCKTYPE, default=SEQUENCE, help_text=BLOCK_TYPE_HELP_TEXT)
     class Meta:
         # pylint: disable=too-few-public-methods
         verbose_name = _("category")
