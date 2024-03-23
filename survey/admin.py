@@ -17,8 +17,8 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("username",)
     fieldsets = None
 
-    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active", "date_joined"]
-    readonly_fields = ("username", "email", "Gender", "date_joined")
+    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active", "date_joined", "last_login"]
+    readonly_fields = ("date_joined", "last_login")
 
 
 class QuestionInline(admin.StackedInline):
@@ -66,8 +66,8 @@ class SurveyAdmin(admin.ModelAdmin):
     ]
 
     inlines = [CategoryInline, QuestionInline]
-    actions = [make_published, Survey2Csv.export_as_csv, Survey2Tex.export_as_tex]
-
+    # actions = [make_published, Survey2Csv.export_as_csv, Survey2Tex.export_as_tex]
+    actions = [make_published, Survey2Csv.export_as_csv]
 
 class AnswerBaseInline(admin.StackedInline):
     max_num = 0

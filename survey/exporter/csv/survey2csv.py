@@ -38,10 +38,12 @@ class Survey2Csv(Survey2X):
         # user_answers[u"entity"] = response.user.entity
         for answer in response.answers.all():
             Survey2Csv.__get_user_line_from_answers(answer, user_answers)
+
         user_line = []
         for key_ in question_order:
             try:
                 user_line.append(user_answers[key_])
+                user_line.append(user_answers[str(key_)+"_subsidiary"])
             except KeyError:
                 user_line.append("")
         return user_line
@@ -50,6 +52,7 @@ class Survey2Csv(Survey2X):
     def __get_user_line_from_answers(answer, user_answers):
         answers = answer.values
         cell = ""
+        subsidiary_cell = ""
         for i, ans in enumerate(answers):
             if ans is None:
                 if settings.USER_DID_NOT_ANSWER is None:
@@ -60,14 +63,19 @@ class Survey2Csv(Survey2X):
                 cell += ans + "|"
             else:
                 cell += ans
+
+        subsidiary_cell += answer.subsidiary
         LOGGER.debug("\t\t%s : %s", answer.question.pk, cell)
         user_answers[answer.question.pk] = cell
+        index_subsidiary = str(answer.question.pk)+"_subsidiary"
+        user_answers[index_subsidiary] = subsidiary_cell
 
     def get_header_and_order(self):
         header = [_("user")]  # , u"entity"]
         question_order = ["user"]  # , u"entity" ]
         for question in self.survey.questions.all():
             header.append(question.text)
+            header.append("subsidiary_"+question.text)
             question_order.append(question.pk)
         return header, question_order
 
