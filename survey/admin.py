@@ -4,11 +4,27 @@ from survey.actions import make_published
 from survey.exporter.csv import Survey2Csv
 from survey.exporter.tex import Survey2Tex
 from survey.models import Answer, Category, Question, Response, Survey
+from dashboards.models import ApplicationUser
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+
+
+
+class UserAdmin(BaseUserAdmin):
+    list_display = ("username", "email")
+    # list_filter = ("survey", "created", "user")
+    ordering = ("username",)
+    fieldsets = None
+
+    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active", "date_joined"]
+    readonly_fields = ("username", "email", "Gender", "date_joined")
 
 
 class QuestionInline(admin.StackedInline):
     model = Question
     ordering = ("order", "category")
+    # fields = ["text", "category"]
     extra = 1
 
     def get_formset(self, request, survey_obj, *args, **kwargs):
@@ -24,29 +40,77 @@ class CategoryInline(admin.TabularInline):
 
 
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ("name", "is_published", "need_logged_user", "template")
-    list_filter = ("is_published", "need_logged_user")
+    list_display = ("name", "is_published", "description", "publish_date")
+    list_filter = ("is_published", "publish_date")
+    ordering = ("name",)
+    search_fields = ("name",)
     inlines = [CategoryInline, QuestionInline]
     actions = [make_published, Survey2Csv.export_as_csv, Survey2Tex.export_as_tex]
 
 
 class AnswerBaseInline(admin.StackedInline):
-    fields = ("question", "body")
-    readonly_fields = ("question",)
+    max_num = 0
+    fields = ["get_question_text", "body", "subsidiary"]
+    readonly_fields = ("get_question_text", "body", "subsidiary")
     extra = 0
     model = Answer
 
+    @admin.display(description='Question Text')
+    def get_question_text(self, obj):
+        return obj.question.text
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 class ResponseAdmin(admin.ModelAdmin):
-    list_display = ("interview_uuid", "survey", "created", "user")
-    list_filter = ("survey", "created")
+    list_display = ("interview_uuid", "survey", "created", "user", "repeat_order")
+    list_filter = ("survey", "created", "user")
     date_hierarchy = "created"
     inlines = [AnswerBaseInline]
+    fieldsets = [
+        ("General Information", {
+            'description': 'The ID is an administrative number within the site that is unique.',
+            'fields': ['interview_uuid', 'created'],
+        }),
+        ('Related information', {
+            'description': "Specific information can be viewed or edited by clicking on the survey name or user name.",
+            'fields': ['survey', 'user'],
+        }),
+        ('Quick facts on statistics', {
+            'description': "Majority-Rate and Correctness-Rate are automatically calculated by the website and are for reference only. As users are allowed to answer the questionnaire repeatedly, the answered questions will not be repeated.Order of repeated refers to the number of indexes of the same user's answers to the same questionnaire, which is only used for the internal management of the website.",
+            'fields': ['Majority_Rate', 'Correctness_Rate', 'repeat_order']
+        }),
+    ]
     # specifies the order as well as which fields to act on
-    readonly_fields = ("survey", "created", "updated", "interview_uuid", "user")
+    readonly_fields = ("survey",
+                       "created",
+                       "interview_uuid",
+                       "user",
+                       "Majority_Rate",
+                       "Correctness_Rate",
+                       "repeat_order",
+                       "completion_status",
+                       )
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 # admin.site.register(Question, QuestionInline)
 # admin.site.register(Category, CategoryInline)
 admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Response, ResponseAdmin)
+
+
+admin.site.site_title = "Questionnaire Management"
+admin.site.site_header = "Questionnaire Management"
+
+admin.site.unregister(Group)
+admin.site.unregister(ApplicationUser)
+admin.site.register(ApplicationUser, UserAdmin)

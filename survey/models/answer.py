@@ -27,9 +27,9 @@ class Answer(models.Model):
     # ---->
     created = models.DateTimeField(_("Creation date"), auto_now_add=True)
     updated = models.DateTimeField(_("Update date"), auto_now=True)
-    body = models.TextField(_("Content"), blank=True, null=True)
+    body = models.TextField(_("Select"), blank=True, null=True)
     subsidiary = models.CharField(
-        _("前の質問で、あなたが答えた回答は多数派だと想いますか、少数派だと思いますか？"),
+        _("Majority vs. Minority"),
         choices=subsidiary_issues,
         max_length=9,
         default="majority"
