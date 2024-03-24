@@ -20,7 +20,7 @@ from dashboards.views import HomeIndexView
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 from django.views import static
 from django.conf import settings
-from django.conf.urls import url
+# from django.conf.urls import
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
@@ -46,7 +46,7 @@ urlpatterns += [
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("", HomeIndexView.as_view(), name="home"),
-    url(r'^static/(?P<path>.*)$', static.serve,
-         {'document_root': settings.STATIC_ROOT}, name='static'),
+    # url(r'^static/(?P<path>.*)$', static.serve,
+    #      {'document_root': settings.STATIC_ROOT}, name='static'),
 ]
 

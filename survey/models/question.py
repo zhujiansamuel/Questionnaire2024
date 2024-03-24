@@ -57,16 +57,16 @@ CERTAINTY_DEGREE_HELP_TEXT = _("""
 """)
 
 MAJORITY_CHOICES_HELP_TEXT = _("""
-
+The backend of the site automatically records the most answered answers based on the existing answers. If you wish to display a majority-minority diagnostic when there are fewer than 10 existing answers, you can set it up here.
 """)
 
 HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT = _("""
-
+If the question is a hidden question, then you can set the CATEGORY in which the question appears. (Note that the order of the CATEGORY prompts is randomized.)
 """)
 
-# RANDOM_ORDER_Q_HELP_TEXT = _("""
-#
-# """)
+CATEGORY_HELP_TEXT = _("""
+After creating a new CATEGORY, please click "Save" or "Save and continue editing" at the bottom of the page. The new CATEGORY will then appear in the options.
+""")
 
 
 def validate_choices(choices):
@@ -136,7 +136,7 @@ class Question(models.Model):
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=random_number)
     required = models.BooleanField(_("Required"), default=False, help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, verbose_name=_("Category"), blank=True, null=True, related_name="questions"
+        Category, on_delete=models.SET_NULL, verbose_name=_("Category"), blank=True, null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
     type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT, help_text=TYPE_HELP_TEXT)

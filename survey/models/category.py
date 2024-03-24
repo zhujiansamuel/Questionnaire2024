@@ -13,11 +13,11 @@ For example, "1 | 3" indicates that the first and third questions are hidden que
 """
 
 BLOCK_TYPE_HELP_TEXT = _("""
-
+ There are two types of CATEGORY: "sequence" and "one-random". The "sequence" type of CATEGORY will display the questions in order. A "one-random" CATEGORY will display a random question from that CATEGORY.
 """)
 
 DISPLAY_NUM_HELP_TEXT = _("""
-
+Sets the number of questions under the CATEGORY. If this number is greater than the total number of questions under the CATEGORY, all questions under the CATEGORY will be displayed. (CATEGORY of type "one-random" are not affected by this setting.)
 """)
 
 ORDER_HELP_TEXT = _("""
@@ -29,7 +29,7 @@ DESCRIPTION_HELP_TEXT = _("""
 """)
 
 NAME_HELP_TEXT = _("""
-
+If you want the survey to contain hidden questions, then create a CATEGORY called "hiding_question".
 """)
 
 def random_number():

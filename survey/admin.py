@@ -17,7 +17,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("username",)
     fieldsets = None
 
-    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active", "date_joined", "last_login"]
+    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active","is_staff", "date_joined", "last_login"]
     readonly_fields = ("date_joined", "last_login")
 
 
@@ -43,7 +43,7 @@ class QuestionInline(admin.StackedInline):
 class CategoryInline(admin.StackedInline):
     model = Category
     extra = 0
-    fields = [('name', 'display_num'), 'hiding_question_order', 'block_type', 'description']
+    fields = ['name', 'display_num', 'hiding_question_order', 'block_type', 'description']
     show_change_link = True
 
 
