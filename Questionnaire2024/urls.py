@@ -18,7 +18,9 @@ from django.urls import path
 from django.urls import include
 from dashboards.views import HomeIndexView
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
-
+from django.views import static
+from django.conf import settings
+from django.conf.urls import url
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
@@ -26,7 +28,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    # path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include'django.contrib.auth.urls')),
     path('accounts/login/', LoginView.as_view(
         template_name='./registration/login.html'
     ),
@@ -44,5 +46,7 @@ urlpatterns += [
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("", HomeIndexView.as_view(), name="home"),
+    url(r'^static/(?P<path>.*)$', static.serve,
+         {'document_root': settings.STATIC_ROOT}, name='static'),
 ]
 
