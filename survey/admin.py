@@ -39,6 +39,7 @@ class QuestionInline(admin.StackedInline):
             formset.form.base_fields["category"].queryset = survey_obj.categories.all()
         return formset
 
+#
 
 class CategoryInline(admin.StackedInline):
     model = Category
