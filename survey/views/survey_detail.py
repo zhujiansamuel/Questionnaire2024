@@ -21,10 +21,21 @@ class SurveyDetail(View):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
 
         if step == 0:
-            if request.session[diagnostic_session_key]:
+            try:
+                temp=request.session[diagnostic_session_key]
+            except:
+                pass
+            else:
                 del request.session[diagnostic_session_key]
-            if request.session[session_key]:
+
+            try:
+                temp = request.session[session_key]
+            except:
+                pass
+            else:
                 del request.session[session_key]
+
+
 
         if survey.template is not None and len(survey.template) > 4:
             template_name = survey.template
