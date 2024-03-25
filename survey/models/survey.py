@@ -29,7 +29,7 @@ EXPIRE_DATE_HELP_TEXT = _("""
 """)
 
 DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT = _("""
-
+Displays temporary diagnostic information after how many questions have been answered.
 """)
 
 
@@ -52,7 +52,7 @@ class Survey(models.Model):
     description = models.TextField(_("Description"), help_text=DESCRIPTION_HELP_TEXT)
     is_published = models.BooleanField(_("Users can see it and answer it"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
 
-    need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"))
+    need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"), default=True)
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
     display_method = models.SmallIntegerField(
         _("Display method"), choices=DISPLAY_METHOD_CHOICES, default=BY_QUESTION

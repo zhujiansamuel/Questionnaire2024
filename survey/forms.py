@@ -57,11 +57,8 @@ class ResponseForm(models.ModelForm):
         self.answers = False
         # 注意：self._get_preexisting_response()方法内部直接设定self.response
         self.preexisting_response = self._get_preexisting_response()
-
+        # TranslateComments
         # 以下内容用于实现产生新的response
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
         # -------------------------------------------------------------------
 
         if self.response and self.response.count() > 1:
@@ -75,14 +72,6 @@ class ResponseForm(models.ModelForm):
             self.response = None
         else:
             self.repeat_order = 0
-
-        # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-        #     print(" ---------------------after----------------------------- ")
-        #     print("self.preexisting_response:    ",self.preexisting_response)
-        #     print("self.repeat_order:   ",self.repeat_order)
-        #     print("self.response:  ",self.response)
-        #     print(" ------------------------------------------------------------ ")
-
         self.questions_answered = []
 
         # print(" ----------------------已经回答的问题-------------------------- ")
@@ -90,7 +79,6 @@ class ResponseForm(models.ModelForm):
             for response_temp in self.preexisting_response:
                 # questions = Question.objects.filter(survey=response_temp.survey).prefetch_related("answers")
                 # questions_a = [q for q in questions if q.answers is not None]
-
                 answers = Answer.objects.filter(response_id=response_temp.id).prefetch_related("question")
                 if answers.count() > 1:
                     questions_a = [q.question for q in answers]
@@ -100,15 +88,10 @@ class ResponseForm(models.ModelForm):
                     questions_a = []
 
                 self.questions_answered.append(questions_a)
-                # print("-->> questions_a",self.questions_answered)
-                # for question in self.questions_answered:
-                #     print("----> question:    ",question)
-                #     print("------> question.answers:    ", question.answers)
-                #     print("---------> question.answers.IS:    ", question.answers is not None)
+
         elif self.preexisting_response.count() == 1:
             # questions = Question.objects.filter(survey=self.preexisting_response.first().survey).prefetch_related("answers")
             # questions_a = [q for q in questions if q.answers is None]
-
             answers = Answer.objects.filter(response_id=self.preexisting_response.first().id).prefetch_related("question")
             if answers.count() > 1:
                 questions_a = [q.question for q in answers]
@@ -122,19 +105,15 @@ class ResponseForm(models.ModelForm):
         if self.questions_answered:
             self.questions_answered = flat(list(self.questions_answered))
 
-        for i, question in enumerate(self.questions_answered):
-            print("回答过的问题：  ", str(i), " :", question.text, "    ", question.category.name)
-        print(" ------------------------------------------------------------ ")
+        # for i, question in enumerate(self.questions_answered):
+        #     print("回答过的问题：  ", str(i), " :", question.text, "    ", question.category.name)
+        # print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
+
         # TranslateComments
         # 以下的内容设定了每个调查问卷中的问题设置
         # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
+
         # TranslateComments
         # 初始化会话随机列表
         session_random_list = self.requests.session.get("session_random_list", False)
@@ -169,8 +148,6 @@ class ResponseForm(models.ModelForm):
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
         if self.qs_with_no_cat:
             self.qs_with_no_cat = self.eliminate_answered_questions(self.self.qs_with_no_cat)
-
-
 
         # TranslateComments
         # 获取隐藏问题，它们将被安插进允许由隐藏问题的类别中
@@ -488,24 +465,10 @@ class ResponseForm(models.ModelForm):
         return self.answers
 
     def _get_preexisting_answer(self, question):
-        # sam-todo 既有答案中的meta选项的选取
-        # 由于需要实现回答过的问题不在显示，所以需要重写这个方法
-        """Recover a pre-existing answer in database.
-
-        The user must be logged. A Response containing the Answer must exists.
-
-        :param Question question: The question we want to recover in the
-        response.
-        :rtype: Answer or None"""
         answers = self._get_preexisting_answers()
         return answers.get(question.id, None)
 
     def get_question_initial(self, question, data):
-        """Get the initial value that we should use in the Form
-
-        :param Question question: The question
-        :param dict data: Value from a POST request.
-        :rtype: String or None"""
         initial = None
         # ------------------------
         # answer = self._get_preexisting_answer(question)
@@ -534,10 +497,6 @@ class ResponseForm(models.ModelForm):
         return initial
 
     def get_question_widget(self, question):
-        """Return the widget we should use for a question.
-
-        :param Question question: The question
-        :rtype: django.forms.widget or None"""
         try:
             return self.WIDGETS[question.type]
         except KeyError:
@@ -545,10 +504,6 @@ class ResponseForm(models.ModelForm):
 
     @staticmethod
     def get_question_choices(question):
-        """Return the choices we should use for a question.
-
-        :param Question question: The question
-        :rtype: List of String or None"""
         qchoices = None
         if question.type not in [Question.TEXT, Question.SHORT_TEXT, Question.INTEGER, Question.FLOAT, Question.DATE]:
             qchoices = question.get_choices()
@@ -576,9 +531,6 @@ class ResponseForm(models.ModelForm):
             ("majority", _("多数派")),
             ("minority", _("少数派")),
         )
-        """Add a question to the form.
-        :param Question question: The question to add.
-        :param dict data: The pre-existing values from a post request."""
         kwargs = {"label": question.text, "required": question.required, "help_text": question.subsidiary_type}
 
         # initial = self.get_question_initial(question, data)

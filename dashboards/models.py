@@ -57,6 +57,13 @@ class ApplicationUser(AbstractUser):
     )
     email = models.EmailField(_("E-mail address"),
                               unique=True)
+
+    is_staff = models.BooleanField(
+        _("Manage surveys."),
+        default=False,
+        help_text=_("Users who are authorized to administer surveys.(All users can answer the questionnaire.)"),
+    )
+
     # USERNAME_FIELD = "email"
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []

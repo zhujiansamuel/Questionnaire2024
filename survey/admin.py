@@ -17,7 +17,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ("username",)
     fieldsets = None
 
-    fields = ["username", "email", "Gender", "is_participant", "is_experimenter", "is_active","is_staff", "date_joined", "last_login"]
+    fields = ["username", "email", "Gender", "is_active","is_staff", "date_joined", "last_login"]
     readonly_fields = ("date_joined", "last_login")
 
 
@@ -57,7 +57,7 @@ class SurveyAdmin(admin.ModelAdmin):
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description'],
+            'fields': ['name', 'description', 'diagnosis_stages_qs_num'],
         }),
 
         ("Privilege Management", {

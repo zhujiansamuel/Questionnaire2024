@@ -17,6 +17,15 @@ class SurveyDetail(View):
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
+        session_key = "survey_{}".format(kwargs["id"])
+        diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
+
+        if step == 0:
+            if request.session[diagnostic_session_key]:
+                del request.session[diagnostic_session_key]
+            if request.session[session_key]:
+                del request.session[session_key]
+
         if survey.template is not None and len(survey.template) > 4:
             template_name = survey.template
         else:
@@ -154,9 +163,7 @@ class SurveyDetail(View):
                 template_name = "survey/results.html"
                 return render(request, template_name, context)
 
-        del request.session[session_key]
-        del request.session[diagnostic_session_key]
-        del request.session["session_random_list"]
+
         # todo 是不是需要同时删除 session_random_order
 
         if response is None:
@@ -166,7 +173,12 @@ class SurveyDetail(View):
             if "next" in request.session:
                 del request.session["next"]
             return redirect(next_)
-        return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
+
+        diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
+        majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
+        correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
+        # return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
+        return redirect("survey-confirmation", uuid=response.interview_uuid, majority_rate=majority_rate, correctness_rate=correctness_rate)
 
     def Diagnostic_Result(self, form, next_url, request, kwargs):
         context = self.result_pre_question(form, next_url, request)

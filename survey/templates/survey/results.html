@@ -1,18 +1,48 @@
+{% extends 'survey/base.html' %}
+{% load i18n %}
 {% load bootstrap %}
 
-<h3>Majority Rate (how often one’s answer belonged to the majority)</h3>
-<h5>This score shows how “ordinary” or “unique” you are.</h5>
+{% block title %}{% trans " Diagnostics in stages" %}{% endblock title %}
+
+{% block body %}
+{#<h3>Majority Rate (how often one’s answer belonged to the majority)</h3>#}
+{#<h5>This score shows how “ordinary” or “unique” you are.</h5>#}
+{##}
+{##}
+{#<h3>Correctness Rate (how often one’s meta-judgment about majority or minority was correct)</h3>#}
+{#<h5>This score shows how well you know yourself in relation other people.</h5>#}
+
+<div class="container">
+    <div class="panel-collapse collapse show">
+        <div class="panel-body">
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <td>
+                        <h3>{{ msg }}</h3>
+                    </td>
+                </tr>
+
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <p>{{ diagnostic_result }}</p>
+                        </td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+
+                <a href="{{ next_url }}">Next</a>
+        </div>
+    </div>
+</div>
 
 
-<h3>Correctness Rate (how often one’s meta-judgment about majority or minority was correct)</h3>
-<h5>This score shows how well you know yourself in relation other people.</h5>
+{% endblock %}
 
 
-
-<h3>{{ msg }}</h3>
-
-
-<p>{{ diagnostic_result }}</p>
-
-
-<a href="{{ next_url }}">Next</a>
