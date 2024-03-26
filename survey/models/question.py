@@ -14,6 +14,10 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     from ordereddict import OrderedDict
 
+from django_ckeditor_5.fields import CKEditor5Field
+
+# from ckeditor_uploader.fields import RichTextUploadingField
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -132,7 +136,8 @@ class Question(models.Model):
         ("certainty_degree",_("certainty_degree")),
     )
 
-    text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
+    text = CKEditor5Field(_("RichText"), help_text=TYPE_HELP_TEXT, config_name='extends')
+    # text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=random_number)
     required = models.BooleanField(_("Required"), default=False, help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(

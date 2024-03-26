@@ -18,7 +18,8 @@ from django.urls import path
 from django.urls import include
 from dashboards.views import HomeIndexView
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
-from django.views import static
+
+from django.conf.urls.static import static
 from django.conf import settings
 # from django.conf.urls import
 
@@ -42,11 +43,16 @@ urlpatterns += [
     ),
          name='password-reset'),
 
-
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("", HomeIndexView.as_view(), name="home"),
-    # url(r'^static/(?P<path>.*)$', static.serve,
-    #      {'document_root': settings.STATIC_ROOT}, name='static'),
+    path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
+
 ]
 
+urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

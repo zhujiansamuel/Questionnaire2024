@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 
+
 NAME_HELP_TEXT = _("""
 
 """)
