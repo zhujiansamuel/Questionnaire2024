@@ -266,9 +266,6 @@ CKEDITOR_CONFIGS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 
-TWITTER_KEY = 'LCwFOlWFtHIHmtgCWKiiUeYRi'
-TWITTER_SECRET = 'wjr0QMoC1PD3LwZhqqJz00WqQ7Z27N14puzBmCxKUOYwQ1XF77'
-
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
