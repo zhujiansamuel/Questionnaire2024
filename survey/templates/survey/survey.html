@@ -24,7 +24,7 @@
 {% block body %}
     <h1> {{ survey.name }} </h1>
     <div class="survey-description"> {{ survey.description|safe }} </div>
-    <div>
+    <div class="question">
 
         {% if step and step != 0 %}
             <form action="{% url 'survey-detail-step' id=survey.id step=step %}" method="post">
@@ -83,4 +83,13 @@
         {% endif %}
         </form>
     </div>
+
+
+<style>
+  .question{
+        padding:100px 0;
+    }
+
+
+</style>
 {% endblock %}

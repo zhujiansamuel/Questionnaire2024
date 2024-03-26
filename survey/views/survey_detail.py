@@ -22,7 +22,7 @@ class SurveyDetail(View):
 
         if step == 0:
             try:
-                temp=request.session[diagnostic_session_key]
+                temp = request.session[diagnostic_session_key]
             except:
                 pass
             else:

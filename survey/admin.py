@@ -9,15 +9,13 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
-
-
 class UserAdmin(BaseUserAdmin):
     list_display = ("username", "email")
     # list_filter = ("survey", "created", "user")
     ordering = ("username",)
     fieldsets = None
 
-    fields = ["username", "email", "Gender", "is_active","is_staff", "date_joined", "last_login"]
+    fields = ["username", "email", "Gender", "is_active","is_staff", "date_joined", "last_login", "is_participant"]
     readonly_fields = ("date_joined", "last_login")
 
 
@@ -134,5 +132,6 @@ admin.site.site_title = "Questionnaire Management"
 admin.site.site_header = "Questionnaire Management"
 
 admin.site.unregister(Group)
+
 admin.site.unregister(ApplicationUser)
 admin.site.register(ApplicationUser, UserAdmin)

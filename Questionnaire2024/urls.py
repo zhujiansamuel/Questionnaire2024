@@ -47,6 +47,7 @@ urlpatterns += [
     path("survey/", include("survey.urls")),
     path("", HomeIndexView.as_view(), name="home"),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
+    path("accounts/", include("allauth.urls")),
 
 ]
 

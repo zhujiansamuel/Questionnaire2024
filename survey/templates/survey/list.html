@@ -13,7 +13,7 @@
             {% endfor %}
         </p>
     {% endif %}
-
+{% if user.is_authenticated %}
     <ul>
         {% for survey in surveys %}
 {#  <li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
@@ -32,7 +32,19 @@
             </div>
           </div>
         {% endif %}
+{% else %}
 
+    <button type="button" class="btn btn-dark btn-floating mx-1">
+            <a href="{% url 'login' %}">
+            <i class="fa-solid fa-user"></i></a>
+    </button>
+
+    <button type="button" class="btn btn-dark btn-floating mx-1">
+            <a href="{% url 'twitter_login' %}">
+            <i class="fab fa-twitter"></i></a>
+    </button>
+
+{% endif %}
 </div>
 
 <style>
@@ -43,4 +55,6 @@
         list-style-type: none;
     }
 </style>
+
+<script src="https://kit.fontawesome.com/0acdd383dd.js" crossorigin="anonymous"></script>
 {% endblock %}

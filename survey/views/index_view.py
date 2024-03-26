@@ -10,10 +10,12 @@ from django.shortcuts import redirect
 from survey.models import Survey, Response, Answer, Question
 
 
-class IndexView(PermissionRequiredMixin,TemplateView):
+class IndexView(TemplateView):
+# class IndexView(PermissionRequiredMixin,TemplateView):
 
     template_name = "survey/list.html"
-    permission_required = ('survey.participant', 'survey.experimenter')
+    # permission_required = ('survey.participant',)
+    permission_required = ('login_required',)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

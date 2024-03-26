@@ -56,7 +56,7 @@ class ApplicationUser(AbstractUser):
         help_text=_("By default, the added user does not have experimenter privileges. If you need to create an experimenter with administrative rights, select it here.")
     )
     email = models.EmailField(_("E-mail address"),
-                              unique=True)
+                              unique=False)
 
     is_staff = models.BooleanField(
         _("Manage surveys."),

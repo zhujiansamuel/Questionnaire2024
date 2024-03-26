@@ -38,11 +38,24 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.core",
     "django.contrib.admin",
+    'django.contrib.sites',
     "dashboards",
     "bootstrapform",
     "survey",
     'django_ckeditor_5',
+    'allauth',
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
+    "allauth.socialaccount.providers.twitter",
+    "allauth.socialaccount.providers.github",
+]
 
+AUTHENTICATION_BACKENDS = [
+
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -53,14 +66,25 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+SITE_ID = 1
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGOUT_ON_GET = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 ROOT_URLCONF = "Questionnaire2024.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS":  ['./templates'],
+        "DIRS":  [
+            './templates',
+            os.path.join(BASE_DIR, 'templates', 'allauth')
+                  ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -74,6 +98,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
             ],
         },
+
     },
 ]
 
@@ -115,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
@@ -241,14 +266,16 @@ CKEDITOR_CONFIGS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 
+TWITTER_KEY = 'LCwFOlWFtHIHmtgCWKiiUeYRi'
+TWITTER_SECRET = 'wjr0QMoC1PD3LwZhqqJz00WqQ7Z27N14puzBmCxKUOYwQ1XF77'
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 AUTH_USER_MODEL = "dashboards.ApplicationUser"
 
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/survey/'
 
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
