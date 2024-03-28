@@ -1,16 +1,56 @@
-{% extends "base.html" %}
+{#{% extends "base.html" %}#}
+{% extends 'base_n.html' %}
 
- {% block content %}
+
+
+ {% block body %}
+
+    <!-- Faq Section -->
+    <section id="faq" class="faq section">
+
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h1> {{ survey.name }} </h1>
+        <p class="survey-description"> {{ survey.description|safe }} </p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row">
+
+          <div class="col-lg-12" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="question">
+                      <h2>Logged out!</h2>
+                          <br>
+                          <h4>Thank you for visiting. You can log in again and answer a new survey.</h4>
+                          <br>
+                          <br>
+                      <a href="{% url 'login'%}">Click here to login again.</a>
+            </div>
+
+
+
+          </div><!-- End Faq Column-->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Faq Section -->
+
+
+
+
+
+
+
 <div class="login_box">
   <div class="login_container">
 
     <!-- <p>Please login to see this page.</p> -->
-      <h2>Logged out!</h2>
-      <br>
-      <h4>Thank you for visiting. You can log in again and answer a new survey.</h4>
-      <br>
-      <br>
-  <a href="{% url 'login'%}">Click here to login again.</a>
+
 
   </div>
 </div>

@@ -11,5 +11,4 @@ except ImportError:
 
 urlpatterns = [
 
-
 ]

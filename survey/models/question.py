@@ -141,7 +141,7 @@ class Question(models.Model):
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=random_number)
     required = models.BooleanField(_("Required"), default=False, help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, verbose_name=_("Category"), blank=True, null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
+        Category, on_delete=models.SET_NULL, verbose_name=_("Category"),null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
     type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT, help_text=TYPE_HELP_TEXT)
@@ -150,7 +150,7 @@ class Question(models.Model):
     subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority", help_text=SUBSIDIARY_TYPE_HELP_TEXT)
     majority_minority = models.CharField(_("majority_minority"), max_length=200, choices=MAJORITY_MINORITY, default="majority", help_text=MAJORITY_MINORITY_HELP_TEXT)
     certainty_degree = models.IntegerField(_("degree of certainty"), default=50, help_text=CERTAINTY_DEGREE_HELP_TEXT)
-    majority_choices = models.CharField(max_length=200,default="Null", help_text=MAJORITY_CHOICES_HELP_TEXT)
+    majority_choices = models.CharField(max_length=200, default="Null", help_text=MAJORITY_CHOICES_HELP_TEXT)
     hiding_question_category_order = models.IntegerField(_("Hiding question category order"), default=0, help_text=HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT)
     random_order_q = models.IntegerField(_("random_order_q"), blank=True, default=0)
 

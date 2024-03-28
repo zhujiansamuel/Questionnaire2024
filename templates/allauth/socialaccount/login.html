@@ -1,0 +1,58 @@
+{#{% extends "socialaccount/base_entrance.html" %}#}
+{% extends 'survey/base.html' %}
+{% load i18n %}
+{% load allauth %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+
+{% block context %}
+
+<div class="row">
+    <div class="col">
+    {% if process == "connect" %}
+{#        {% element h1 %}#}
+
+            <h1>{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
+{#        {% endelement %}#}
+        <p>
+            {% blocktrans with provider.name as provider %}You are about to connect a new third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% else %}
+{#        {% element h1 %}#}
+
+            <h1>{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
+{#        {% endelement %}#}
+        <p>
+            {% blocktrans with provider.name as provider %}You are about to sign in using a third-party account from {{ provider }}.{% endblocktrans %}
+        </p>
+    {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+    {% element form method="post" no_visible_fields=True %}
+        {% slot actions %}
+            {% csrf_token %}
+            {% element button type="submit" %}
+                {% trans "Continue" %}
+            {% endelement %}
+        {% endslot %}
+    {% endelement %}
+    </div>
+</div>
+
+<style>
+  .row{
+        margin:30px 0;
+
+    }
+    div {
+      text-align: center;
+      light-height: heightValue;
+    }
+
+</style>
+
+{% endblock context %}

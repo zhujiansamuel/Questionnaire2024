@@ -1,6 +1,56 @@
-{% extends 'survey/base.html' %} {% load bootstrap %} {% block body %}
-<h1>{{ msg }}</h1>
+{#{% extends 'survey/base.html' %} #}
+{% extends 'base_n.html' %}
 
-<a href="{{ next_url }}">Next</a>
+{% block body %}
+
+
+    <!-- Faq Section -->
+    <section id="faq" class="faq section">
+
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h1> {{ survey.name }} </h1>
+        <p class="survey-description"> {{ survey.description|safe }} </p>
+      </div><!-- End Section Title -->
+
+
+
+
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12" data-aos="fade-up" data-aos-delay="100">
+            <div class="question result-pre-question">
+
+
+                {% if survey.editable_answers or response_form.response is None %}
+
+                    <h1>{{ msg }}</h1>
+
+                    <a href="{{ next_url }}">Next</a>
+
+
+
+                {% else %}
+
+                {% endif %}
+
+            </div>
+          </div><!-- End Faq Column-->
+        </div>
+      </div>
+
+    </section><!-- /Faq Section -->
+
+<style>
+
+  .result-pre-question{
+        padding:60px 0;
+        text-align: center;
+    }
+</style>
 
 {% endblock %}
+
+
+{% block footer %}{% endblock %}

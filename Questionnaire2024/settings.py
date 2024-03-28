@@ -27,6 +27,8 @@ DEBUG = True
 # DEBUG = False
 ALLOWED_HOSTS = ['*']
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,7 +85,8 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS":  [
             './templates',
-            os.path.join(BASE_DIR, 'templates', 'allauth')
+            os.path.join(BASE_DIR, 'templates', 'allauth'),
+            os.path.join(BASE_DIR, 'dashboards', 'static')
                   ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -266,14 +269,12 @@ CKEDITOR_CONFIGS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "dashboards.ApplicationUser"
 
 
 LOGIN_REDIRECT_URL = '/survey/'
-
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 

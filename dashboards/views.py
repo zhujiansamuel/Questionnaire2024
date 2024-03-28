@@ -30,10 +30,14 @@ def Login_survey(request):
                 return redirect('survey/')
     return render(request, './registration/login.html')
 
-def Logout_survey(request):
-    pass
-    return render(request, './registration/logout.html')
+# def Logout_survey(request):
+#     pass
+#     return render(request, './registration/logout.html')
+#
+# def Register_survey(request):
+#     pass
+#     return render(request, './registration/register.html')
 
-def Register_survey(request):
-    pass
-    return render(request, './registration/register.html')
+class StyleTest(TemplateView):
+    template_name = "style.html"
+

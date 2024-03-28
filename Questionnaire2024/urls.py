@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
-from dashboards.views import HomeIndexView
+from dashboards.views import HomeIndexView, StyleTest
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 
 from django.conf.urls.static import static
@@ -45,9 +45,10 @@ urlpatterns += [
 
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
-    path("", HomeIndexView.as_view(), name="home"),
+    path("style/", HomeIndexView.as_view(), name="home"),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
     path("accounts/", include("allauth.urls")),
+    path("", StyleTest.as_view(), name="home_n"),
 
 ]
 

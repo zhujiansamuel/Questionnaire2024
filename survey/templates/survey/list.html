@@ -1,51 +1,54 @@
-{% extends 'survey/base.html' %}
+{#{% extends 'survey/base.html' %}#}
+{% extends 'base_n.html' %}
 {% load i18n %}
 
 {% block body %}
-<div id="intro">
-    <h1>{% trans "メタ認知能力ゲーム"%}</h1>
-    {% if messages %}
-        <p>
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </p>
-    {% endif %}
-{% if user.is_authenticated %}
-    <ul>
-        {% for survey in surveys %}
-{#  <li><a href="{{ survey.get_absolute_url }}"> {% trans "Take the Survey"%}{{survey.name}}</a></li>#}
-            <li><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></li>
-                <p>　　　</p>
-{#            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>#}
 
-        {% endfor %}
-    </div>
+    <!-- Team Section -->
+    <section id="" class="section">
 
-        {% if user_logged %}
-          <div class="row">
-            <div class="col">
-               <h5><a href="{% url "logout" %}">ログアウト</a></h5>
-               <!-- <h5><a href="{% url 'home' %}">ログアウト2</a></h5> -->
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>メタ認知能力ゲーム</h2>
+        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+          <div class="col-xl-12 col-lg-12 col-md-12" data-aos="fade-up" data-aos-delay="200">
+            <div class="member">
+              <div class="member-info">
+
+
+                    <div id="intro">
+                        {% if messages %}
+                            <p>
+                                {% for message in messages %}
+                                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <ul>
+                            {% for survey in surveys %}
+                                <li><h3><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></h3></li>
+                    {#            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>#}
+
+                            {% endfor %}
+                        </ul>
+                    {% endif%}
+
+                    </div>
+
+              </div>
             </div>
-          </div>
-        {% endif %}
-{% else %}
+          </div><!-- End Team Member -->
 
-    <button type="button" class="btn btn-dark btn-floating mx-1">
-            <a href="{% url 'login' %}">
-            <i class="fa-solid fa-user"></i></a>
-    </button>
+      </div>
 
-    <button type="button" class="btn btn-dark btn-floating mx-1">
-            <a href="{% url 'twitter_login' %}">
-            <i class="fab fa-twitter"></i></a>
-    </button>
-
-{% endif %}
-</div>
+    </section><!-- /Team Section -->
 
 <style>
     ul{
@@ -53,6 +56,12 @@
     }
     li{
         list-style-type: none;
+    }
+    #intro{
+        text-align: center;
+        margin-top:20px;
+        font-size: larger;
+        font-weight: bold;
     }
 </style>
 
