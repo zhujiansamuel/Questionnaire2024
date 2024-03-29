@@ -1,72 +1,72 @@
 {#{% extends "base.html" %}#}
-{#{% extends "base_n.html" %}#}
+{% extends "base_n.html" %}
 {% load socialaccount %}
 
 
-{% block content %}
-<div class="login_box">
-  <div class="login_container">
-    {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-    {% endif %} {% if next %} {% if user.is_authenticated %}
-    <p>
-      Your account doesn't have access to this page. To proceed, please login
-      with an account that has access.
-    </p>
-    {% else %}
-    <!-- <p>Please login to see this page.</p> -->
-    <p></p>
-    {% endif %} {% endif %}
+{% block body %}
 
-    <form method="post" action="{% url 'login' %}">
-      {% csrf_token %}
+<section class="section">
+  <div class="container py-5 h-100" data-aos="fade-up">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
 
-      <div class="login_input">
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </div>
-      <div class="login_input">
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </div>
+            <div class="mb-md-5 mt-md-4 pb-5">
 
-      <div>
-        <input type="submit" value="Login" class="input_submit" />
-        <input type="hidden" name="next" value="{{ next }}" />
-        {# Assumes you setup the password_reset view in your URLconf #}
-{#        <p><a href="{% url 'password-reset' %}">Lost password?</a></p>#}
-      </div>
-    </form>
+              <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+              <p class="text-white-50 mb-5">Please enter your login and password!</p>
 
-{#     <div class="text-center mt-4 mb-4">#}
-          <div class="">
-{#            <p>Not a member? <a class="text-dark" href="{% url 'signup' %}"><b>Register</b></a></p>#}
-            <p>sign up with:</p>
-            <button type="button" class="btn btn-dark btn-floating mx-1">
+                {% if form.errors %}
+                    <p>Your username and password didn't match. <br>Please try again.</p>
+                {% endif %}
 
-            <i class="fab fa-facebook-f"></i>
+{#              <div class="form-outline form-white mb-4">#}
+{#                <input type="email" id="typeEmailX" class="form-control form-control-lg" />#}
+{#                <label class="form-label" for="typeEmailX">Email</label>#}
+{#              </div>#}
+                <form method="post" action="{% url 'login' %}">
+                  {% csrf_token %}
 
-            </button>
-            <button type="button" class="btn btn-dark btn-floating mx-1">
-            <i class="fab fa-google"></i>
-            </button>
+                          <div class="login_input">
+                            <label class="floatingInput" for="typeEmailX" style="overflow:unset ;!important">Username</label>
+                            {{ form.username }}
+                          </div>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
+                            {{ form.password }}
+                          </div>
 
-            <button type="button" class="btn btn-dark btn-floating mx-1">
-            <a href="{% url 'twitter_login' %}">
-            <i class="fab fa-twitter"></i></a>
-            </button>
+                    <button type="submit" value="Login" class="btn btn-outline-light btn-lg px-5">Login</button>
+                    <input type="hidden" name="next" value="{{ next }}" />
 
-            <button type="button" class="btn btn-dark btn-floating mx-1">
-            <i class="fab fa-github"></i>
-            </button>
+{#              <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>#}
+                </form>
 
 
+              <div class="d-flex justify-content-center text-center mt-4 pt-1">
+                <p>Or sign up with:<br></p>
+              </div>
+
+              <div class="d-flex justify-content-center text-center mt-4 pt-1">
+                <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                <a href=" href="{% url 'twitter_login' %}"" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
+                <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
+              </div>
+
+            </div>
+
+{#            <div>#}
+{#              <p class="mb-0">Don't have an account? <a href="#!" class="text-white-50 fw-bold">Sign Up</a></p>#}
+{#            </div>#}
+
+          </div>
         </div>
-
-
+      </div>
+    </div>
   </div>
+</section>
 
-</div>
 
 <style>
   html,
