@@ -19,4 +19,5 @@ urlpatterns = [
     url(r"^(?P<id>\d+)-(?P<step>\d+)/", SurveyDetail.as_view(), name="survey-detail-step"),
     url(r"^confirm/(?P<uuid>\w+)/(?P<majority_rate>\w+)-(?P<correctness_rate>\w+)", ConfirmView.as_view(), name="survey-confirmation"),
     url(r"^download/(?P<survey_id>\d+)", download_csv, name="download-csv"),
+    # url(r"^response/(?P<id>\d+)/")
 ]

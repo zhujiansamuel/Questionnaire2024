@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
-from dashboards.views import HomeIndexView, StyleTest
+from dashboards.views import HomeIndexView, StyleTest, signup_experimenter, signup_participant, My_page
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
+from survey.views.index_view import upload_survey
+
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -25,23 +27,32 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
-
 ]
 
 urlpatterns += [
     # path('accounts/', include'django.contrib.auth.urls')),
+    path('accounts/login/experimenter', LoginView.as_view(
+        template_name='./registration/experimenter_login.html'
+    ),
+         name='experimenter_login'),
+
     path('accounts/login/', LoginView.as_view(
         template_name='./registration/login.html'
     ),
          name='login'),
+
+
     path('accounts/logout/', LogoutView.as_view(
         template_name='./registration/logout.html'
     ),
          name='logout'),
+
     path('accounts/password-reset/', PasswordResetView.as_view(
         template_name='./registration/password_reset_form.html'
     ),
          name='password-reset'),
+
+    path("accounts/mypage/", My_page.as_view(), name='mypage'),
 
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
@@ -49,7 +60,9 @@ urlpatterns += [
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
     path("accounts/", include("allauth.urls")),
     path("", StyleTest.as_view(), name="home_n"),
-
+    path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
+    path("accounts/signup/participant/", signup_participant, name='register-participant'),
+    path("uploadsurvey/", upload_survey, name="upload_survey"),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

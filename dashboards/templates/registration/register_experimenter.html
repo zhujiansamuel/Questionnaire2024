@@ -1,0 +1,79 @@
+{% extends "base_n.html" %}
+
+{% block body %}
+
+<section class="section">
+  <div class="container py-5 h-100" data-aos="fade-up">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card bg-dark text-white" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+
+            <div class="mb-md-5 mt-md-4 pb-5 card_body_container">
+
+                <h1>Signup</h1>
+                <br>
+
+                <form method="post" action="{% url 'register-experimenter' %}">
+                  {% csrf_token %}
+{#                            {{ form }}#}
+                          <div class="login_input">
+                            <label class="floatingInput" for="typeEmailX" style="overflow:unset ;!important">Username</label>
+                            {{ form.username }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Nicknames</label>
+                            {{ form.nicknames }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Email</label>
+                            {{ form.email }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Gender</label>
+                            {{ form.Gender }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Affiliated Sschool</label>
+                            {{ form.affiliated_school }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Field</label>
+                            {{ form.field_1 }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
+                            {{ form.password1 }}
+                          </div>
+                        <br>
+                          <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
+                            {{ form.password2 }}
+                          </div>
+                    <br>
+                    <br>
+                    <br>
+                    <button type="submit" value="Login" class="btn btn-outline-light btn-lg px-5">Signup</button>
+{#                    <input type="hidden" name="next" value="{{ next }}" />#}
+                    <br>
+                    <br>
+                    <p>Supported by JSPS Grant-in-Aid for Scientific Research (B) No. JP21H00923</p>
+
+
+                </form>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

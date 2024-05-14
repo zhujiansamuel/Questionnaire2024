@@ -58,11 +58,42 @@ class ApplicationUser(AbstractUser):
     email = models.EmailField(_("E-mail address"),
                               unique=False)
 
-    is_staff = models.BooleanField(
-        _("Manage surveys."),
-        default=False,
+    # is_staff = models.BooleanField(
+    #     _("Manage surveys."),
+    #     default=False,
+    #     help_text=_("Users who are authorized to administer surveys."),
+    # )
+
+    affiliated_school = models.CharField(
+        _("Affiliated School"),
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=_("Affiliated School"),
+    )
+
+    field_1 = models.CharField(
+        _("field (of study, etc.)"),
+        max_length=100,
+        blank=True,
+        null=True,
         help_text=_("Users who are authorized to administer surveys.(All users can answer the questionnaire.)"),
     )
+
+    nicknames = models.CharField(
+        _("Nicknames"),
+        max_length=100,
+        blank=False,
+        null=False,
+        help_text=_("Nicknames"),
+    )
+
+    # birthdays = models.DateField(
+    #     _("Birthdays"),
+    #     auto_now=True,
+    #     help_text=_("Birthdays"),
+    # )
+
 
     # USERNAME_FIELD = "email"
     USERNAME_FIELD = "username"

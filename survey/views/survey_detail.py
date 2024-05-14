@@ -35,8 +35,6 @@ class SurveyDetail(View):
             else:
                 del request.session[session_key]
 
-
-
         if survey.template is not None and len(survey.template) > 4:
             template_name = survey.template
         else:
@@ -100,6 +98,11 @@ class SurveyDetail(View):
             else:
                 template_name = "survey/survey.html"
         return render(request, template_name, context)
+
+    def Merge(self, dict1, dict2):
+        res = {**dict1, **dict2}
+        return res
+
 
     def treat_valid_form(self, form, kwargs, request, survey):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
@@ -170,13 +173,13 @@ class SurveyDetail(View):
                 template_name = "survey/result_pre_question.html"
                 return render(request, template_name, context)
             elif step % survey.diagnosis_stages_qs_num == 0:
-                context = self.Diagnostic_Result(form, next_url, request, kwargs)
-                template_name = "survey/results.html"
+                context1 = self.result_pre_question(form, next_url, request)
+                context2 = self.Diagnostic_Result(form, next_url, request, kwargs)
+                context = self.Merge(context1, context2)
+                template_name = "survey/result_pre_question.html"
                 return render(request, template_name, context)
 
-
         # todo 是不是需要同时删除 session_random_order
-
         if response is None:
             return redirect(reverse("survey-list"))
         next_ = request.session.get("next", None)
@@ -192,6 +195,7 @@ class SurveyDetail(View):
         return redirect("survey-confirmation", uuid=response.interview_uuid, majority_rate=majority_rate, correctness_rate=correctness_rate)
 
     def Diagnostic_Result(self, form, next_url, request, kwargs):
+
         context = self.result_pre_question(form, next_url, request)
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
@@ -199,8 +203,9 @@ class SurveyDetail(View):
 
         msg, diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
         context["diagnostic_result"] = diagnostic_result_msg
-        context["msg"] = msg
+        context["msg_diagnostic"] = msg
         return context
+
 
     def result_pre_question(self, form, next_url, request):
         # not_enough = True
@@ -210,10 +215,11 @@ class SurveyDetail(View):
                 qqqq = field_value
                 pk = int(field_name.split("_")[2])
                 question = Question.objects.get(pk=pk)
+                #sam-todo 因为每次回答都更新最多数的回答，所以这里更改判断条件
 
-                if question.majority_choices == "Null":
+                if question.number_of_responses < question.survey.diagnostic_page_indexing:
                     not_enough = True
-                    msg = "There isn`t enough answers."
+                    msg = "あなたの回答の結果はまだ十分に回答が集まっていないため、診断結果は後ほどまたログインして確かめてください."
                 else:
                     not_enough = False
                     if question.subsidiary_type == "majority_minority":

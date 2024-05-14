@@ -23,8 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-e^&n-gzc8ukb0#@xm2qolkip)e4)$+&6$jwt$!ljpm@_2!u3nu"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+# DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
@@ -288,3 +288,7 @@ SURVEY_DEFAULT_PIE_COLOR = "blue!50"
 
 DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION = True
 SESSION_SAVE_EVERY_REQUEST = True
+
+
+SIMPLEUI_HOME_INFO = False
+

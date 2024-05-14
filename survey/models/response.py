@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+# from survey.utility.recalculated_results import calculate_results
+from survey.utility.diagnostic_result import Diagnostic_Result
 
 from .survey import Survey
 
@@ -39,12 +41,21 @@ class Response(models.Model):
     interview_uuid = models.CharField(_("ID"), max_length=36)
     repeat_order = models.IntegerField(_("Order of repeated"), default=0)
     completion_status = models.CharField(_("completion_status"), max_length=50, choices=COMPLETION_STATUS_CHOICE, default="Initial state")
+    number_of_questions = models.IntegerField(_("Number of questions"), default=0)
+
 
     class Meta:
         verbose_name = _("Set of answers")
         verbose_name_plural = _("Sets of answers")
 
     def __str__(self):
-        msg = f"Response to {self.survey} by {self.user}"
-        msg += f" on {self.created}"
+        msg = f"Response to {self.survey}"
+        msg += f" on {self.created}."
+        msg_1, result_msg = Diagnostic_Result(self.Majority_Rate, self.Correctness_Rate, self.number_of_questions)
+        msg += f" Diagnostic result is {msg_1}."
         return msg
+
+
+    def get_details(self):
+        pass
+

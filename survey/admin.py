@@ -9,13 +9,26 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
+# from simpleui.admin import AjaxAdmin
+
 class UserAdmin(BaseUserAdmin):
     list_display = ("username", "email")
     # list_filter = ("survey", "created", "user")
     ordering = ("username",)
     fieldsets = None
 
-    fields = ["username", "email", "Gender", "is_active","is_staff", "date_joined", "last_login", "is_participant"]
+    fields = ["username",
+              "email",
+              "Gender",
+              "is_active",
+              "is_staff",
+              "date_joined",
+              "last_login",
+              "is_participant",
+              'affiliated_school',
+              'field_1',
+              'nicknames'
+              ]
     readonly_fields = ("date_joined", "last_login")
 
 
@@ -55,7 +68,7 @@ class SurveyAdmin(admin.ModelAdmin):
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description', 'diagnosis_stages_qs_num'],
+            'fields': ['name', 'description', 'diagnosis_stages_qs_num', 'diagnostic_page_indexing'],
         }),
 
         ("Privilege Management", {
@@ -65,8 +78,8 @@ class SurveyAdmin(admin.ModelAdmin):
     ]
 
     inlines = [CategoryInline, QuestionInline]
-    # actions = [make_published, Survey2Csv.export_as_csv, Survey2Tex.export_as_tex]
     actions = [make_published, Survey2Csv.export_as_csv]
+
 
 class AnswerBaseInline(admin.StackedInline):
     max_num = 0

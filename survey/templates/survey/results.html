@@ -1,4 +1,4 @@
-{% extends 'survey/base.html' %}
+{% extends 'base_n.html' %}
 {% load i18n %}
 {% load bootstrap %}
 
@@ -12,35 +12,36 @@
 {#<h3>Correctness Rate (how often one’s meta-judgment about majority or minority was correct)</h3>#}
 {#<h5>This score shows how well you know yourself in relation other people.</h5>#}
 
-<div class="container">
-    <div class="panel-collapse collapse show">
-        <div class="panel-body">
+    <!-- Faq Section -->
+    <section id="faq" class="faq section">
 
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <td>
-                        <h3>{{ msg }}</h3>
-                    </td>
-                </tr>
 
-                </thead>
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h1> {{ survey.name }} </h1>
+        <p class="survey-description"> {{ survey.description|safe }} </p>
+      </div><!-- End Section Title -->
 
-                <tbody>
-                    <tr>
-                        <td>
-                            <p>{{ diagnostic_result }}</p>
-                        </td>
 
-                    </tr>
-                </tbody>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12" data-aos="fade-up" data-aos-delay="100">
+            <div class="question result-pre-question">
 
-            </table>
 
-                <a href="{{ next_url }}">Next</a>
+                    <h1>{{ msg_diagnostic }}</h1>
+
+                    <p>{{ diagnostic_result }}</p>
+
+                    <a href="{{ next_url }}">Next</a>
+
+
+            </div>
+          </div><!-- End Faq Column-->
         </div>
-    </div>
-</div>
+      </div>
+
+    </section><!-- /Faq Section -->
 
 
 {% endblock %}

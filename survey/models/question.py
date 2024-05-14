@@ -154,6 +154,8 @@ class Question(models.Model):
     hiding_question_category_order = models.IntegerField(_("Hiding question category order"), default=0, help_text=HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT)
     random_order_q = models.IntegerField(_("random_order_q"), blank=True, default=0)
 
+    number_of_responses = models.IntegerField(_("number_of_responses"), default=0)
+
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")

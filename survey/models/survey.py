@@ -33,6 +33,10 @@ DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT = _("""
 Displays temporary diagnostic information after how many questions have been answered.
 """)
 
+DIAGNOSTIC_PAGE_INDEXING = _("""
+The diagnosis is displayed after collecting as many responses as possible.
+""")
+
 
 def in_duration_day():
     return now() + timedelta(days=settings.DEFAULT_SURVEY_PUBLISHING_DURATION)
@@ -64,6 +68,8 @@ class Survey(models.Model):
     expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day, help_text=EXPIRE_DATE_HELP_TEXT)
     redirect_url = models.URLField(_("Redirect URL"), blank=True)
     diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
+
+    diagnostic_page_indexing = models.IntegerField(_("Diagnostic page indexing"), default=10, help_text=DIAGNOSTIC_PAGE_INDEXING)
 
     class Meta:
         verbose_name = _("survey")

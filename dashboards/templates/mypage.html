@@ -1,0 +1,109 @@
+{% extends 'base_n.html' %}
+{% load i18n %}
+
+{% block body %}
+
+    <!-- Team Section -->
+    <section id="" class="section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>過去の回答</h2>
+        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+          <div class="col-xl-12 col-lg-12 col-md-12" data-aos="fade-up" data-aos-delay="200">
+            <div class="member">
+              <div class="member-info">
+
+
+                    <div id="intro">
+{#                        {% if messages %}#}
+{#                            <p>#}
+{#                                {% for message in messages %}#}
+{#                                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">#}
+{#                                        {{ message }}#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
+{#                            </p>#}
+{#                        {% endif %}#}
+
+                    {% if user.is_authenticated %}
+                        {% if answer_list %}
+                            <ul>
+                                {% for answer in answer_list %}
+                                    <li><h3>{{ answer }}</h3>
+{#                                    <li><h3><a href="{{ survey.get_absolute_url }}">{{answer.survey.name}}</a></h3></li>#}
+    {#                                <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>#}
+
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <h2>There is no answer yet</h2>
+                        {% endif %}
+
+                    {% endif%}
+
+                    </div>
+
+              </div>
+            </div>
+          </div><!-- End Team Member -->
+
+      </div>
+
+    </section><!-- /Team Section -->
+
+        <!-- Team Section -->
+    <section id="" class="section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>私について</h2>
+        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+          <div class="col-xl-12 col-lg-12 col-md-12" data-aos="fade-up" data-aos-delay="200">
+            <div class="member">
+              <div class="member-info">
+
+
+                    <div id="intro">
+{#                        {% if messages %}#}
+{#                            <p>#}
+{#                                {% for message in messages %}#}
+{#                                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">#}
+{#                                        {{ message }}#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
+{#                            </p>#}
+{#                        {% endif %}#}
+
+                    {% if user.is_authenticated %}
+                            <ul>
+                                <li><h4>UserName :　　{{user.username}}</h4></li>
+                                <li><h4>G e n d e r :　　{{user.Gender}}</h4></li>
+                                <li><h4>E - m a i l :　　{{user.email}}</h4></li>
+                                <li><h4>Affiliated School:　　{{user.affiliated_school}}</h4></li>
+                                <li><h4>F i e l d  :　　{{user.field_1}}</h4></li>
+                                <li><h4>Nicknames :　　{{user.nicknames}}</h4></li>
+                            </ul>
+
+                    {% endif%}
+
+                    </div>
+
+              </div>
+            </div>
+          </div><!-- End Team Member -->
+
+      </div>
+
+    </section><!-- /Team Section -->
+
+
+
+
+{% endblock %}

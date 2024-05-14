@@ -13,7 +13,13 @@ from survey.models import Answer, Category, Question, Response, Survey
 from survey.signals import survey_completed
 from survey.widgets import ImageSelectWidget
 
+from survey.utility.recalculated_results import calculate_results
+
 LOGGER = logging.getLogger(__name__)
+
+class UploadFileForm(forms.Form):
+    title = forms.CharField(max_length=50)
+    file = forms.FileField()
 
 class ResponseForm(models.ModelForm):
 
@@ -349,13 +355,13 @@ class ResponseForm(models.ModelForm):
             self.question_to_display.append(self.qs_with_no_cat)
         self.question_to_display = flat(self.question_to_display)
         # -------------------------------------------------------------------
-        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-            print(" ------------------------------------------------------------ ")
-            print("生成的问题")
-            print(" -------- ")
-            for i, question in enumerate(self.question_to_display):
-                print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
-            print(" ------------------------------------------------------------ ")
+        # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+        #     print(" ------------------------------------------------------------ ")
+        #     print("生成的问题")
+        #     print(" -------- ")
+        #     for i, question in enumerate(self.question_to_display):
+        #         print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
+        #     print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
         # TranslateComments
 
@@ -580,12 +586,6 @@ class ResponseForm(models.ModelForm):
 
     def save(self, commit=True):
         """Save the response object"""
-        # Recover an existing response from the database if any
-        #  There is only one response by logged user.
-        # response = self._get_preexisting_response()
-        # if not self.survey.editable_answers and response is not None:
-        #     return None
-        # if response is None:
         response = super().save(commit=False)
 
         response.survey = self.survey
@@ -593,14 +593,14 @@ class ResponseForm(models.ModelForm):
         if self.user.is_authenticated:
             response.user = self.user
         response.repeat_order = self.repeat_order
-
         response.save()
+
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
         for field_name, field_value in list(self.cleaned_data.items()):
             if field_name.startswith("question_"):
-                print("field_name:      ", field_name)
+                # print("field_name:      ", field_name)
                 field_name_split = field_name.split("_")
-                print("field_name_split:      ", field_name_split)
+                # print("field_name_split:      ", field_name_split)
                 if field_name_split[1] != "subsidiary":
 
                     q_id = int(field_name.split("_")[1])
@@ -609,6 +609,11 @@ class ResponseForm(models.ModelForm):
                     # answer = self._get_preexisting_answer(question)
                     # if answer is None:
                     answer = Answer(question=question)
+
+                    NB = int(question.number_of_responses)
+                    NB += 1
+                    question.number_of_responses = NB
+                    question.save()
 
                     # if question.type == Question.SELECT_IMAGE:
                     #     value, img_src = field_value.split(":", 1)
@@ -636,34 +641,27 @@ class ResponseForm(models.ModelForm):
                     except Answer.DoesNotExist:
                         print("Error:")
 
-                    if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-                        print(" ------------------------------------------------------------ ")
-                        print("answers:   ", answers)
-                        print("q_id:  ", q_id)
-                        print(" ------------------------------------------------------------ ")
+                    # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+                    #     print(" ------------------------------------------------------------ ")
+                    #     print("answers:   ", answers)
+                    #     print("q_id:  ", q_id)
+                    #     print(" ------------------------------------------------------------ ")
 
                     # sam-todo 更新最多回答的记录
                     answers_all_saved = Answer.objects.filter(question=question)
-                    if answers_all_saved.count() >= 10:
-                        majority_choices_list = []
-                        for ans in answers_all_saved:
-                            majority_choices_list.append(ans.subsidiary)
-                        question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
-                    else:
-                        pass
+                    majority_choices_list = []
+                    for ans in answers_all_saved:
+                        majority_choices_list.append(ans.subsidiary)
+                    question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
+                    question.save()
 
-                    # print("answers_dict:     ", answers_dict)
-                    # answer = answers_dict[str(q_id)]
+        Majority_Rate_num, Correctness_Rate_num = calculate_results(response)
+        response_list = Response.objects.filter(survey=self.survey)
+        if len(response_list)>1:
+            for response_t in response_list:
+                Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)
+        print("Forms saved.   Majority_Rate_num=",Majority_Rate_num)
+        print("Forms saved.Correctness_Rate_num=",Correctness_Rate_num)
 
-                    # if question.type == Question.SELECT_IMAGE:
-                    #     value, img_src = field_value.split(":", 1)
-                    #     LOGGER.debug("Question.SELECT_IMAGE not implemented, please use : %s and %s", value, img_src)
-
-                    # data["responses"].append((answer.question.id, answer.body))
-                    # data["responses"].append((answer.question_id,answer.subsidiary))
-                    # LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type,
-                    #              field_value)
-                    # answer.response = response
-                    # answer.save()
         survey_completed.send(sender=Response, instance=response, data=data)
         return response

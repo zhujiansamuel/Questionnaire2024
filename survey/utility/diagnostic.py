@@ -1,6 +1,14 @@
+from ..models.response import Response
 
 def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
-    step = int(kwargs.get("step", 0))+1
+    kwargs_step = kwargs.get("step")
+    if kwargs_step is None:
+        response = Response.objects.get(interview_uuid=kwargs["uuid"])
+        step = int(response.number_of_questions)
+    else:
+        step = int(kwargs_step)+1
+
+    print("Step:  ",step)
     majority_rate_r = majority_rate/step
     if majority_rate_r < 0.55:
         msg_1 = "D"
@@ -10,6 +18,7 @@ def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
         msg_1 = "B"
     elif majority_rate_r >= 0.75:
         msg_1 = "A"
+
     correctness_rate_r = correctness_rate/step
     if correctness_rate_r == 0:
         msg_2 = "Zero"
@@ -204,3 +213,4 @@ Train yourself through this game, and know yourself better by learning how other
             """
 
     return msg, result_msg
+
