@@ -37,6 +37,9 @@ DIAGNOSTIC_PAGE_INDEXING = _("""
 The diagnosis is displayed after collecting as many responses as possible.
 """)
 
+DOWNLOAD_TOP_NUMBER = _("""
+Decide how many downloads the most points for the answer.
+""")
 
 def in_duration_day():
     return now() + timedelta(days=settings.DEFAULT_SURVEY_PUBLISHING_DURATION)
@@ -70,7 +73,7 @@ class Survey(models.Model):
     diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
 
     diagnostic_page_indexing = models.IntegerField(_("Diagnostic page indexing"), default=10, help_text=DIAGNOSTIC_PAGE_INDEXING)
-
+    download_top_number = models.IntegerField(_("Download the top results"), default=0, help_text=DOWNLOAD_TOP_NUMBER)
     class Meta:
         verbose_name = _("survey")
         verbose_name_plural = _("surveys")

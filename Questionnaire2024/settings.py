@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    "debug_toolbar",
     "simpleui",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 SITE_ID = 1
@@ -292,3 +294,8 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 SIMPLEUI_HOME_INFO = False
 
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

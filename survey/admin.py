@@ -99,8 +99,8 @@ class AnswerBaseInline(admin.StackedInline):
         return False
 
 class ResponseAdmin(admin.ModelAdmin):
-    list_display = ("interview_uuid", "survey", "created", "user", "repeat_order")
-    list_filter = ("survey", "created", "user")
+    list_display = ("interview_uuid", "survey", "created", "user", "DIAGNOSTIC_RESULT", "repeat_order")
+    list_filter = ("survey", "created", "user", "DIAGNOSTIC_RESULT")
     date_hierarchy = "created"
     inlines = [AnswerBaseInline]
     fieldsets = [

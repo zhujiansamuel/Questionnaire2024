@@ -53,7 +53,7 @@ urlpatterns += [
          name='password-reset'),
 
     path("accounts/mypage/", My_page.as_view(), name='mypage'),
-
+    path("__debug__/", include("debug_toolbar.urls")),
     path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("style/", HomeIndexView.as_view(), name="home"),

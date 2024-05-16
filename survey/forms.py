@@ -405,6 +405,7 @@ class ResponseForm(models.ModelForm):
             # for question in qs_for_step:
             #     self.add_question(question, data)
         else:
+            print("--------question_to_display:",self.question_to_display)
             for i, question in enumerate(self.question_to_display):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -533,6 +534,7 @@ class ResponseForm(models.ModelForm):
             return forms.ChoiceField(**kwargs)
 
     def add_question(self, question, data):
+        print("-------------->add_question:", question)
         MAJORITY_MINORITY = (
             ("majority", _("多数派")),
             ("minority", _("少数派")),
@@ -651,7 +653,7 @@ class ResponseForm(models.ModelForm):
                     answers_all_saved = Answer.objects.filter(question=question)
                     majority_choices_list = []
                     for ans in answers_all_saved:
-                        majority_choices_list.append(ans.subsidiary)
+                        majority_choices_list.append(ans.body)
                     question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
                     question.save()
 

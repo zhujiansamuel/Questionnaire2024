@@ -43,7 +43,6 @@ class SurveyDetail(View):
             else:
                 template_name = "survey/survey.html"
         if survey.need_logged_user and not request.user.is_authenticated:
-            # todo: 自定义登录url
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
         session_random_list = request.session.get("session_random_list",False)
@@ -126,19 +125,24 @@ class SurveyDetail(View):
         if session_key not in request.session:
             request.session[session_key] = {}
         for key, value in list(form.cleaned_data.items()):
+            print("-----------------------------------------------")
+            print("key:",key)
+            print("value:",value)
             request.session[session_key][key] = value
             request.session.modified = True
 
             if question.subsidiary_type == "majority_minority":
+                if key.startswith("question_") and not key.startswith("question_subsidiary_"):
+                    choice = value
                 if key.startswith("question_subsidiary_"):
                     if value == "majority":
                         request.session[diagnostic_session_key]["Majority_Rate"] = str(majority_rate + 1)
                         request.session.modified = True
-                        if question.majority_choices == "majority":
+                        if question.majority_choices == choice:
                             request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
                             request.session.modified = True
                     elif value == "minority":
-                        if question.majority_choices == "minority":
+                        if question.majority_choices != choice:
                             request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
                             request.session.modified = True
 
@@ -176,6 +180,8 @@ class SurveyDetail(View):
                 context1 = self.result_pre_question(form, next_url, request)
                 context2 = self.Diagnostic_Result(form, next_url, request, kwargs)
                 context = self.Merge(context1, context2)
+                print("---------------->context:",context)
+                # todo
                 template_name = "survey/result_pre_question.html"
                 return render(request, template_name, context)
 
@@ -211,6 +217,8 @@ class SurveyDetail(View):
         # not_enough = True
         # msg=""
         for field_name, field_value in list(form.cleaned_data.items()):
+            if field_name.startswith("question_") and not field_name.startswith("question_subsidiary_"):
+                choice = field_value
             if field_name.startswith("question_subsidiary_"):
                 qqqq = field_value
                 pk = int(field_name.split("_")[2])
@@ -222,17 +230,18 @@ class SurveyDetail(View):
                     msg = "あなたの回答の結果はまだ十分に回答が集まっていないため、診断結果は後ほどまたログインして確かめてください."
                 else:
                     not_enough = False
+
                     if question.subsidiary_type == "majority_minority":
-                        if question.majority_choices == "majority":
+                        if question.majority_choices == choice:
                             if qqqq == "majority":
-                                msg = "正解、多数派ー多数派"
+                                msg = "正解、あなたの回答は多数派"
                             else:
-                                msg = "不正解、多数派ー少数派"
+                                msg = "不正解、あなたの回答は少数派"
                         else:
                             if qqqq == "minority":
-                                msg = "正解、少数派ー少数派"
+                                msg = "正解、あなたの回答は少数派"
                             else:
-                                msg = "不正解、少数派ー多数派"
+                                msg = "不正解、あなたの回答は多数派"
             else:
                 not_enough = True
                 msg = "Error"

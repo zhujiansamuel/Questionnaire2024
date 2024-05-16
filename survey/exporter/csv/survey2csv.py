@@ -85,9 +85,21 @@ class Survey2Csv(Survey2X):
             csv.append(self.EXCEL_HACK)
         header, question_order = self.get_header_and_order()
         csv.append(Survey2Csv.line_list_to_string(header))
-        for response in self.survey.responses.all():
-            line = Survey2Csv.get_user_line(question_order, response)
-            csv.append(Survey2Csv.line_list_to_string(line))
+        response_list = self.survey.responses.all().order_by("-Majority_Rate_num", "-Correctness_Rate_num")
+        if self.survey.download_top_number != 0:
+            if len(response_list) <= self.survey.download_top_number:
+                for response in response_list:
+                    line = Survey2Csv.get_user_line(question_order, response)
+                    csv.append(Survey2Csv.line_list_to_string(line))
+            else:
+                for response in response_list[:self.survey.download_top_number]:
+                    line = Survey2Csv.get_user_line(question_order, response)
+                    csv.append(Survey2Csv.line_list_to_string(line))
+        else:
+            for response in self.survey.responses.all():
+                line = Survey2Csv.get_user_line(question_order, response)
+                csv.append(Survey2Csv.line_list_to_string(line))
+
         return "\n".join(csv)
 
     @staticmethod

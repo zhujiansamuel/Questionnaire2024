@@ -42,6 +42,9 @@ class Response(models.Model):
     repeat_order = models.IntegerField(_("Order of repeated"), default=0)
     completion_status = models.CharField(_("completion_status"), max_length=50, choices=COMPLETION_STATUS_CHOICE, default="Initial state")
     number_of_questions = models.IntegerField(_("Number of questions"), default=0)
+    Majority_Rate_num = models.CharField(_("Majority Rate(Number)"), default=0, max_length=20)
+    Correctness_Rate_num = models.CharField(_("Correctness Rate(Number)"), default=0, max_length=20)
+    DIAGNOSTIC_RESULT = models.CharField(_("DIAGNOSTIC"), default="Zero", max_length=20)
 
 
     class Meta:
@@ -51,8 +54,8 @@ class Response(models.Model):
     def __str__(self):
         msg = f"Response to {self.survey}"
         msg += f" on {self.created}."
-        msg_1, result_msg = Diagnostic_Result(self.Majority_Rate, self.Correctness_Rate, self.number_of_questions)
-        msg += f" Diagnostic result is {msg_1}."
+        # msg_1, result_msg = Diagnostic_Result(self.Majority_Rate, self.Correctness_Rate, self.number_of_questions)
+        msg += f" Diagnostic result is {self.DIAGNOSTIC_RESULT}."
         return msg
 
 
