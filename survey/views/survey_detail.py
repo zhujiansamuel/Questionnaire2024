@@ -125,9 +125,9 @@ class SurveyDetail(View):
         if session_key not in request.session:
             request.session[session_key] = {}
         for key, value in list(form.cleaned_data.items()):
-            print("-----------------------------------------------")
-            print("key:",key)
-            print("value:",value)
+            # print("-----------------------------------------------")
+            # print("key:",key)
+            # print("value:",value)
             request.session[session_key][key] = value
             request.session.modified = True
 
@@ -148,13 +148,13 @@ class SurveyDetail(View):
 
             elif question.subsidiary_type == "certainty_degree":
                 pass
-        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-            print(" ------------------------------------------------------------ ")
-            print("request.session[diagnostic_session_key][Correctness_Rate]",
-                  request.session[diagnostic_session_key]["Correctness_Rate"])
-            print("request.session[diagnostic_session_key][Majority_Rate]",
-                  request.session[diagnostic_session_key]["Majority_Rate"])
-            print(" -------- ")
+        # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+        #     print(" ------------------------------------------------------------ ")
+        #     print("request.session[diagnostic_session_key][Correctness_Rate]",
+        #           request.session[diagnostic_session_key]["Correctness_Rate"])
+        #     print("request.session[diagnostic_session_key][Majority_Rate]",
+        #           request.session[diagnostic_session_key]["Majority_Rate"])
+        #     print(" -------- ")
         next_url = form.next_step_url()
         response = None
         if survey.is_all_in_one_page():
@@ -180,8 +180,7 @@ class SurveyDetail(View):
                 context1 = self.result_pre_question(form, next_url, request)
                 context2 = self.Diagnostic_Result(form, next_url, request, kwargs)
                 context = self.Merge(context1, context2)
-                print("---------------->context:",context)
-                # todo
+                # print("---------------->context:",context)
                 template_name = "survey/result_pre_question.html"
                 return render(request, template_name, context)
 

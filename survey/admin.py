@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 # from simpleui.admin import AjaxAdmin
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ("username", "email")
+    list_display = ("username", "email","is_participant","is_staff","affiliated_school")
     # list_filter = ("survey", "created", "user")
     ordering = ("username",)
     fieldsets = None
@@ -34,15 +34,23 @@ class UserAdmin(BaseUserAdmin):
 
 class QuestionInline(admin.StackedInline):
     model = Question
-    ordering = ("order", 'category')
-    # fields = ["text", "category", 'choices', 'majority_choices', 'hiding_question_category_order']
+    ordering = ('category',"order")
     fieldsets = [
-        ("Edit Question", {
-            'fields': ['text', 'choices', 'category', 'hiding_question_category_order', 'majority_choices'],
+        ("Question Body", {
+            'fields': ['text', 'choices', ],
         }),
+        ("Question Information",{
+            'fields': ['category','order'],
+         }),
+        ("hiding question", {
+            'fields': ['hiding_question_category_order'],
+         }),
+        ("Answer situation",{
+            'fields': ['majority_choices', 'number_of_responses'],
+         })
     ]
     extra = 0
-
+    readonly_fields = ('majority_choices', "number_of_responses")
 
     def get_formset(self, request, survey_obj, *args, **kwargs):
         formset = super().get_formset(request, survey_obj, *args, **kwargs)
@@ -61,25 +69,44 @@ class CategoryInline(admin.StackedInline):
 
 
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ("name", "is_published", "description", "publish_date")
+
+    list_display = ("name","founder", "is_published", "expire_date", "download_top_number")
     list_filter = ("is_published", "publish_date")
     ordering = ("name",)
     search_fields = ("name",)
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description', 'diagnosis_stages_qs_num', 'diagnostic_page_indexing'],
+            'fields': ['name', 'description', 'founder', 'diagnosis_stages_qs_num', 'diagnostic_page_indexing'],
         }),
 
         ("Privilege Management", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
             'fields': ['is_published', 'publish_date', 'expire_date'],
         }),
-    ]
+        ("Export Management", {
+            'description': '',
+            'fields': ['download_top_number'],
+        }),
 
+
+    ]
+    readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
     actions = [make_published, Survey2Csv.export_as_csv]
 
+    def save_model(self, request, obj, form, change):
+        if not obj.founder:
+            obj.founder = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        queryset = super(SurveyAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        else:
+            operator = request.user
+            return queryset.filter(founder=operator)
 
 class AnswerBaseInline(admin.StackedInline):
     max_num = 0
@@ -99,8 +126,9 @@ class AnswerBaseInline(admin.StackedInline):
         return False
 
 class ResponseAdmin(admin.ModelAdmin):
-    list_display = ("interview_uuid", "survey", "created", "user", "DIAGNOSTIC_RESULT", "repeat_order")
+    list_display = ("interview_uuid", "survey", "created", "user", "DIAGNOSTIC_RESULT","Majority_Rate_num","Correctness_Rate_num")
     list_filter = ("survey", "created", "user", "DIAGNOSTIC_RESULT")
+    ordering = ("Majority_Rate_num","Correctness_Rate_num")
     date_hierarchy = "created"
     inlines = [AnswerBaseInline]
     fieldsets = [
@@ -114,7 +142,7 @@ class ResponseAdmin(admin.ModelAdmin):
         }),
         ('Quick facts on statistics', {
             'description': "Majority-Rate and Correctness-Rate are automatically calculated by the website and are for reference only. As users are allowed to answer the questionnaire repeatedly, the answered questions will not be repeated.Order of repeated refers to the number of indexes of the same user's answers to the same questionnaire, which is only used for the internal management of the website.",
-            'fields': ['Majority_Rate', 'Correctness_Rate', 'repeat_order']
+            'fields': ['DIAGNOSTIC_RESULT', 'Majority_Rate_num', 'Correctness_Rate_num', 'number_of_questions',"survey_founder"]
         }),
     ]
     # specifies the order as well as which fields to act on
@@ -126,13 +154,25 @@ class ResponseAdmin(admin.ModelAdmin):
                        "Correctness_Rate",
                        "repeat_order",
                        "completion_status",
+                       'DIAGNOSTIC_RESULT',
+                       'Majority_Rate_num',
+                       'Correctness_Rate_num',
+                       'number_of_questions',
                        )
-
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request, obj=None):
         return False
+
+    def get_queryset(self, request):
+        queryset = super(ResponseAdmin, self).get_queryset(request)
+
+        if request.user.is_superuser:
+            return queryset
+        else:
+            operator = request.user
+            return queryset.filter(survey_founder=operator)
 
 
 # admin.site.register(Question, QuestionInline)

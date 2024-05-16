@@ -45,6 +45,7 @@ class Response(models.Model):
     Majority_Rate_num = models.CharField(_("Majority Rate(Number)"), default=0, max_length=20)
     Correctness_Rate_num = models.CharField(_("Correctness Rate(Number)"), default=0, max_length=20)
     DIAGNOSTIC_RESULT = models.CharField(_("DIAGNOSTIC"), default="Zero", max_length=20)
+    survey_founder = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("survey_founder"), null=True, blank=True,related_name="survey_responses")
 
 
     class Meta:

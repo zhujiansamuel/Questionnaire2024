@@ -56,14 +56,12 @@
         {% if user.is_authenticated %}
               <li><a class="btn-getstarted" href="{% url "mypage" %}">マイページ</a></li>
             <br>
-{#            {% if is_experimenter %}#}
+            {% if user.is_staff %}
                 <li><a class="btn-getstarted" href="{% url "admin:index" %}">コンソール</a></li>
                 <br>
-
 {#                <li><a class="btn-getstarted" href="{% url "upload_survey" %}">upload_survey</a></li>#}
 {#                <br>#}
-
-{#            {% endif %}#}
+            {% endif %}
               <li><a class="btn-getstarted" href="{% url "logout" %}">ログアウト</a></li>
             <br>
 

@@ -58,11 +58,11 @@ class ApplicationUser(AbstractUser):
     email = models.EmailField(_("E-mail address"),
                               unique=False)
 
-    # is_staff = models.BooleanField(
-    #     _("Manage surveys."),
-    #     default=False,
-    #     help_text=_("Users who are authorized to administer surveys."),
-    # )
+    is_staff = models.BooleanField(
+        _("Manage surveys."),
+        default=False,
+        help_text=_("Users who are authorized to administer surveys."),
+    )
 
     affiliated_school = models.CharField(
         _("Affiliated School"),

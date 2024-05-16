@@ -1,11 +1,20 @@
 from datetime import timedelta
-
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+try:
+    from django.conf import settings
+
+    if settings.AUTH_USER_MODEL:
+        UserModel = settings.AUTH_USER_MODEL
+    else:
+        UserModel = User
+except (ImportError, AttributeError):
+    UserModel = User
 
 
 
@@ -38,7 +47,11 @@ The diagnosis is displayed after collecting as many responses as possible.
 """)
 
 DOWNLOAD_TOP_NUMBER = _("""
-Decide how many downloads the most points for the answer.
+Decide how many downloads the most points for the answer.If set to 0, then download all responses
+""")
+
+FOUNDER = _("""
+Creator of the questionnaire. Creators can only view and edit their own questionnaires.
 """)
 
 def in_duration_day():
@@ -58,8 +71,8 @@ class Survey(models.Model):
 
     name = models.CharField(_("Name"), max_length=400, help_text=NAME_HELP_TEXT)
     description = models.TextField(_("Description"), help_text=DESCRIPTION_HELP_TEXT)
-    is_published = models.BooleanField(_("Users can see it and answer it"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
-
+    is_published = models.BooleanField(_("answer-able"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
+    founder = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("Founder"), null=True, blank=True, help_text=FOUNDER)
     need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"), default=True)
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
     display_method = models.SmallIntegerField(
@@ -74,6 +87,7 @@ class Survey(models.Model):
 
     diagnostic_page_indexing = models.IntegerField(_("Diagnostic page indexing"), default=10, help_text=DIAGNOSTIC_PAGE_INDEXING)
     download_top_number = models.IntegerField(_("Download the top results"), default=0, help_text=DOWNLOAD_TOP_NUMBER)
+
     class Meta:
         verbose_name = _("survey")
         verbose_name_plural = _("surveys")
@@ -84,6 +98,7 @@ class Survey(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
     @property
     def safe_name(self):

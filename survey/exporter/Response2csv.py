@@ -128,4 +128,4 @@ class Survey2Csv(Survey2X):
         return response
 
 
-Survey2Csv.export_as_csv.short_description = _("Export Sets of answers to CSV")
+Survey2Csv.export_as_csv.short_description = _("Export to CSV")
