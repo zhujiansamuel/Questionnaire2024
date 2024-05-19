@@ -4,7 +4,10 @@
 {% load survey_extras %}
 {% load static %}
 
-{% block title %} {{ survey.name }} {% endblock title %}
+
+{% block title %}
+    Questionnaire:{{ survey.name }}
+{% endblock title %}
 
 {% block extrajs %}
     {{ response_form.media }}

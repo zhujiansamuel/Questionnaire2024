@@ -1,7 +1,10 @@
 {#{% extends "base.html" %}#}
 {% extends "base_n.html" %}
 {% load socialaccount %}
-
+{% load i18n %}
+  {% block title %}
+    {% trans " Questionnaire:Login as experimenter " %}
+  {% endblock %}
 
 {% block body %}
 
