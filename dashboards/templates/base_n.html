@@ -56,8 +56,10 @@
     {#========================================================#}
   {#========================================================#}
 {#========================================================#}
+
       <nav id="navmenu" class="navmenu">
         <ul class="para">
+            {% block nav %}
         {% if user.is_authenticated %}
               <li><a class="btn-getstarted" href="{% url "mypage" %}">マイページ</a></li>
             <br>
@@ -76,11 +78,11 @@
               <li><a class="btn-getstarted" href="{% url 'register-participant'%}">プレイヤーの登録</a></li>
             <!-- <br> -->
 
-            　<h5 class="page-header"></h5>
-            　<li><a class="btn-getstarted" href="{% url 'experimenter_login' %}">研究者のログイン</a></li>
-            <br>
-              <li><a class="btn-getstarted" href="{% url 'register-experimenter'%}">研究者の登録</a></li>
-            <br>
+{#            　<h5 class="page-header"></h5>#}
+{#            　<li><a class="btn-getstarted" href="{% url 'experimenter_login' %}">研究者のログイン</a></li>#}
+{#            <br>#}
+{#              <li><a class="btn-getstarted" href="{% url 'register-experimenter'%}">研究者の登録</a></li>#}
+{#            <br>#}
         {% endif %}
           <!-- <li><a href="index.html#hero" class="">Home</a></li> -->
 {#          <li><a href="{% url 'home_n' %}">Home</a></li>#}
@@ -138,8 +140,11 @@
 {#          </li>#}
 {#          <li><a href="index.html#contact">Contact</a></li>#}
         </ul>
+      {% endblock nav %}
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+
       </nav>
+
 
 {#========================================================#}
   {#========================================================#}

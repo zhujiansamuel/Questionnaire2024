@@ -37,6 +37,14 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         return context
 
 
+class ExperimenterLoginView(TemplateView):
+
+    template_name = "to_register_experimenter.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 def download_csv(request, survey_id):
     survey = Survey.objects.filter(pk=survey_id).first()
     survey_name = str(survey.name)

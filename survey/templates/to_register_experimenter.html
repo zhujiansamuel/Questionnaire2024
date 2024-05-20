@@ -1,0 +1,47 @@
+{% extends 'base_n.html' %}
+{% load i18n %}
+{% load survey_extras %}
+{% load static %}
+
+  {% block title %}
+    {% trans " Questionnaire:Index " %}
+  {% endblock title %}
+
+{% block nav %}
+
+{% endblock nav %}
+
+
+{% block context %}
+
+    <!-- Hero Section -->
+    <section id="hero" class="section hero">
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-12 order-2 order-lg-1 d-flex flex-column justify-content-center">
+            <div class="title_container" style="text-align: center;font-weight: bolder;font-size:xx-large;margin-bottom: 20px;">研究者専用サイト</div>
+            <!-- <p> メタ認知、すなわち "認知的認知 "とは、個人が自らの認知プロセス（知覚、感情、記憶、思考を含む）を客観的に把握し、評価し、調整する能力を指す。</p> -->
+            <div class="" style="text-align:center;">
+                            　<h5 class="page-header"></h5>
+            　<a  class="btn-get-started" href="{% url 'experimenter_login' %}">研究者のログイン</a>
+                </div>
+            <br>
+              <div class="" style="text-align:center;">
+              <a  class="btn-get-started" href="{% url 'register-experimenter'%}">研究者の登録</a>
+
+{#              <a href="{% url "survey-list" %}" class="btn-get-started">アンケートを回答</a>#}
+              <!-- <a href="{% url "login" %}" class="btn-get-started">アンケートを回答</a> -->
+              <!-- <a href="https://www.youtube.com/watch?v=T-V4dXOIA3g" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>研究者について</span></a> -->
+            </div>
+              <br>
+          </div>
+          <!-- <div class="col-lg-6 order-1 order-lg-2 hero-img">
+{#            <img src="{% static 'assets/img/hero-img.svg' %}" class="img-fluid animated" alt="">#}
+          </div> -->
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+{% endblock context %}

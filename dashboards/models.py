@@ -45,6 +45,19 @@ class ApplicationUser(AbstractUser):
         default="Other",
         help_text=_("Non-essential items. Please rely on the experimenter's prompts to determine if an answer is required.")
     )
+
+    field_1_choice = {
+        ("Sociology", "Sociology"),
+        ("Psychology", "Psychology"),
+        ("Education", "Education"),
+        ("Information Science", "Information Science"),
+        ("Philosophy", "Philosophy"),
+        ("Resources Neuroscience", "Resources Neuroscience"),
+        ("Life Science", "Life Science"),
+        ("OTHER", "OTHER"),
+    }
+
+
     is_participant = models.BooleanField(
         _("Participant"),
         default=True,
@@ -74,6 +87,7 @@ class ApplicationUser(AbstractUser):
 
     field_1 = models.CharField(
         _("field (of study, etc.)"),
+        choices=field_1_choice,
         max_length=100,
         blank=True,
         null=True,

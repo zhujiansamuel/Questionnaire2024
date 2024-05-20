@@ -19,7 +19,7 @@ from django.urls import include
 from dashboards.views import HomeIndexView, StyleTest, signup_experimenter, signup_participant, My_page
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 from survey.views.index_view import upload_survey
-
+from survey.views.index_view import ExperimenterLoginView
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -63,6 +63,7 @@ urlpatterns += [
     path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
     path("accounts/signup/participant/", signup_participant, name='register-participant'),
     path("uploadsurvey/", upload_survey, name="upload_survey"),
+    path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

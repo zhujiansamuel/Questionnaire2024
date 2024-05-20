@@ -6,6 +6,7 @@ except ImportError:
     from django.urls import re_path as url
 
 from survey.views import ConfirmView, IndexView, SurveyCompleted, SurveyDetail
+
 from survey.views.survey_result import serve_result_csv
 from survey.views.index_view import download_csv
 
@@ -20,4 +21,6 @@ urlpatterns = [
     url(r"^confirm/(?P<uuid>\w+)/(?P<majority_rate>\w+)-(?P<correctness_rate>\w+)", ConfirmView.as_view(), name="survey-confirmation"),
     url(r"^download/(?P<survey_id>\d+)", download_csv, name="download-csv"),
     # url(r"^response/(?P<id>\d+)/")
+
+
 ]
