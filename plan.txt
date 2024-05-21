@@ -114,4 +114,14 @@ Zhuさんにお願いですが、参加者、研究者両方を、メールア�
 
 
 
-
+source venv/bin/activate
+git fetch --all
+git reset --hard origin/master
+git pull github master
+python3 manage.py collectstatic
+rm question.sqlite3
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py createsuperuser
+systemctl status nginx
+uwsgi --ini uwsgi.ini
