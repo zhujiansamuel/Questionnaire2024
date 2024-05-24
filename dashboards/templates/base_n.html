@@ -66,16 +66,18 @@
             {% if user.is_staff %}
                 <li><a class="btn-getstarted" href="{% url "admin:index" %}">コンソール</a></li>
                 <br>
-{#                <li><a class="btn-getstarted" href="{% url "upload_survey" %}">upload_survey</a></li>#}
-{#                <br>#}
+                <li><a class="btn-getstarted" href="{% url "upload_survey" %}">upload_survey</a></li>
+                <br>
             {% endif %}
               <li><a class="btn-getstarted" href="{% url "logout" %}">ログアウト</a></li>
             <br>
 
         {% else %}
-              <li><a class="btn-getstarted" href="{% url 'login'%}">プレイヤーのログイン</a></li>
+              <li><a class="btn-getstarted" href="{% url 'login'%}">ログイン</a></li>
             <br>
-              <li><a class="btn-getstarted" href="{% url 'register-participant'%}">プレイヤーの登録</a></li>
+              <li><a class="btn-getstarted" href="{% url 'register-participant'%}">登録</a></li>
+            <br>
+
             <!-- <br> -->
 
 {#            　<h5 class="page-header"></h5>#}

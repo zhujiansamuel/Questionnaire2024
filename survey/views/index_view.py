@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from survey.models import Survey, Response, Answer, Question
+from survey.models import Survey, Response, Answer, Question, Category
 from django.contrib.auth.decorators import login_required
 
 from ..forms import UploadFileForm
@@ -92,25 +92,73 @@ def upload_survey(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             sys.stderr.write("*** file_upload *** aaa ***\n")
-            handle_uploaded_file(request.FILES['file'])
-            file_obj = request.FILES['file']
-            sys.stderr.write(file_obj.name + "\n")
+            handle_uploaded_file(request.FILES['file'], request.user)
             return redirect('admin:index')
     else:
         form = UploadFileForm()
     return render(request, 'upload_csv.html', {'form': form})
 
 
-def handle_uploaded_file(file_obj):
-    sys.stderr.write("*** handle_uploaded_file *** aaa ***\n")
-    sys.stderr.write(file_obj.name + "\n")
+def handle_uploaded_file(file_obj,user):
     file_path = 'media/upload/' + file_obj.name
-    sys.stderr.write(file_path + "\n")
     with open(file_path, 'wb+') as destination:
         for chunk in file_obj.chunks():
-            sys.stderr.write("*** handle_uploaded_file *** ccc ***\n")
             destination.write(chunk)
-            sys.stderr.write("*** handle_uploaded_file *** eee ***\n")
+
+    file_title = str(file_obj.name).split('_')
+    survey = Survey.objects.get_or_create(name=file_title[0])[0]
+    if file_title[1] == 'Survey':
+        with open(file_path, 'r') as destination:
+            reader = csv.DictReader(destination)
+            for row in reader:
+                survey.description = row['Description']
+                survey.founder = user
+                survey.save()
+
+    elif file_title[1] == 'Category':
+        with open(file_path, 'r') as destination:
+            reader = csv.DictReader(destination)
+            for row in reader:
+                Category.objects.create(
+                    name=row['Name'],
+                    survey=survey,
+                    description=row['Description'],
+                    display_num=row['Display Number'],
+                    hiding_question_order=row['Hiding Question Order'],
+                    block_type=row['Block Type']
+                )
+
+    elif file_title[1] == 'Question':
+        with open(file_path, 'r') as destination:
+            reader = csv.DictReader(destination)
+            for row in reader:
+                try:
+                    category = Category.objects.get(name=row['Category'])
+                except Category.DoesNotExist:
+                    category = Category.objects.create(
+                        name=row['Category'],
+                        survey=survey
+                )
+                try:
+                    question = Question.objects.get(markings=row['Markings'])
+                    question.text=row['Text']
+                    question.order = row['Order']
+                    question.category = category
+                    question.choices = row['Choice']
+                    question.hiding_question_category_order = row['Hiding Question Order']
+                    question.save()
+                except Question.DoesNotExist:
+                    Question.objects.create(
+                        markings=row['Markings'],
+                        text=row['Text'],
+                        order=row['Order'],
+                        category=category,
+                        survey=survey,
+                        choices=row['Choice'],
+                        hiding_question_category_order=row['Hiding Question Order']
+                    )
+
+
 #
 # ------------------------------------------------------------------
 def success(request):

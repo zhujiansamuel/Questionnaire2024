@@ -46,11 +46,11 @@ class QuestionInline(admin.StackedInline):
             'fields': ['hiding_question_category_order'],
          }),
         ("Answer situation",{
-            'fields': ['majority_choices', 'number_of_responses'],
+            'fields': ['majority_choices', 'number_of_responses','markings'],
          })
     ]
     extra = 0
-    readonly_fields = ('majority_choices', "number_of_responses")
+    readonly_fields = ('majority_choices', "number_of_responses",'markings')
 
     def get_formset(self, request, survey_obj, *args, **kwargs):
         formset = super().get_formset(request, survey_obj, *args, **kwargs)

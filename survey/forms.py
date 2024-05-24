@@ -18,7 +18,7 @@ from survey.utility.recalculated_results import calculate_results
 LOGGER = logging.getLogger(__name__)
 
 class UploadFileForm(forms.Form):
-    title = forms.CharField(max_length=50)
+    # title = forms.CharField(max_length=50)
     file = forms.FileField()
 
 class ResponseForm(models.ModelForm):

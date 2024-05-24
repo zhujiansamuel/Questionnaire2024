@@ -125,3 +125,7 @@ python3 manage.py migrate
 python3 manage.py createsuperuser
 systemctl status nginx
 uwsgi --ini uwsgi.ini
+
+sudo systemctl restart nginx
+ps aux |grep uwsgi
+sudo kill -9 13187

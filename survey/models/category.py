@@ -49,6 +49,7 @@ class Category(models.Model):
         (ONE_Random, _("one-random")),
         (SEQUENCE, _("sequence"))
     }
+    
     name = models.CharField(_("Name"), max_length=400, help_text=NAME_HELP_TEXT)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="categories")
     order = models.IntegerField(_("Display order"), blank=True, null=True, help_text=ORDER_HELP_TEXT)

@@ -73,6 +73,11 @@ NUMBER_OF_RESPONSES = _("""
 Shows how many answers have been collected.
 """)
 
+
+MARKINGS = _("""
+For questions created via CSV files, this identifier is used to identify the different questions. For questions created from pages, this identifier is not required.
+""")
+
 def validate_choices(choices):
     """Verifies that there is at least two choices in choices
     :param String choices: The string representing the user choices.
@@ -135,7 +140,7 @@ class Question(models.Model):
         ("majority_minority",_("majority_minority")),
         ("certainty_degree",_("certainty_degree")),
     )
-
+    markings = models.CharField(_("markings"), max_length=100, blank=True, null=True, help_text=MARKINGS)
     text = CKEditor5Field(_("Question Body"), help_text=TYPE_HELP_TEXT, config_name='extends')
     # text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=0)
