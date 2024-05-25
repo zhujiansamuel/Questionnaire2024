@@ -50,9 +50,10 @@ class SurveyDetail(View):
             request.session["session_random_list"] = {}
             for i in range(1,100):
                 request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+                session_random_list = request.session.get("session_random_list")
 
         # -------------------------------------------------------------------
-        form = ResponseForm(survey=survey, user=request.user, step=step, requests=request)
+        form = ResponseForm(survey=survey, user=request.user, step=step, requests=request, session_random_list=session_random_list)
         categories = form.current_categories()
 
         asset_context = {
@@ -74,8 +75,14 @@ class SurveyDetail(View):
         survey = kwargs.get("survey")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+        session_random_list = request.session.get("session_random_list",False)
+        if not session_random_list:
+            request.session["session_random_list"] = {}
+            for i in range(1,100):
+                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+            session_random_list = request.session.get("session_random_list")
 
-        form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0), requests=request)
+        form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0), requests=request, session_random_list=session_random_list)
         categories = form.current_categories()
 
         if not survey.editable_answers and form.response is not None:

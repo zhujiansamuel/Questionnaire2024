@@ -8,6 +8,8 @@ from django.forms import models, widgets, fields
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import redirect
+
 
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.signals import survey_completed
@@ -51,6 +53,7 @@ class ResponseForm(models.ModelForm):
         self.survey = kwargs.pop("survey")
         self.user = kwargs.pop("user")
         self.requests = kwargs.pop("requests")
+        self.session_random_list = kwargs.pop("session_random_list")
         #
         try:
             self.step = int(kwargs.pop("step"))
@@ -115,12 +118,10 @@ class ResponseForm(models.ModelForm):
 
         # TranslateComments
         # 初始化会话随机列表
-        session_random_list = self.requests.session.get("session_random_list", False)
-
         categories_s = self.survey.random_categories()
         categories_dic = {}
         for i, category in enumerate(categories_s):
-            random_order = session_random_list[str(i+1)]
+            random_order = self.session_random_list[str(i+1)]
             categories_dic[random_order] = category
         categories_dic_sorted = sorted(categories_dic.items(), key=lambda x:x[0] )
         self.categories = [v for i, v in categories_dic_sorted]
@@ -253,7 +254,7 @@ class ResponseForm(models.ModelForm):
                 # ----->
                 random_question_dic = {}
                 for i, question in enumerate(all_question):
-                    random_order = session_random_list[str(i + 10)]
+                    random_order = self.session_random_list[str(i + 10)]
                     random_question_dic[random_order] = question
                 random_question_dic_sorted = sorted(random_question_dic.items(), key=lambda x: x[0])
                 # print("-->random_question_dic_sorted:",random_question_dic_sorted)
@@ -331,7 +332,7 @@ class ResponseForm(models.ModelForm):
             self.question_to_display.append(self.qs_with_no_cat)
         self.question_to_display = flat(self.question_to_display)
         # -------------------------------------------------------------------
-        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+        if self.step < 1:
             print(" ------------------------------------------------------------ ")
             print("生成的问题")
             print(" -------- ")
@@ -340,6 +341,9 @@ class ResponseForm(models.ModelForm):
             print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
         # TranslateComments
+        print(" ------------------------------------------------------------ ")
+        print("Step:", self.step)
+        print(" ------------------------------------------------------------ ")
 
         if self.survey.display_method == Survey.BY_CATEGORY:
             self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
@@ -354,12 +358,6 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
 
         self.add_questions(kwargs.get("data"))
-
-        # 不需要看到已经回答的问题
-        # self._get_preexisting_response()
-        # if not self.survey.editable_answers and self.response is not None:
-        #     for name in self.fields.keys():
-        #         self.fields[name].widget.attrs["disabled"] = True
 
     def eliminate_answered_questions(self, question_sequence):
         return [q for q in question_sequence if q not in self.questions_answered]
@@ -620,8 +618,8 @@ class ResponseForm(models.ModelForm):
         if len(response_list)>1:
             for response_t in response_list:
                 Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)
-        # print("Forms saved.   Majority_Rate_num=",Majority_Rate_num)
-        # print("Forms saved.Correctness_Rate_num=",Correctness_Rate_num)
+        print("Forms saved.   Majority_Rate_num=",Majority_Rate_num)
+        print("Forms saved.Correctness_Rate_num=",Correctness_Rate_num)
 
         survey_completed.send(sender=Response, instance=response, data=data)
         return response

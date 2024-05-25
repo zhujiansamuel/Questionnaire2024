@@ -129,3 +129,6 @@ uwsgi --ini uwsgi.ini
 sudo systemctl restart nginx
 ps aux |grep uwsgi
 sudo kill -9 13187
+
+
+cd /srv/Questionnaire2024/

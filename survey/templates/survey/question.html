@@ -3,13 +3,9 @@
 
 
 {% for form in response_form %}
-<br>
 	{% if form.field.widget.attrs.category == category.name or category.name == 'No category' and not form.field.widget.attrs.category %}
-<br>
-<br>
-<br>
 	            <h4>{{ form.label|safe }} </h4>
-<br>
+
 	            {% if form.field.required %}
 	                <span class="glyphicon glyphicon-asterisk" style="color:red"> </span>
 	            {% endif %}
@@ -17,8 +13,6 @@
 	            <span class="help-inline" style="color:red">
 	                <strong> {% for error in  form.errors %}{{ error }}{% endfor %} </strong>
 	            </span>
-
-	            <br>
 
                 {% if form.field.widget.input_type == 'select' %}
                     <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" name="{{form.name}}"{% if form.field.widget.attrs.disabled %} disabled{% endif %}>
@@ -32,14 +26,12 @@
                 {% if form.field.widget.input_type == 'select' %}
                     </select>
                 {% endif %}
-
-
-	{% else %}
+{#	{% else %}#}
 
     {% endif %}
 
 {% endfor %}
-    </tbody>
+
 
 
 {##}
