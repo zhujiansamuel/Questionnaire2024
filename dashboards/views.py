@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
+
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
 from django.shortcuts import render, redirect
@@ -20,22 +21,28 @@ class HomeIndexView(TemplateView):
         context['user_logged'] = self.request.user.is_authenticated
         return context
 
-def Login_survey(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        if username and password:
-            username = username.strip()
-            try:
-                user = ApplicationUser.objects.get(username=username)
-            except:
-                return render(request, './registration/login.html')
-            if user.password == password:
-                return redirect('survey/')
-    return render(request, './registration/login.html')
+# def Login_survey(request):
+#     if request.method == "POST":
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         if username and password:
+#             username = username.strip()
+#             try:
+#                 user = ApplicationUser.objects.get(username=username)
+#             except:
+#                 return render(request, './registration/login.html')
+#             if user.password == password:
+#                 return redirect('survey/')
+#     return render(request, './registration/login.html')
 
 class StyleTest(TemplateView):
     template_name = "style.html"
+
+
+# def logout_view(request):
+#     response = logout(request, next_page=reverse('app.home.views.home'))
+#     response.delete_cookie('user_location')
+#     return response
 
 def signup_experimenter(request):
     if request.method == 'POST':
@@ -130,5 +137,7 @@ class My_page(PermissionRequiredMixin,TemplateView):
 #             if user.password == password:
 #                 return redirect('survey/')
 #     return render(request, './registration/login.html')
+
+
 
 

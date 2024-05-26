@@ -31,6 +31,8 @@ class IndexView(PermissionRequiredMixin,TemplateView):
             print("permission_denied")
         if not self.request.user.is_authenticated:
             surveys = surveys.filter(need_logged_user=True)
+        # sam-todo:删除cookie中的记分，步长与随机数
+        # sam-todo:产生新数据存储在数据库
         context["surveys"] = surveys
         context["user_logged"] = self.request.user.is_authenticated,
         context["is_experimenter"] = self.request.user.has_perm('survey.experimenter')

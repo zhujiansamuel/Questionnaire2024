@@ -4,6 +4,9 @@ import random
 from django.conf import settings
 from django.shortcuts import redirect, render, reverse
 from django.views.generic import View
+from django.core.cache import cache
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 from survey.decorators import survey_available
 from survey.forms import ResponseForm
@@ -15,6 +18,8 @@ LOGGER = logging.getLogger(__name__)
 class SurveyDetail(View):
     @survey_available
     def get(self, request, *args, **kwargs):
+        print("get")
+        # sam-todo:产生新数据存储在数据库，因为首先请求是get方法
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
         session_key = "survey_{}".format(kwargs["id"])
@@ -45,16 +50,23 @@ class SurveyDetail(View):
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
+
+
         session_random_list = request.session.get("session_random_list",False)
         if not session_random_list:
             request.session["session_random_list"] = {}
-            for i in range(1,100):
-                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+            for i in range(1,50):
+                request.session["session_random_list"][str(i)] = random.randint(100, 99999)
                 session_random_list = request.session.get("session_random_list")
+
+        # cache.set('session_random_list', session_random_list)
+
+
 
         # -------------------------------------------------------------------
         form = ResponseForm(survey=survey, user=request.user, step=step, requests=request, session_random_list=session_random_list)
         categories = form.current_categories()
+        # categories = None
 
         asset_context = {
             # If any of the widgets of the current form has a "date" class, flatpickr will be loaded into the template
@@ -73,12 +85,13 @@ class SurveyDetail(View):
     @survey_available
     def post(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
+        print("post")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
         session_random_list = request.session.get("session_random_list",False)
         if not session_random_list:
             request.session["session_random_list"] = {}
-            for i in range(1,100):
+            for i in range(1,50):
                 request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
             session_random_list = request.session.get("session_random_list")
 
@@ -139,8 +152,14 @@ class SurveyDetail(View):
             request.session.modified = True
 
             if question.subsidiary_type == "majority_minority":
+                # print(" ------------------------------------------------------------ ")
+                # print("Question:",question)
+                # print(" ------------------------------------------------------------ ")
                 if key.startswith("question_") and not key.startswith("question_subsidiary_"):
                     choice = value
+                    # print(" ------------------------------------------------------------ ")
+                    # print("choice:",choice)
+                    # print(" ------------------------------------------------------------ ")
                 if key.startswith("question_subsidiary_"):
                     if value == "majority":
                         request.session[diagnostic_session_key]["Majority_Rate"] = str(majority_rate + 1)
@@ -149,7 +168,7 @@ class SurveyDetail(View):
                             request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
                             request.session.modified = True
                     elif value == "minority":
-                        if question.majority_choices != choice:
+                        if question.majority_choices!="Null" and question.majority_choices != choice:
                             request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
                             request.session.modified = True
 
@@ -164,6 +183,12 @@ class SurveyDetail(View):
         #     print(" -------- ")
         next_url = form.next_step_url()
         response = None
+        session_random_list = request.session.get("session_random_list",False)
+        if not session_random_list:
+            request.session["session_random_list"] = {}
+            for i in range(1,50):
+                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+            session_random_list = request.session.get("session_random_list")
         if survey.is_all_in_one_page():
             # 如果是单页调查问卷，那么提交意味着答题结束
             response = form.save()
@@ -171,7 +196,7 @@ class SurveyDetail(View):
             # when it's the last step
             if not form.has_next_step():
                 # 如果没有next_step,那么意味着答题结束
-                save_form = ResponseForm(request.session[session_key], survey=survey, user=request.user, requests=request)
+                save_form = ResponseForm(request.session[session_key], survey=survey, user=request.user, requests=request, session_random_list=session_random_list)
                 if save_form.is_valid():
                     response = save_form.save()
                 else:
@@ -229,7 +254,6 @@ class SurveyDetail(View):
                 qqqq = field_value
                 pk = int(field_name.split("_")[2])
                 question = Question.objects.get(pk=pk)
-                #sam-todo 因为每次回答都更新最多数的回答，所以这里更改判断条件
 
                 if question.number_of_responses < question.survey.diagnostic_page_indexing:
                     not_enough = True

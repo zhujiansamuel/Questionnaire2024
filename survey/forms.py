@@ -332,7 +332,7 @@ class ResponseForm(models.ModelForm):
             self.question_to_display.append(self.qs_with_no_cat)
         self.question_to_display = flat(self.question_to_display)
         # -------------------------------------------------------------------
-        if self.step < 1:
+        if self.step == 0:
             print(" ------------------------------------------------------------ ")
             print("生成的问题")
             print(" -------- ")

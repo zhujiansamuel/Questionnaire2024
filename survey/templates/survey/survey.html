@@ -53,8 +53,6 @@
 
                 {% csrf_token %}
                 {% for category in categories %}
-        {#            <h3> {{ category }} </h3>#}
-        {#            <p> {{ category.description|default_if_none:"" }} </p>#}
                     <div class="panel-group" id="accordion">
                     <div class="panel panel-default">
                         <div class="category-container">
@@ -74,27 +72,13 @@
                 <br>
                 {% if survey.editable_answers or response_form.response is None %}
                     {% if response_form.has_next_step %}
-{#                        <input#}
-{#                                class="btn btn-lg"#}
-{#                                type="submit"#}
-{#                                value="{% trans "次に" %}"#}
-{#                        >#}
                         <button type="submit" class="btn btn-primary mb-3">次に</button>
-
-
                     {% else %}
-{#                        <input#}
-{#                                class="btn btn-default btn-lg"#}
-{#                                type="submit"#}
-{#                                value="{% trans "I'm done!" %}"#}
-{#                        >#}
                         <button type="submit" class="btn btn-primary mb-3">I'm done!</button>
                     {% endif %}
                 {% endif %}
                 </form>
             </div>
-
-
 
           </div><!-- End Faq Column-->
 
