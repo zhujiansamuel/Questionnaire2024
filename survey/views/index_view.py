@@ -9,11 +9,14 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from survey.models import Survey, Response, Answer, Question, Category
 from django.contrib.auth.decorators import login_required
-
+from django.core.cache import cache
 from ..forms import UploadFileForm
 import sys
 
+import django.dispatch
+from django.dispatch import receiver
 
+init_cache = django.dispatch.Signal()
 
 # class IndexView(TemplateView):
 class IndexView(PermissionRequiredMixin,TemplateView):
@@ -21,6 +24,27 @@ class IndexView(PermissionRequiredMixin,TemplateView):
     template_name = "survey/list.html"
     permission_required = ('survey.participant',)
     # permission_required = ('login_required',)
+
+
+    def get(self, request, *args, **kwargs):
+        step = kwargs.get("step", 0)
+        if step == 0:
+            try:
+                temp = request.session[diagnostic_session_key]
+            except:
+                pass
+            else:
+                del request.session[diagnostic_session_key]
+
+            try:
+                temp = request.session[session_key]
+            except:
+                pass
+            else:
+                del request.session[session_key]
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,8 +55,6 @@ class IndexView(PermissionRequiredMixin,TemplateView):
             print("permission_denied")
         if not self.request.user.is_authenticated:
             surveys = surveys.filter(need_logged_user=True)
-        # sam-todo:删除cookie中的记分，步长与随机数
-        # sam-todo:产生新数据存储在数据库
         context["surveys"] = surveys
         context["user_logged"] = self.request.user.is_authenticated,
         context["is_experimenter"] = self.request.user.has_perm('survey.experimenter')
@@ -40,7 +62,6 @@ class IndexView(PermissionRequiredMixin,TemplateView):
 
 
 class ExperimenterLoginView(TemplateView):
-
     template_name = "to_register_experimenter.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -170,3 +191,8 @@ def success(request):
 
 def response_detail(request, survey_id):
     pass
+
+
+@receiver(init_cache, sender=IndexView)
+def my_callback(sender, **kwargs):
+    print("收到信号")

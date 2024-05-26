@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-from django.contrib.auth.mixins import PermissionRequiredMixin
-
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.core.cache import cache
 
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
@@ -11,8 +11,21 @@ from django.http import HttpResponseRedirect
 from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
 from survey.models.response import Response
+from django.contrib.auth.views import LoginView, LogoutView
 
+from django.contrib.auth import logout as auth_logout
 from .forms import ExperimenterCreationForm, ParticipantCreationForm
+
+
+class Logout_with_delete(LogoutView):
+    def get(self, request, *args, **kwargs):
+        auth_logout(request)
+        redirect_to = self.get_success_url()
+        if redirect_to != request.get_full_path():
+            # Redirect to target page once the session has been cleared.
+            return HttpResponseRedirect(redirect_to)
+        return super().get(request, *args, **kwargs)
+
 
 class HomeIndexView(TemplateView):
     template_name = "home.html"
@@ -21,28 +34,8 @@ class HomeIndexView(TemplateView):
         context['user_logged'] = self.request.user.is_authenticated
         return context
 
-# def Login_survey(request):
-#     if request.method == "POST":
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         if username and password:
-#             username = username.strip()
-#             try:
-#                 user = ApplicationUser.objects.get(username=username)
-#             except:
-#                 return render(request, './registration/login.html')
-#             if user.password == password:
-#                 return redirect('survey/')
-#     return render(request, './registration/login.html')
-
 class StyleTest(TemplateView):
     template_name = "style.html"
-
-
-# def logout_view(request):
-#     response = logout(request, next_page=reverse('app.home.views.home'))
-#     response.delete_cookie('user_location')
-#     return response
 
 def signup_experimenter(request):
     if request.method == 'POST':
@@ -111,8 +104,6 @@ def signup_participant(request):
         form = ParticipantCreationForm()
     return render(request, './registration/register_participant.html', {'form': form})
 
-
-
 class My_page(PermissionRequiredMixin,TemplateView):
     template_name = "mypage.html"
     permission_required = ('survey.participant',)
@@ -123,21 +114,4 @@ class My_page(PermissionRequiredMixin,TemplateView):
         )
         context["answer_list"] = answer_list
         return context
-
-# def login_experimenter(request):
-#     if request.method == "POST":
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         if username and password:
-#             username = username.strip()
-#             try:
-#                 user = ApplicationUser.objects.get(username=username)
-#             except:
-#                 return render(request, './registration/experimenter_login.html')
-#             if user.password == password:
-#                 return redirect('survey/')
-#     return render(request, './registration/login.html')
-
-
-
 

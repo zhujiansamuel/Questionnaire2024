@@ -17,7 +17,7 @@ def calculate_results(response):
             if answers[0].body == answers[0].question.majority_choices:
                 Correctness_Rate = Correctness_Rate + 1
         elif answers[0].subsidiary == "minority":
-            if answers[0].body != answers[0].question.majority_choices:
+            if answers[0].question.majority_choices != "Null" and answers[0].body != answers[0].question.majority_choices:
                 Correctness_Rate = Correctness_Rate + 1
     else:
         for answer in answers:
@@ -27,7 +27,7 @@ def calculate_results(response):
                 if answer.body == question.majority_choices:
                     Correctness_Rate = Correctness_Rate + 1
             elif answer.subsidiary == "minority":
-                if answer.body != answer.question.majority_choices:
+                if answer.question.majority_choices != "Null" and answer.body != answer.question.majority_choices:
                     Correctness_Rate = Correctness_Rate + 1
     if len(answers) != 0:
         Majority_Rate_num = Majority_Rate / len(answers)

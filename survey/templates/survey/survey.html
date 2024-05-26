@@ -23,10 +23,16 @@
     {% endif %}
 {% endblock %}
 
+    {% block logo %}
+    {% endblock logo %}
+
+{% block nav %}
+{% endblock nav %}
+
+
 
 
 {% block body %}
-
     <!-- Faq Section -->
     <section id="faq" class="faq section">
 
@@ -98,4 +104,17 @@
 
 
 </style>
+
+<script>
+  {#function click()#}
+  {#{#}
+  {# if(event.button==2)#}
+  {#   {#}
+  {#      alert('no')#}
+  {#   }#}
+  {#}#}
+  {#document.onmousedown=click#}
+
+</script>
+<body oncontextmenu=self.event.returnValue=false>
 {% endblock %}

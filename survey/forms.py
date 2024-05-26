@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
+from django.core.cache import cache
 
 
 from survey.models import Answer, Category, Question, Response, Survey
@@ -49,7 +50,7 @@ class ResponseForm(models.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """Expects a survey object to be passed in initially"""
-
+        flat = lambda L: sum(map(flat, L), []) if isinstance(L, list) else [L]
         self.survey = kwargs.pop("survey")
         self.user = kwargs.pop("user")
         self.requests = kwargs.pop("requests")
@@ -61,6 +62,23 @@ class ResponseForm(models.ModelForm):
             self.step = None
         super().__init__(*args, **kwargs)
         self.uuid = uuid.uuid4().hex
+
+        session_key = "survey_{}".format(self.survey.id)
+        diagnostic_session_key = "diagnostic_{}_{}".format(self.requests.user, self.survey.name)
+        if self.step == 0:
+            try:
+                temp = self.requests.session[diagnostic_session_key]
+            except:
+                pass
+            else:
+                del self.requests.session[diagnostic_session_key]
+
+            try:
+                temp = self.requests.session[session_key]
+            except:
+                pass
+            else:
+                del self.requests.session[session_key]
 
         self.response = False
         self.answers = False
@@ -79,9 +97,12 @@ class ResponseForm(models.ModelForm):
             self.response = None
         else:
             self.repeat_order = 0
-        self.questions_answered = []
+
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
 
         # print(" ----------------------已经回答的问题-------------------------- ")
+        self.questions_answered = []
         if self.preexisting_response.count() > 1:
             for response_temp in self.preexisting_response:
                 answers = Answer.objects.filter(response_id=response_temp.id).prefetch_related("question")
@@ -92,7 +113,6 @@ class ResponseForm(models.ModelForm):
                 else:
                     questions_a = []
                 self.questions_answered.append(questions_a)
-
         elif self.preexisting_response.count() == 1:
             answers = Answer.objects.filter(response_id=self.preexisting_response.first().id).prefetch_related("question")
             if answers.count() > 1:
@@ -103,21 +123,18 @@ class ResponseForm(models.ModelForm):
                 questions_a = []
             self.questions_answered.append(questions_a)
 
-        flat = lambda L: sum(map(flat, L), []) if isinstance(L, list) else [L]
         if self.questions_answered:
             self.questions_answered = flat(list(self.questions_answered))
 
-        # for i, question in enumerate(self.questions_answered):
-        #     print("回答过的问题：  ", str(i), " :", question.text, "    ", question.category.name)
-        # print(" ------------------------------------------------------------ ")
-        # -------------------------------------------------------------------
 
+        # -------------------------------------------------------------------
         # TranslateComments
         # 以下的内容设定了每个调查问卷中的问题设置
         # -------------------------------------------------------------------
-
         # TranslateComments
         # 初始化会话随机列表
+
+        self.categories = []
         categories_s = self.survey.random_categories()
         categories_dic = {}
         for i, category in enumerate(categories_s):
@@ -126,10 +143,16 @@ class ResponseForm(models.ModelForm):
         categories_dic_sorted = sorted(categories_dic.items(), key=lambda x:x[0] )
         self.categories = [v for i, v in categories_dic_sorted]
 
+
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
         if self.qs_with_no_cat:
             self.qs_with_no_cat = self.eliminate_answered_questions(self.self.qs_with_no_cat)
 
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
+        self.hiding_question = []
         # TranslateComments
         # 获取隐藏问题，它们将被安插进允许由隐藏问题的类别中
         self.hiding_question_category = [x for x in list(self.survey.categories.order_by("id")) if x.name == "hiding_question"]
@@ -140,9 +163,13 @@ class ResponseForm(models.ModelForm):
         else:
             self.hiding_question = []
 
+
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
+
+        self.question_to_display = []
         # TranslateComments
         # self.question_to_display是可以显示在调查问卷中的问题的list
-        self.question_to_display = []
         for i_category, category in enumerate(self.categories):
             category_question_all = self.eliminate_answered_questions(category.questions.all())
             if category.block_type == "sequence":
@@ -154,7 +181,6 @@ class ResponseForm(models.ModelForm):
                     # TranslateComments
                     # 如果设置的显示数量小于或者等于问题数目，那么按照设定的显示数量显示问题
                     question_s = category_question_all[:int(category.display_num)]
-
                 elif category.display_num > len(category_question_all):
                     # TranslateComments
                     # 如果设置的显示数量大于问题数目，那么显示全部的问题，忽略设定的显示数量
@@ -162,7 +188,6 @@ class ResponseForm(models.ModelForm):
 
                 else:
                     question_s = []
-
                 if category.hiding_question_order and self.hiding_question:
                     # TranslateComments
                     # 如果该类别允许添加隐藏问题，以及有隐藏问题可以添加
@@ -183,7 +208,6 @@ class ResponseForm(models.ModelForm):
                                     orders_within.append(order_int)
                                 else:
                                     orders_int.append(order_int)
-
                         for i, question in enumerate(question_s):
                             for order in orders_within:
                                 if i + 1 == order:
@@ -195,7 +219,6 @@ class ResponseForm(models.ModelForm):
                                         question_add.append(hq)
 
                             question_add.append(question)
-
                         if orders_int:
                             for ord in orders_int:
                                 try:
@@ -204,7 +227,6 @@ class ResponseForm(models.ModelForm):
                                     pass
                                 else:
                                     question_add.append(hq)
-
                     elif "|" not in category.hiding_question_order:
                         # TranslateComments
                         # 如果该类别中只添加一个隐藏问题
@@ -224,7 +246,6 @@ class ResponseForm(models.ModelForm):
                                             question_add.append(hq)
                                     question_add.append(question)
                             else:
-
                                 question_add += question_s
                                 try:
                                     hq = self.hiding_question.pop()
@@ -234,13 +255,11 @@ class ResponseForm(models.ModelForm):
                                     # print(question_add)
                                     # print(hq)
                                     question_add.append(hq)
-
                     # TranslateComments
                     # 汇总各类别的问题，形成最终的调查问题列表
                     self.question_to_display += question_add
                 else:
                     self.question_to_display += question_s
-
             elif category.block_type == "one-random":
                 # TranslateComments
                 # 对于2类类别，只加入类别中的一个问题
@@ -248,7 +267,6 @@ class ResponseForm(models.ModelForm):
                 # 由category.hiding_question_order判定是否需要添加隐藏问题
                 # category.hiding_question_order为0的时候意味着该类别中不添加隐藏问题
                 all_question = self.eliminate_answered_questions(category.questions.all())
-
                 # print("-->all_question:",all_question)
                 # print(category.questions.all())
                 # ----->
@@ -284,7 +302,6 @@ class ResponseForm(models.ModelForm):
                             else:
                                 orders_int.append(order_int)
                         orders_int.sort()
-
                         continue_add = True
                         add_order = 1
                         with continue_add:
@@ -303,7 +320,6 @@ class ResponseForm(models.ModelForm):
                             if len(orders) == 0:
                                 continue_add = False
                         question_add = list(filter(lambda x: x != [], question_add))
-
                     elif "|" not in category.hiding_question_order:
                         # TranslateComments
                         # 如果该类别中只添加一个隐藏问题
@@ -327,10 +343,14 @@ class ResponseForm(models.ModelForm):
                 else:
                     if random_question:
                         self.question_to_display.append(random_question)
-
         if self.qs_with_no_cat:
             self.question_to_display.append(self.qs_with_no_cat)
         self.question_to_display = flat(self.question_to_display)
+
+
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
+
         # -------------------------------------------------------------------
         if self.step == 0:
             print(" ------------------------------------------------------------ ")
@@ -346,15 +366,10 @@ class ResponseForm(models.ModelForm):
         print(" ------------------------------------------------------------ ")
 
         if self.survey.display_method == Survey.BY_CATEGORY:
-            self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
+            pass
+            # self.steps_count = len(self.categories) + (1 if self.qs_with_no_cat else 0)
         else:
             self.steps_count = len(self.question_to_display)
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
-        # -------------------------------------------------------------------
         # -------------------------------------------------------------------
 
         self.add_questions(kwargs.get("data"))
@@ -370,16 +385,7 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
         if self.survey.display_method == Survey.BY_CATEGORY and self.step is not None:
             pass
-            # if self.step == len(self.categories):
-            #     qs_for_step = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
-            # else:
-            #     qs_for_step = self.survey.questions.filter(category=self.categories[self.step]) # 分类的顺序即self.categories序列的顺序
-            #                                                                                     # 所以是不是只要改变self.categories序列的顺序就可以实现类别随机化
-            # # 获取一定数量的问题
-            # for question in qs_for_step:
-            #     self.add_question(question, data)
         else:
-            # print("--------question_to_display:",self.question_to_display)
             for i, question in enumerate(self.question_to_display):
                 not_to_keep = i != self.step and self.step is not None
                 if self.survey.display_method == Survey.BY_QUESTION and not_to_keep:
@@ -389,9 +395,6 @@ class ResponseForm(models.ModelForm):
     def current_categories(self):
         if self.survey.display_method == Survey.BY_CATEGORY:
             pass
-            # if self.step is not None and self.step < len(self.categories):
-            #     return [self.categories[self.step]]
-            # return [Category(name="No category", description="No cat desc")]
         else:
             extras = []
             if self.qs_with_no_cat:
@@ -449,26 +452,6 @@ class ResponseForm(models.ModelForm):
 
     def get_question_initial(self, question, data):
         initial = None
-        # ------------------------
-        # answer = self._get_preexisting_answer(question)
-        # if answer:
-        #     # Initialize the field with values from the database if any
-        #     if question.type == Question.SELECT_MULTIPLE:
-        #         initial = []
-        #         if answer.body == "[]":
-        #             pass
-        #         elif "[" in answer.body and "]" in answer.body:
-        #             initial = []
-        #             unformated_choices = answer.body[1:-1].strip()
-        #             for unformated_choice in unformated_choices.split(settings.CHOICES_SEPARATOR):
-        #                 choice = unformated_choice.split("'")[1]
-        #                 initial.append(slugify(choice))
-        #         else:
-        #             # Only one element
-        #             initial.append(slugify(answer.body))
-        #     else:
-        #         initial = answer.body
-        # ------------------------
         if data:
             # Initialize the field field from a POST request, if any.
             # Replace values from the database
@@ -506,17 +489,11 @@ class ResponseForm(models.ModelForm):
             return forms.ChoiceField(**kwargs)
 
     def add_question(self, question, data):
-        # print("-------------->add_question:", question)
         MAJORITY_MINORITY = (
             ("majority", _("多数派")),
             ("minority", _("少数派")),
         )
         kwargs = {"label": question.text, "required": question.required, "help_text": question.subsidiary_type}
-
-        # initial = self.get_question_initial(question, data)
-        # if initial:
-        #     kwargs["initial"] = initial
-
         choices = self.get_question_choices(question)
         if choices:
             kwargs["choices"] = choices
@@ -549,14 +526,17 @@ class ResponseForm(models.ModelForm):
 
     def next_step_url(self):
         if self.has_next_step():
+            step_cache_key = "step_{}_{}".format(self.user,self.survey)
+            step_cache = cache.get(step_cache_key)
+            if step_cache is None and self.step==0:
+                cache.set(step_cache_key, 1)
+            elif step_cache:
+                cache.set(step_cache_key, int(step_cache)+1)
             context = {"id": self.survey.id, "step": self.step + 1}
             return reverse("survey-detail-step", kwargs=context)
 
     def current_step_url(self):
         return reverse("survey-detail-step", kwargs={"id": self.survey.id, "step": self.step})
-
-    # def get_current_question_subsidiary_type(self):
-    #     return
 
     def save(self, commit=True):
         """Save the response object"""
@@ -599,12 +579,6 @@ class ResponseForm(models.ModelForm):
                     except Answer.DoesNotExist:
                         print("Error:")
 
-                    # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-                    #     print(" ------------------------------------------------------------ ")
-                    #     print("answers:   ", answers)
-                    #     print("q_id:  ", q_id)
-                    #     print(" ------------------------------------------------------------ ")
-
                     # 更新最多回答的记录
                     answers_all_saved = Answer.objects.filter(question=question)
                     majority_choices_list = []
@@ -618,8 +592,12 @@ class ResponseForm(models.ModelForm):
         if len(response_list)>1:
             for response_t in response_list:
                 Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)
-        print("Forms saved.   Majority_Rate_num=",Majority_Rate_num)
-        print("Forms saved.Correctness_Rate_num=",Correctness_Rate_num)
+
+        print("Forms saved.     Majority_Rate_num=", Majority_Rate_num)
+        print("Forms saved.  Correctness_Rate_num=", Correctness_Rate_num)
+
+        cache.delete("step_{}_{}".format(self.user, self.survey))
+
 
         survey_completed.send(sender=Response, instance=response, data=data)
         return response

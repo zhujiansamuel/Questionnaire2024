@@ -19,26 +19,17 @@ class SurveyDetail(View):
     @survey_available
     def get(self, request, *args, **kwargs):
         print("get")
-        # sam-todo:产生新数据存储在数据库，因为首先请求是get方法
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
-        session_key = "survey_{}".format(kwargs["id"])
-        diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
 
-        if step == 0:
-            try:
-                temp = request.session[diagnostic_session_key]
-            except:
-                pass
-            else:
-                del request.session[diagnostic_session_key]
+        step_cache_key = "step_{}_{}".format(request.user,survey)
+        step_database = cache.get(step_cache_key)
+        print("step-form", step)
+        print("step-database", step_database)
+        if step_database is not None:
+            if int(step_database) != step:
+                print("NO!!")
 
-            try:
-                temp = request.session[session_key]
-            except:
-                pass
-            else:
-                del request.session[session_key]
 
         if survey.template is not None and len(survey.template) > 4:
             template_name = survey.template
@@ -50,18 +41,12 @@ class SurveyDetail(View):
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
-
-
         session_random_list = request.session.get("session_random_list",False)
         if not session_random_list:
             request.session["session_random_list"] = {}
             for i in range(1,50):
                 request.session["session_random_list"][str(i)] = random.randint(100, 99999)
                 session_random_list = request.session.get("session_random_list")
-
-        # cache.set('session_random_list', session_random_list)
-
-
 
         # -------------------------------------------------------------------
         form = ResponseForm(survey=survey, user=request.user, step=step, requests=request, session_random_list=session_random_list)
@@ -84,6 +69,24 @@ class SurveyDetail(View):
 
     @survey_available
     def post(self, request, *args, **kwargs):
+        # step = kwargs.get("step", 0)
+        # session_key = "survey_{}".format(kwargs["id"])
+        # diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
+        # if step == 0:
+        #     try:
+        #         temp = request.session[diagnostic_session_key]
+        #     except:
+        #         pass
+        #     else:
+        #         del request.session[diagnostic_session_key]
+        #
+        #     try:
+        #         temp = request.session[session_key]
+        #     except:
+        #         pass
+        #     else:
+        #         del request.session[session_key]
+
         survey = kwargs.get("survey")
         print("post")
         if survey.need_logged_user and not request.user.is_authenticated:
@@ -284,3 +287,7 @@ class SurveyDetail(View):
         }
 
         return context
+
+
+
+

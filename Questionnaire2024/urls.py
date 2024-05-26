@@ -20,6 +20,7 @@ from dashboards.views import HomeIndexView, StyleTest, signup_experimenter, sign
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 from survey.views.index_view import upload_survey
 from survey.views.index_view import ExperimenterLoginView
+from dashboards.views import Logout_with_delete
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -42,7 +43,7 @@ urlpatterns += [
          name='login'),
 
 
-    path('accounts/logout/', LogoutView.as_view(
+    path('accounts/logout/', Logout_with_delete.as_view(
         template_name='./registration/logout.html'
     ),
          name='logout'),

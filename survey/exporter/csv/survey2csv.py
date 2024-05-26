@@ -73,6 +73,7 @@ class Survey2Csv(Survey2X):
     def get_header_and_order(self):
         header = [_("user")]  # , u"entity"]
         question_order = ["user"]  # , u"entity" ]
+        header.append("　")
         for question in self.survey.questions.all():
             header.append(question.text)
             header.append("subsidiary_"+question.text)

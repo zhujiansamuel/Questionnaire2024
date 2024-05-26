@@ -40,14 +40,18 @@
 
 <body>
 
+ {% block header %}
+
   <header id="header" class="header d-flex align-items-center sticky-top">
+
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
+    {% block logo %}
       <a href="{% url 'home_n' %}" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <img src="{% static 'assets/img/NicePng_survey-png_2009414.png' %}" alt="">
         <!-- <h1 class="">メタ認知能力ゲーム</h1> -->
       </a>
-
+    {% endblock logo %}
 {#========================================================#}
   {#========================================================#}
     {#========================================================#}
@@ -58,8 +62,9 @@
 {#========================================================#}
 
       <nav id="navmenu" class="navmenu">
+        {% block nav %}
         <ul class="para">
-            {% block nav %}
+
         {% if user.is_authenticated %}
               <li><a class="btn-getstarted" href="{% url "mypage" %}">マイページ</a></li>
             <br>
@@ -157,6 +162,7 @@
   {#========================================================#}
 {#========================================================#}
     </div>
+
   <style>
     ul.para {
       {#width: 80%;#}
@@ -171,8 +177,9 @@
     }
 </style>
 
-
+{% endblock header %}
   </header>
+
 
 {#========================================================#}
   {#========================================================#}
