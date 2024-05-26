@@ -174,13 +174,13 @@ class SurveyDetail(View):
 
             elif question.subsidiary_type == "certainty_degree":
                 pass
-        # if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-        #     print(" ------------------------------------------------------------ ")
-        #     print("request.session[diagnostic_session_key][Correctness_Rate]",
-        #           request.session[diagnostic_session_key]["Correctness_Rate"])
-        #     print("request.session[diagnostic_session_key][Majority_Rate]",
-        #           request.session[diagnostic_session_key]["Majority_Rate"])
-        #     print(" -------- ")
+        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
+            print(" ------------------------------------------------------------ ")
+            print("request.session[diagnostic_session_key][Correctness_Rate]",
+                  request.session[diagnostic_session_key]["Correctness_Rate"])
+            print("request.session[diagnostic_session_key][Majority_Rate]",
+                  request.session[diagnostic_session_key]["Majority_Rate"])
+            print(" -------- ")
         next_url = form.next_step_url()
         response = None
         session_random_list = request.session.get("session_random_list",False)
