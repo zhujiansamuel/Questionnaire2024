@@ -15,7 +15,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 from django.contrib.auth import logout as auth_logout
 from .forms import ExperimenterCreationForm, ParticipantCreationForm
-
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 
 
 class HomeIndexView(TemplateView):
@@ -26,7 +27,34 @@ class HomeIndexView(TemplateView):
         return context
 
 class StyleTest(TemplateView):
+
     template_name = "style.html"
+
+    @method_decorator(never_cache)
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(request=request, **kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, request, **kwargs):
+        if request.session.get("session_random_list",False):
+            del request.session['session_random_list']
+            print("Delete session_random_list")
+        current_key = "current_key_step_{}".format(request.user)
+        step_cache_key = cache.get(current_key)
+        print("step_cache_key:   ",step_cache_key)
+        step_database = cache.get(step_cache_key)
+        print("step_database",step_database)
+        if step_database is not None:
+            cache.delete(step_cache_key)
+            print("Delete step_cache!")
+
+
+
+        context = super().get_context_data(**kwargs)
+        context['user_logged'] = self.request.user.is_authenticated
+        context['is_staff'] = self.request.user.is_staff
+        context['is_superuser'] = self.request.user.is_superuser
+        return context
 
 def signup_experimenter(request):
     if request.method == 'POST':

@@ -12,23 +12,40 @@ from survey.decorators import survey_available
 from survey.forms import ResponseForm
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.utility.diagnostic import Diagnostic_Analyze
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.contrib import messages
 
 LOGGER = logging.getLogger(__name__)
 
 class SurveyDetail(View):
+    @method_decorator(never_cache)
     @survey_available
     def get(self, request, *args, **kwargs):
-        print("get")
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
 
         step_cache_key = "step_{}_{}".format(request.user,survey)
+        current_key = "current_key_step_{}".format(request.user)
+        cache.set(current_key, step_cache_key)
         step_database = cache.get(step_cache_key)
         print("step-form", step)
         print("step-database", step_database)
         if step_database is not None:
-            if int(step_database) != step:
-                print("NO!!")
+            if int(step_database) != int(step):
+                messages.warning(request, "It appears that your experimental process has been interrupted. We will restart the experiment.")
+                return redirect("home_n")
+        elif step_database is None and int(step)!=0:
+            messages.warning(request,
+                             "It appears that your experimental process has been interrupted. We will restart the experiment.")
+            return redirect("home_n")
+
+        session_random_list = request.session.get("session_random_list",False)
+        if not session_random_list:
+            request.session["session_random_list"] = {}
+            for i in range(1,50):
+                request.session["session_random_list"][str(i)] = random.randint(100, 99999)
+                session_random_list = request.session.get("session_random_list")
 
 
         if survey.template is not None and len(survey.template) > 4:
@@ -41,17 +58,8 @@ class SurveyDetail(View):
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
 
-        session_random_list = request.session.get("session_random_list",False)
-        if not session_random_list:
-            request.session["session_random_list"] = {}
-            for i in range(1,50):
-                request.session["session_random_list"][str(i)] = random.randint(100, 99999)
-                session_random_list = request.session.get("session_random_list")
-
-        # -------------------------------------------------------------------
         form = ResponseForm(survey=survey, user=request.user, step=step, requests=request, session_random_list=session_random_list)
         categories = form.current_categories()
-        # categories = None
 
         asset_context = {
             # If any of the widgets of the current form has a "date" class, flatpickr will be loaded into the template
@@ -67,38 +75,30 @@ class SurveyDetail(View):
         }
         return render(request, template_name, context)
 
+    @method_decorator(never_cache)
     @survey_available
     def post(self, request, *args, **kwargs):
-        # step = kwargs.get("step", 0)
-        # session_key = "survey_{}".format(kwargs["id"])
-        # diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
-        # if step == 0:
-        #     try:
-        #         temp = request.session[diagnostic_session_key]
-        #     except:
-        #         pass
-        #     else:
-        #         del request.session[diagnostic_session_key]
-        #
-        #     try:
-        #         temp = request.session[session_key]
-        #     except:
-        #         pass
-        #     else:
-        #         del request.session[session_key]
+        survey = kwargs.get("survey")
+
+
+
+        # step = kwargs.get("step")
+        # step_cache_key = "step_{}_{}".format(request.user,survey)
+        # current_key = "current_key_step_{}".format(request.user)
+        # cache.set(current_key, step_cache_key)
+        # step_database = cache.get(step_cache_key)
+        # print("AAAA-step:",step)
+        # print("AAAA-step-database", step_database)
+        # if step_database is None and step != 1:
+        #     messages.warning(request, "AAAAIt appears that your experimental process has been interrupted. We will restart the experiment.")
+        #     return redirect("home_n")
 
         survey = kwargs.get("survey")
-        print("post")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
         session_random_list = request.session.get("session_random_list",False)
-        if not session_random_list:
-            request.session["session_random_list"] = {}
-            for i in range(1,50):
-                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
-            session_random_list = request.session.get("session_random_list")
-
         form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0), requests=request, session_random_list=session_random_list)
+        print("BBBB-step:",kwargs.get("step", 0))
         categories = form.current_categories()
 
         if not survey.editable_answers and form.response is not None:
@@ -124,7 +124,6 @@ class SurveyDetail(View):
     def Merge(self, dict1, dict2):
         res = {**dict1, **dict2}
         return res
-
 
     def treat_valid_form(self, form, kwargs, request, survey):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
@@ -233,6 +232,7 @@ class SurveyDetail(View):
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
         # return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
         return redirect("survey-confirmation", uuid=response.interview_uuid, majority_rate=majority_rate, correctness_rate=correctness_rate)
+
 
     def Diagnostic_Result(self, form, next_url, request, kwargs):
 

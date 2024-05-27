@@ -68,7 +68,7 @@
         {% if user.is_authenticated %}
               <li><a class="btn-getstarted" href="{% url "mypage" %}">マイページ</a></li>
             <br>
-            {% if user.is_staff or user.is_superuser %}
+            {% if is_staff or is_superuser %}
                 <li><a class="btn-getstarted" href="{% url "admin:index" %}">コンソール</a></li>
                 <br>
                 <li><a class="btn-getstarted" href="{% url "upload_survey" %}">upload_survey</a></li>
@@ -180,6 +180,13 @@
 {% endblock header %}
   </header>
 
+{%  if messages %}
+ <script>
+     {% for msg in messages %}
+        alert('{{ msg.message }}')
+     {% endfor %}
+ </script>
+ {% endif %}
 
 {#========================================================#}
   {#========================================================#}

@@ -12,7 +12,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from ..forms import UploadFileForm
 import sys
-
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 import django.dispatch
 from django.dispatch import receiver
 
@@ -25,7 +26,7 @@ class IndexView(PermissionRequiredMixin,TemplateView):
     permission_required = ('survey.participant',)
     # permission_required = ('login_required',)
 
-
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         step = kwargs.get("step", 0)
         if step == 0:
@@ -58,6 +59,7 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         context["surveys"] = surveys
         context["user_logged"] = self.request.user.is_authenticated,
         context["is_experimenter"] = self.request.user.has_perm('survey.experimenter')
+
         return context
 
 
