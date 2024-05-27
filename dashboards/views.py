@@ -41,8 +41,9 @@ class StyleTest(TemplateView):
             print("Delete session_random_list")
         current_key = "current_key_step_{}".format(request.user)
         step_cache_key = cache.get(current_key)
+        if step_cache_key is not None:
         # print("step_cache_key:   ",step_cache_key)
-        step_database = cache.get(step_cache_key)
+            step_database = cache.get(step_cache_key)
         # print("step_database",step_database)
         if step_database is not None:
             cache.delete(step_cache_key)
