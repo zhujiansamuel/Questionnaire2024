@@ -98,7 +98,7 @@ class SurveyDetail(View):
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
         session_random_list = request.session.get("session_random_list",False)
         form = ResponseForm(request.POST, survey=survey, user=request.user, step=kwargs.get("step", 0), requests=request, session_random_list=session_random_list)
-        print("BBBB-step:",kwargs.get("step", 0))
+        # print("BBBB-step:",kwargs.get("step", 0))
         categories = form.current_categories()
 
         if not survey.editable_answers and form.response is not None:
