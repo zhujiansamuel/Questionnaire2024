@@ -19,13 +19,23 @@
               <div class="member-info">
                     <div id="intro">
                     {% if user.is_authenticated %}
-                        {% if answer_list %}
-                            <ul>
-                                {% for answer in answer_list %}
-                                    <li><h3>{{ answer }}</h3>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
+                        {% if answer_list or answer_list_without_Diagnostic %}
+                            {% if answer_list %}
+                                <ul>
+                                    {% for answer in answer_list %}
+                                        <li><h3>{{ answer.display_with_diagnostic }}</h3>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if answer_list_without_Diagnostic %}
+                                <ul>
+                                    {% for answer in answer_list_without_Diagnostic %}
+                                        <li><h3>{{ answer }}-(We will display your diagnosis after we have collected enough responses.)</h3>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                        {% else  %}
                             <h2>There is no answer yet</h2>
                         {% endif %}
                     {% endif%}

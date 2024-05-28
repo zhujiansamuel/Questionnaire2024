@@ -25,10 +25,18 @@ class SurveyDetail(View):
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
 
+        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user,survey)
+        is_diagnostic_current_key = "current_key_diagnostic_{}".format(request.user)
+        cache.set(is_diagnostic_current_key, is_diagnostic_key)
+        diagnostic_status = cache.get(is_diagnostic_key)
+        if not diagnostic_status:
+            cache.set(is_diagnostic_key, 0)
+
         step_cache_key = "step_{}_{}".format(request.user,survey)
         current_key = "current_key_step_{}".format(request.user)
         cache.set(current_key, step_cache_key)
         step_database = cache.get(step_cache_key)
+
         print("step-form", step)
         print("step-database", step_database)
         if step_database is not None:
@@ -79,21 +87,6 @@ class SurveyDetail(View):
     @survey_available
     def post(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
-
-
-
-        # step = kwargs.get("step")
-        # step_cache_key = "step_{}_{}".format(request.user,survey)
-        # current_key = "current_key_step_{}".format(request.user)
-        # cache.set(current_key, step_cache_key)
-        # step_database = cache.get(step_cache_key)
-        # print("AAAA-step:",step)
-        # print("AAAA-step-database", step_database)
-        # if step_database is None and step != 1:
-        #     messages.warning(request, "AAAAIt appears that your experimental process has been interrupted. We will restart the experiment.")
-        #     return redirect("home_n")
-
-        survey = kwargs.get("survey")
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
         session_random_list = request.session.get("session_random_list",False)
@@ -138,11 +131,20 @@ class SurveyDetail(View):
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
 
+        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user,survey)
+        diagnostic_status = int(cache.get(is_diagnostic_key))
+
         session_key = "survey_{}".format(kwargs["id"])
         for field_name, field_value in list(form.cleaned_data.items()):
             if field_name.startswith("question_"):
                 q_id = int(field_name.split("_")[1])
                 question = Question.objects.get(pk=q_id)
+                if question.number_of_responses >= survey.diagnosis_stages_qs_num:
+                    diagnostic_status += survey.diagnosis_stages_qs_num
+                    cache.set(is_diagnostic_key,diagnostic_status)
+                else:
+                    diagnostic_status += question.number_of_responses
+                    cache.set(is_diagnostic_key, diagnostic_status)
                 break
         if session_key not in request.session:
             request.session[session_key] = {}
@@ -186,11 +188,11 @@ class SurveyDetail(View):
         next_url = form.next_step_url()
         response = None
         session_random_list = request.session.get("session_random_list",False)
-        if not session_random_list:
-            request.session["session_random_list"] = {}
-            for i in range(1,50):
-                request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
-            session_random_list = request.session.get("session_random_list")
+        # if not session_random_list:
+        #     request.session["session_random_list"] = {}
+        #     for i in range(1,50):
+        #         request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
+        #     session_random_list = request.session.get("session_random_list")
         if survey.is_all_in_one_page():
             # 如果是单页调查问卷，那么提交意味着答题结束
             response = form.save()
@@ -230,6 +232,11 @@ class SurveyDetail(View):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
+        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
+        diagnostic_status = int(cache.get(is_diagnostic_key))
+        if diagnostic_status < response.number_of_questions * survey.diagnosis_stages_qs_num:
+            majority_rate = 0
+            correctness_rate = 0
         # return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
         return redirect("survey-confirmation", uuid=response.interview_uuid, majority_rate=majority_rate, correctness_rate=correctness_rate)
 
@@ -240,10 +247,15 @@ class SurveyDetail(View):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
         majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
-
-        msg, diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
-        context["diagnostic_result"] = diagnostic_result_msg
-        context["msg_diagnostic"] = msg
+        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
+        diagnostic_status = int(cache.get(is_diagnostic_key))
+        if diagnostic_status < (form.step+1) * form.survey.diagnosis_stages_qs_num:
+            context["diagnostic_result"] = "Sorry,we don't haven enough answers yet."
+            context["msg_diagnostic"] = "Zero-Zero"
+        else:
+            msg, diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
+            context["diagnostic_result"] = diagnostic_result_msg
+            context["msg_diagnostic"] = msg
         return context
 
 

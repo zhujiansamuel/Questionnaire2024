@@ -10,6 +10,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
+
+from survey.models import Answer
 from survey.models.response import Response
 from django.contrib.auth.views import LoginView, LogoutView
 
@@ -45,10 +47,18 @@ class StyleTest(TemplateView):
         # print("step_cache_key:   ",step_cache_key)
             step_database = cache.get(step_cache_key)
         # print("step_database",step_database)
-        if step_database is not None:
-            cache.delete(step_cache_key)
-            print("Delete step_cache!")
-
+            if step_database is not None:
+                cache.delete(step_cache_key)
+                cache.delete(current_key)
+                print("Delete step_cache!")
+        is_diagnostic_current_key = "current_key_diagnostic_{}".format(request.user)
+        is_diagnostic_key = cache.get(is_diagnostic_current_key)
+        if is_diagnostic_key is not None:
+            diagnostic_status = cache.get(is_diagnostic_key)
+            if diagnostic_status is not None:
+                cache.delete(is_diagnostic_key)
+                cache.delete(is_diagnostic_current_key)
+                print("Delete diagnostic_status!")
 
 
         context = super().get_context_data(**kwargs)
@@ -124,14 +134,37 @@ def signup_participant(request):
         form = ParticipantCreationForm()
     return render(request, './registration/register_participant.html', {'form': form})
 
+
 class My_page(PermissionRequiredMixin,TemplateView):
     template_name = "mypage.html"
     permission_required = ('survey.participant',)
+
+    @method_decorator(never_cache)
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(request=request, **kwargs)
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        answer_list = Response.objects.filter(
+        response_list = Response.objects.filter(
             user=self.request.user
         )
-        context["answer_list"] = answer_list
+        response_list_to_desplay = []
+        response_list_without_Diagnostic = []
+        for response_a in response_list:
+            answer_list = Answer.objects.filter(response=response_a).prefetch_related('question')
+            ans_count = 0
+            for answer in answer_list:
+                if answer.question.number_of_responses >= response_a.survey.diagnosis_stages_qs_num:
+                    ans_count += response_a.survey.diagnosis_stages_qs_num
+                elif answer.question.number_of_responses < response_a.survey.diagnosis_stages_qs_num:
+                    ans_count += answer.question.number_of_responses
+            if ans_count >= len(answer_list)*int(response_a.number_of_questions):
+                response_list_to_desplay.append(response_a)
+            else:
+                response_list_without_Diagnostic.append(response_a)
+
+        context["answer_list"] = response_list_to_desplay
+        context["answer_list_without_Diagnostic"] = response_list_without_Diagnostic
         return context
 

@@ -32,9 +32,12 @@
 
 
                 {% if survey.editable_answers or response_form.response is None %}
-                    <h1>{{ msg }}</h1>
+                    <h1>回答の結果</h1>
+                    <br/>
+                    <h2>{{ msg }}</h2>
+                    <br/>
                     {% if not msg_diagnostic%}
-                        <a href="{{ next_url }}">Next</a>
+                        <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に</a></button>
                     {% endif %}
                 {% else %}
 
@@ -43,10 +46,14 @@
             </div>
 
             <div class="question result-pre-question">
+
                 {% if msg_diagnostic %}
-                    <h1>{{ msg_diagnostic }}</h1>
-                    <p>{{ diagnostic_result }}</p>
-                    <a href="{{ next_url }}">Next</a>
+                    <h1>診断の結果</h1>
+                    <br/>
+                    <h2>{{ msg_diagnostic }}</h2>
+                    <h3>{{ diagnostic_result }}</h3>
+                    <br/>
+                    <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に</a></button>
                 {% else %}
                 {% endif %}
             </div>

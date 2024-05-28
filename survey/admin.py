@@ -110,14 +110,18 @@ class SurveyAdmin(admin.ModelAdmin):
 
 class AnswerBaseInline(admin.StackedInline):
     max_num = 0
-    fields = ["get_question_text", "body", "subsidiary"]
-    readonly_fields = ("get_question_text", "body", "subsidiary")
+    fields = ["get_question_markings","get_question_text", "body", "subsidiary"]
+    readonly_fields = ("get_question_markings","get_question_text", "body", "subsidiary")
     extra = 0
     model = Answer
 
     @admin.display(description='Question Text')
     def get_question_text(self, obj):
         return obj.question.text
+
+    @admin.display(description='Question Marking')
+    def get_question_markings(self, obj):
+        return obj.question.markings
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -158,6 +162,7 @@ class ResponseAdmin(admin.ModelAdmin):
                        'Majority_Rate_num',
                        'Correctness_Rate_num',
                        'number_of_questions',
+                       "survey_founder",
                        )
     def has_delete_permission(self, request, obj=None):
         return False

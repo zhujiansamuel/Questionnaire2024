@@ -135,3 +135,6 @@ sudo systemctl start nginx
 sudo systemctl stop nginx
 
 cd /srv/Questionnaire2024/
+
+
+sudo killall -9 uwsgi

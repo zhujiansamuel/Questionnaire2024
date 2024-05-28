@@ -54,11 +54,15 @@ class Response(models.Model):
 
     def __str__(self):
         msg = f"Response to {self.survey}"
-        msg += f" on {self.created}."
-        # msg_1, result_msg = Diagnostic_Result(self.Majority_Rate, self.Correctness_Rate, self.number_of_questions)
-        msg += f" Diagnostic result is {self.DIAGNOSTIC_RESULT}."
+        msg += f" on {self.created.date()}."
         return msg
 
+    def display_with_diagnostic(self):
+        msg = f"Response to {self.survey}"
+        msg += f" on {self.created.date()}."
+        msg += f" Diagnostic result is {self.DIAGNOSTIC_RESULT}."
+
+        return msg
 
     def get_details(self):
         pass

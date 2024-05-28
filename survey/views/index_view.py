@@ -28,8 +28,18 @@ class IndexView(PermissionRequiredMixin,TemplateView):
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
-        step = kwargs.get("step", 0)
-        if step == 0:
+        context = self.get_context_data(request, **kwargs)
+        return self.render_to_response(context)
+
+
+    def get_context_data(self,request,  **kwargs):
+        context = super().get_context_data(**kwargs)
+        surveys = Survey.objects.filter(
+            is_published=True, expire_date__gte=date.today(), publish_date__lte=date.today()
+        )
+        for survey in surveys:
+            session_key = "survey_{}".format(survey.id)
+            diagnostic_session_key = "diagnostic_{}_{}".format(request.user, survey.name)
             try:
                 temp = request.session[diagnostic_session_key]
             except:
@@ -43,15 +53,29 @@ class IndexView(PermissionRequiredMixin,TemplateView):
                 pass
             else:
                 del request.session[session_key]
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+
+            current_key = "current_key_step_{}".format(request.user)
+            step_cache_key = cache.get(current_key)
+            if step_cache_key is not None:
+                step_database = cache.get(step_cache_key)
+                if step_database is not None:
+                    cache.delete(step_cache_key)
+                    cache.delete(current_key)
+                    # print("Delete step_cache!------1")
+            is_diagnostic_current_key = "current_key_diagnostic_{}".format(request.user)
+            is_diagnostic_key = cache.get(is_diagnostic_current_key)
+            if is_diagnostic_key is not None:
+                diagnostic_status = cache.get(is_diagnostic_key)
+                if diagnostic_status is not None:
+                    cache.delete(is_diagnostic_key)
+                    cache.delete(is_diagnostic_current_key)
+                    # print("Delete diagnostic_status!------1")
+
+        if request.session.get("session_random_list",False):
+            del request.session['session_random_list']
+            print("Delete session_random_list")
 
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        surveys = Survey.objects.filter(
-            is_published=True, expire_date__gte=date.today(), publish_date__lte=date.today()
-        )
         if not self.request.user.has_perm('survey.participant'):
             print("permission_denied")
         if not self.request.user.is_authenticated:
