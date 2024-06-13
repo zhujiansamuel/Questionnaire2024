@@ -36,7 +36,7 @@ def random_number():
     not_unique = True
     while not_unique:
         unique_ref = random.randint(100000, 999999)
-        if not Category.objects.filter(random_order=unique_ref):
+        if not Category.objects.filter(name=unique_ref):
             not_unique = False
     return unique_ref
 
@@ -45,22 +45,27 @@ def random_number():
 class Category(models.Model):
     ONE_Random = "one-random"
     SEQUENCE = "sequence"
+    BRANCH = "branch"
+    DEFAULT_Random = "default-random"
     BLOCKTYPE = {
-        (ONE_Random, _("one-random")),
-        (SEQUENCE, _("sequence"))
+        (ONE_Random, _("グループ分け")),
+        (SEQUENCE, _("順番固定")),
+        (BRANCH, _("枝分かれ")),
+        (DEFAULT_Random, _("デフォルト・ランダム")),
+
     }
     
-    name = models.CharField(_("Name"), max_length=400, help_text=NAME_HELP_TEXT)
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="categories")
+    name = models.CharField(_("Name"), max_length=400, default=random_number, help_text=NAME_HELP_TEXT)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("調査セット"), related_name="categories")
     order = models.IntegerField(_("Display order"), blank=True, null=True, help_text=ORDER_HELP_TEXT)
     description = models.CharField(_("Description"), max_length=2000, blank=True, null=True, help_text=DESCRIPTION_HELP_TEXT)
-    display_num = models.IntegerField(_("Number of questions displayed"), blank=True, default=10, help_text=DISPLAY_NUM_HELP_TEXT)
+    display_num = models.IntegerField(_("Number of questions displayed"), blank=True, default=999, help_text=DISPLAY_NUM_HELP_TEXT)
     hiding_question_order = models.CharField(_("Hiding question order"),blank=True, null=True, max_length=6, default="0", help_text=HIDING_QUESTION_ORDER_HELP_TEXT)
-    block_type = models.CharField(_("Block type"), max_length=200, choices=BLOCKTYPE, default=SEQUENCE, help_text=BLOCK_TYPE_HELP_TEXT)
+    block_type = models.CharField(_("ブロック・タイプ"), max_length=200, choices=BLOCKTYPE, default=DEFAULT_Random, help_text=BLOCK_TYPE_HELP_TEXT)
     class Meta:
         # pylint: disable=too-few-public-methods
-        verbose_name = _("category")
-        verbose_name_plural = _("categories")
+        verbose_name = _("ブロック")
+        verbose_name_plural = _("ブロック")
 
     def __str__(self):
         return self.name

@@ -168,3 +168,12 @@ class My_page(PermissionRequiredMixin,TemplateView):
         context["answer_list_without_Diagnostic"] = response_list_without_Diagnostic
         return context
 
+
+
+# class Global_setup_page(PermissionRequiredMixin, TemplateView):
+class Global_setup_page(TemplateView):
+    template_name = "../templates/admin/adminpage/global_setup.html"
+
+
+class Add_survey(TemplateView):
+    template_name = "../templates/admin/adminpage/addsurvey.html"

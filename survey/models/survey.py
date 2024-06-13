@@ -22,6 +22,11 @@ NAME_HELP_TEXT = _("""
 
 """)
 
+HIDE_NAME_HELP_TEXT = _("""
+
+""")
+
+
 DESCRIPTION_HELP_TEXT = _("""
 
 """)
@@ -69,10 +74,11 @@ class Survey(models.Model):
         (ALL_IN_ONE_PAGE, _("All in one page")),
     ]
 
-    name = models.CharField(_("Name"), max_length=400, help_text=NAME_HELP_TEXT)
-    description = models.TextField(_("Description"), help_text=DESCRIPTION_HELP_TEXT)
+    name = models.CharField(_("名前"), max_length=400, help_text=NAME_HELP_TEXT)
+    hide_name = models.CharField(_("非表示の名前"), max_length=400, help_text=HIDE_NAME_HELP_TEXT)
+    description = models.CharField(_("カテゴリー（分野）"), max_length=40, help_text=DESCRIPTION_HELP_TEXT)
     is_published = models.BooleanField(_("answer-able"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
-    founder = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("Founder"), null=True, blank=True, help_text=FOUNDER)
+    founder = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("作成者"), null=True, blank=True, help_text=FOUNDER)
     need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"), default=True)
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
     display_method = models.SmallIntegerField(
@@ -83,14 +89,14 @@ class Survey(models.Model):
     publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now, help_text=PUBLISH_DATE_HELP_TEXT)
     expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day, help_text=EXPIRE_DATE_HELP_TEXT)
     redirect_url = models.URLField(_("Redirect URL"), blank=True)
-    diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=10, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
+    diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=0, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
 
-    diagnostic_page_indexing = models.IntegerField(_("Diagnostic page indexing"), default=10, help_text=DIAGNOSTIC_PAGE_INDEXING)
+    diagnostic_page_indexing = models.IntegerField(_("診断結果の表示の最低数"), default=20, help_text=DIAGNOSTIC_PAGE_INDEXING)
     download_top_number = models.IntegerField(_("Download the top results"), default=0, help_text=DOWNLOAD_TOP_NUMBER)
 
     class Meta:
-        verbose_name = _("survey")
-        verbose_name_plural = _("surveys")
+        verbose_name = _("調査セット")
+        verbose_name_plural = _("調査セット")
         permissions = (
             ("participant","Questionnaires can be filled out"),
             ("experimenter","Possibility to edit the survey"),

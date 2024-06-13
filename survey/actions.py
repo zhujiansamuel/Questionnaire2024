@@ -16,3 +16,7 @@ def make_published(modeladmin, request, queryset):
 
 
 make_published.short_description = _("Mark selected surveys as published")
+
+
+def add_survey_button(self, request, queryset):
+    pass

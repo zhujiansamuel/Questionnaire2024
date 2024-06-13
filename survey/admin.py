@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from survey.actions import make_published
+from survey.actions import make_published, add_survey_button
 from survey.exporter.csv import Survey2Csv
 from survey.exporter.tex import Survey2Tex
 from survey.models import Answer, Category, Question, Response, Survey
@@ -77,7 +77,7 @@ class SurveyAdmin(admin.ModelAdmin):
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description', 'founder', 'diagnosis_stages_qs_num', 'diagnostic_page_indexing'],
+            'fields': ['name', 'description', 'founder', 'diagnostic_page_indexing'],
         }),
 
         ("Privilege Management", {
@@ -93,7 +93,18 @@ class SurveyAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
-    actions = [make_published, Survey2Csv.export_as_csv]
+    actions = [add_survey_button, make_published, Survey2Csv.export_as_csv]
+
+    add_survey_button.short_description = ' 新たな調査セットを作成する'
+    add_survey_button.icon = 'fa-solid fa-file-circle-plus'
+    add_survey_button.type = 'success'
+    # add_survey_button.style = 'color:black;'
+    add_survey_button.action_type = 0
+    add_survey_button.action_url = '/dashboards/add-survey/'
+
+    # def has_add_permission(self, request):
+    #     return False
+
 
     def save_model(self, request, obj, form, change):
         if not obj.founder:

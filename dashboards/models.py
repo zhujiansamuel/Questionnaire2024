@@ -47,13 +47,12 @@ class ApplicationUser(AbstractUser):
     )
 
     field_1_choice = {
+        ("Philosophy", "Philosophy"),
         ("Sociology", "Sociology"),
         ("Psychology", "Psychology"),
+        ("Economics", "Economics"),
         ("Education", "Education"),
         ("Information Science", "Information Science"),
-        ("Philosophy", "Philosophy"),
-        ("Resources Neuroscience", "Resources Neuroscience"),
-        ("Life Science", "Life Science"),
         ("OTHER", "OTHER"),
     }
 

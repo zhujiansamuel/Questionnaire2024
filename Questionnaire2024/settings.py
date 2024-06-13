@@ -28,7 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -296,6 +295,43 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 SIMPLEUI_HOME_INFO = False
 
+SIMPLEUI_CONFIG = {
+    'system_keep': False,
+    'menu_display': ['調査のグローバル設定', 'ユーザー', '調査セット', '回答のセット',],
+    'menus':
+    [
+        {
+            'name': '調査のグローバル設定',
+            'icon': 'fa-solid fa-gear',
+            'url': '/dashboards/global-setup-page/',
+            'newTab': False,
+        },
+
+        {
+            'name': 'ユーザー',
+            'icon': 'fas fa-user-shield',
+            'url': '/admin/dashboards/applicationuser/',
+            'newTab': False,
+        },
+
+        {
+            'name': '調査セット',
+            'icon': 'fa-solid fa-square-poll-horizontal',
+            'url': '/admin/survey/survey/',
+            'newTab': False,
+        },
+
+        {
+            'name': '回答のセット',
+            'icon': 'fa-regular fa-comment-dots',
+            'url': '/admin/survey/response/',
+            'newTab': False,
+        },
+
+    ]
+}
+
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
@@ -312,4 +348,3 @@ CACHES = {
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 60 * 60 * 24
 SESSION_SAVE_EVERY_REQUEST = True
-
