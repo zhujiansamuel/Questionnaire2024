@@ -220,7 +220,6 @@ class SurveyDetail(View):
                 template_name = "survey/result_pre_question.html"
                 return render(request, template_name, context)
 
-        # todo 是不是需要同时删除 session_random_order
         if response is None:
             return redirect(reverse("survey-list"))
         next_ = request.session.get("next", None)

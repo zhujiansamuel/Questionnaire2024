@@ -32,31 +32,23 @@
     <div id="content-main">
         <div class="module filtered" id="changelist">
             <div id="app">
-{#<el-radio-group v-model="radio1">#}
-{#      <el-radio-button label="上海"></el-radio-button>#}
-{#      <el-radio-button label="北京"></el-radio-button>#}
-{#      <el-radio-button label="广州"></el-radio-button>#}
-{#      <el-radio-button label="深圳"></el-radio-button>#}
-{#    </el-radio-group>#}
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ CreateSurveyForm }}
-    <button type="submit" class="btn btn-primary mb-3">次に</button>
-                    
-                </form>
-                
+<el-radio-group v-model="radio1">
+      <el-radio-button label="上海"></el-radio-button>
+      <el-radio-button label="北京"></el-radio-button>
+      <el-radio-button label="广州"></el-radio-button>
+      <el-radio-button label="深圳"></el-radio-button>
+    </el-radio-group>
             </div>
-            
-            
+            {{ CreateEveryQuestionForm }}
         </div>
     </div>
     
       <script>
     new Vue({
       el: '#app',
-      {#data: function() {#}
-      {#  return { radio1: '上海', }#}
-      {#}#}
+      data: function() {
+        return { radio1: '上海', }
+      }
     })
   </script>
 

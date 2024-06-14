@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
@@ -6,7 +5,7 @@ from django.core.cache import cache
 
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponseRedirect
 from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
@@ -16,10 +15,16 @@ from survey.models.response import Response
 from django.contrib.auth.views import LoginView, LogoutView
 
 from django.contrib.auth import logout as auth_logout
-from .forms import ExperimenterCreationForm, ParticipantCreationForm
+from .forms import (ExperimenterCreationForm,
+                    ParticipantCreationForm,
+                    CreateEveryQuestionForm,
+                    CreateSurveyForm)
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
+from survey.decorators import survey_available
+
+from django.views.generic.edit import FormView
 
 class HomeIndexView(TemplateView):
     template_name = "home.html"
@@ -171,9 +176,42 @@ class My_page(PermissionRequiredMixin,TemplateView):
 
 
 # class Global_setup_page(PermissionRequiredMixin, TemplateView):
-class Global_setup_page(TemplateView):
+class Global_setup_page(View):
     template_name = "../templates/admin/adminpage/global_setup.html"
 
 
-class Add_survey(TemplateView):
-    template_name = "../templates/admin/adminpage/addsurvey.html"
+class Add_survey(View):
+
+
+    def get(self, request, *args, **kwargs):
+        template_name = "../templates/admin/adminpage/addsurvey.html"
+        form = CreateSurveyForm(user=request.user, requests=request)
+        print("get")
+        context = {
+            "CreateSurveyForm": form,
+        }
+        return render(request, template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        template_name = "../templates/admin/adminpage/addsurvey.html"
+        form = CreateSurveyForm(request.POST, user=request.user, requests=request)
+        context = {
+            "CreateSurveyForm": form,
+        }
+        if form.is_valid():
+            survey = form.save()
+        if survey is not None:
+            return redirect(reverse("add-question", kwargs={"id": survey.id}))
+        return render(request, template_name, context)
+
+
+class Add_question(View):
+
+    @survey_available
+    def get(self, request, *args, **kwargs):
+        pass
+
+
+    @survey_available
+    def post(self, request, *args, **kwargs):
+        pass

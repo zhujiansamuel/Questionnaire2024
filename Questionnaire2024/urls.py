@@ -22,7 +22,8 @@ from dashboards.views import (HomeIndexView,
                               signup_participant,
                               My_page,
                               Global_setup_page,
-                              Add_survey)
+                              Add_survey,
+                              Add_question)
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 from survey.views.index_view import upload_survey
 from survey.views.index_view import ExperimenterLoginView
@@ -72,7 +73,8 @@ urlpatterns += [
     path("uploadsurvey/", upload_survey, name="upload_survey"),
     path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
     path("dashboards/global-setup-page/", Global_setup_page.as_view(), name="global-setup-page"),
-    path("dashboards/add-survey/",Add_survey.as_view(), name="add-survey"),
+    path("dashboards/add-survey/", Add_survey.as_view(), name="add-survey"),
+    path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question"),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)
