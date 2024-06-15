@@ -146,9 +146,9 @@ class Question(models.Model):
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=0)
     required = models.BooleanField(_("Required"), default=True, help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, verbose_name=_("Category"),null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
+        Category, on_delete=models.SET_NULL, verbose_name=_("Category"),blank=True, null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
     )
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, verbose_name=_("Survey"), related_name="questions")
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Survey"), related_name="questions")
     type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT, help_text=TYPE_HELP_TEXT)
     choices = models.CharField(_("Choices"), blank=True, null=True, max_length=100, help_text=CHOICES_HELP_TEXT)
     subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority", help_text=SUBSIDIARY_TYPE_HELP_TEXT)

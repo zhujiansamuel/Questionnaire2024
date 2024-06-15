@@ -23,7 +23,11 @@ from dashboards.views import (HomeIndexView,
                               My_page,
                               Global_setup_page,
                               Add_survey,
-                              Add_question)
+                              Add_question,
+                              Add_one_random_question,
+                              Add_default_random_question,
+                              Add_branch_question,
+                              Add_sequence_question)
 from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
 from survey.views.index_view import upload_survey
 from survey.views.index_view import ExperimenterLoginView
@@ -71,10 +75,15 @@ urlpatterns += [
     path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
     path("accounts/signup/participant/", signup_participant, name='register-participant'),
     path("uploadsurvey/", upload_survey, name="upload_survey"),
-    path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
+    path("dashboards/ExperimenterLogin/", ExperimenterLoginView.as_view(), name="dashboards"),
     path("dashboards/global-setup-page/", Global_setup_page.as_view(), name="global-setup-page"),
     path("dashboards/add-survey/", Add_survey.as_view(), name="add-survey"),
-    path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question"),
+    path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question-with-id"),
+
+    path("dashboards/<int:survey_id>/add-one-random-question/", Add_one_random_question.as_view(), name="add-one-random-question"),
+    path("dashboards/<int:survey_id>/add-sequence-question/", Add_sequence_question.as_view(), name="add-sequence-question"),
+    path("dashboards/<int:survey_id>/add-branch-question/", Add_branch_question.as_view(), name="add-branch-question"),
+    path("dashboards/<int:survey_id>/add-default-random-question/", Add_default_random_question.as_view(), name="add-default-random-question"),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

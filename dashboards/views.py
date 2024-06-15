@@ -5,12 +5,16 @@ from django.core.cache import cache
 
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
-from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.http import HttpResponseRedirect,HttpResponse
 from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
+from django.forms import formset_factory
+
 
 from survey.models import Answer
+from survey.models.category import Category
+from survey.models.survey import Survey
 from survey.models.response import Response
 from django.contrib.auth.views import LoginView, LogoutView
 
@@ -18,6 +22,9 @@ from django.contrib.auth import logout as auth_logout
 from .forms import (ExperimenterCreationForm,
                     ParticipantCreationForm,
                     CreateEveryQuestionForm,
+                    JumpingQuestionForm,
+                    CreateQuestionForm,
+                    CreateCategoryForm,
                     CreateSurveyForm)
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
@@ -176,17 +183,15 @@ class My_page(PermissionRequiredMixin,TemplateView):
 
 
 # class Global_setup_page(PermissionRequiredMixin, TemplateView):
-class Global_setup_page(View):
+class Global_setup_page(TemplateView):
     template_name = "../templates/admin/adminpage/global_setup.html"
 
 
 class Add_survey(View):
 
-
     def get(self, request, *args, **kwargs):
         template_name = "../templates/admin/adminpage/addsurvey.html"
         form = CreateSurveyForm(user=request.user, requests=request)
-        print("get")
         context = {
             "CreateSurveyForm": form,
         }
@@ -201,17 +206,113 @@ class Add_survey(View):
         if form.is_valid():
             survey = form.save()
         if survey is not None:
-            return redirect(reverse("add-question", kwargs={"id": survey.id}))
+            return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
 
 
 class Add_question(View):
-
     @survey_available
     def get(self, request, *args, **kwargs):
-        pass
+        template_name = "../templates/admin/adminpage/addquestion.html"
+        survey = kwargs.get("survey")
+        context = {
+            'survey': survey,
+        }
+        return render(request, template_name, context)
 
 
-    @survey_available
+
+class Add_one_random_question(FormView):
+
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+        print("Add_one_random_question(グループ分け)")
+        return HttpResponse(formset.as_p())
+
+
     def post(self, request, *args, **kwargs):
-        pass
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        formset = CreateQuestionFormset(self.request.POST,
+            form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+
+        if formset.is_valid():
+
+            if request.is_ajax():
+                pass
+            return super().form_valid(formset)
+        return HttpResponse(formset.as_p())
+
+
+class Add_sequence_question(FormView):
+
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+        print("Add_sequence_question(順番固定)")
+        return HttpResponse(formset.as_p())
+
+
+class Add_branch_question(FormView):
+
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        formset = CreateQuestionFormset(
+            form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+        print("Add_branch_question(枝分かれ)")
+        return HttpResponse(formset.as_p())
+
+
+class Add_default_random_question(View):
+
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        form = CreateQuestionForm(user=request.user, survey=survey, requests=request)
+        print("Add_default_random_question(デフォルト・ランダム)")
+        return HttpResponse(form.as_p())
+
+    def post(self, request, *args, **kwargs):
+        template_name = "../templates/admin/adminpage/addquestion.html"
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
+        form = CreateQuestionForm(request.POST, user=request.user, survey=survey,requests=request)
+        context = {
+            "CreateSurveyForm": form,
+        }
+        if form.is_valid():
+            question = form.save()
+            category_type = "default-random"
+            category = Category.objects.create(survey=survey,
+                                               block_type=category_type)
+            question.category = category
+            question.survey = survey
+            question.save()
+            return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
+        return render(request, template_name, context)
+
+
+
+
+
+

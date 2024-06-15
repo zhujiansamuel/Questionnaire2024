@@ -9,7 +9,7 @@ from survey.models.category import Category
 from survey.models.survey import Survey
 from django_ckeditor_5.fields import CKEditor5Field
 from django.utils.translation import gettext_lazy as _
-
+from django.forms import formset_factory
 
 class ExperimenterCreationForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
@@ -110,6 +110,15 @@ class CreateQuestionForm(models.ModelForm):
             'markings': _('Markings'),
         }
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        self.requests = kwargs.pop("requests")
+        self.survey = kwargs.pop("survey")
+        super().__init__(*args, **kwargs)
+
+
+
+
 class CreateCategoryForm(models.ModelForm):
 
     class Meta:
@@ -138,3 +147,13 @@ class CreateEveryQuestionForm(forms.Form):
 
     }
     block_type = forms.ChoiceField(label="ブロック・タイプ", choices=BLOCKTYPE, help_text=BLOCK_TYPE_HELP_TEXT)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = kwargs.pop("user")
+        self.requests = kwargs.pop("requests")
+
+
+
+
+
