@@ -1,0 +1,21 @@
+{% load bootstrap %}
+
+
+<div class="container">
+    <br>
+    <br>
+      <h1>順番固定の質問</h1>
+        <p>説明：</p>
+
+    {% for form in formset %}
+      <h2>質問文と選択肢の入力</h2>
+        <br>
+        {{ form|bootstrap}}
+        <br>
+    {% endfor %}
+    
+
+<br>
+
+    <br>
+</div>

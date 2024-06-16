@@ -8,8 +8,10 @@ from survey.models.question import Question
 from survey.models.category import Category
 from survey.models.survey import Survey
 from django_ckeditor_5.fields import CKEditor5Field
+from django_ckeditor_5.widgets import CKEditor5Widget
 from django.utils.translation import gettext_lazy as _
 from django.forms import formset_factory
+
 
 class ExperimenterCreationForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
@@ -72,6 +74,12 @@ class CreateSurveyForm(forms.ModelForm):
             'diagnostic_page_indexing': _('Diagnostic Page Indexing'),
             'download_top_number': _('Download Top Number'),
         }
+        widgets = {
+
+            "publish_date": widgets. DateInput(),
+            "expire_date": widgets.DateInput(),
+
+        }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
@@ -85,29 +93,15 @@ class CreateSurveyForm(forms.ModelForm):
         survry.save()
         return survry
 
-
-
-class JumpingQuestionForm(models.ModelForm):
-
-    class Meta:
-        model = Jumping_Question
-        fields = ["answer_order"]
-        labels = {
-            'answer_order': _('Answer order')
-        }
-
-
-class CreateQuestionForm(models.ModelForm):
+class CreateQuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ['text', 'choices','category','order','majority_choices', 'number_of_responses','markings']
+        fields = ['text', 'choices','order']
         labels = {
             'text': _('Text'),
             'choices': _('Choices'),
-            'category': _('Category'),
             'order': _('Order'),
-            'markings': _('Markings'),
         }
 
     def __init__(self, *args, **kwargs):
@@ -118,42 +112,65 @@ class CreateQuestionForm(models.ModelForm):
 
 
 
-
-class CreateCategoryForm(models.ModelForm):
-
-    class Meta:
-        model = Category
-        fields = ["block_type"]
-        labels = {
-            'block_type': _('Block type'),
-        }
-
-
-
 BLOCK_TYPE_HELP_TEXT = _("""
 
 """)
 
 class CreateEveryQuestionForm(forms.Form):
-    ONE_Random = "one-random"
-    SEQUENCE = "sequence"
-    BRANCH = "branch"
-    DEFAULT_Random = "default-random"
-    BLOCKTYPE = {
-        (ONE_Random, _("グループ分け")),
-        (SEQUENCE, _("順番固定")),
-        (BRANCH, _("枝分かれ")),
-        (DEFAULT_Random, _("デフォルト・ランダム")),
-
-    }
-    block_type = forms.ChoiceField(label="ブロック・タイプ", choices=BLOCKTYPE, help_text=BLOCK_TYPE_HELP_TEXT)
+    Q1 = "1"
+    Q2 = "2"
+    Q3 = "3"
+    Q4 = "4"
+    JUMPING_CHOICES = (
+        (Q1, _("1")),
+        (Q2, _("2")),
+        (Q3, _("3")),
+        (Q4, _("4")),
+    )
+    # -------------------------------------------
+    # -------------------------------------------
+    question_text = forms.CharField(label=_('Question Body'), widget=CKEditor5Widget())
+    question_choices = forms.CharField(label=_('Question Choices'))
+    # -------------------------------------------
+    # -------------------------------------------
+    jumping_1_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='1')
+    jumping_1_question_text = forms.CharField(label=_('Question 1 Body'), widget=CKEditor5Widget())
+    jumping_1_question_choices = forms.CharField(label=_('Question 1 Choices'))
+    # -------------------------------------------
+    jumping_2_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='2',required=False)
+    jumping_2_question_text = forms.CharField(label=_('Question 2 Body'), widget=CKEditor5Widget(),required=False)
+    jumping_2_question_choices = forms.CharField(label=_('Question 2 Choices'))
+    # -------------------------------------------
+    jumping_3_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='3',required=False)
+    jumping_3_question_text = forms.CharField(label=_('Question 3 Body'), widget=CKEditor5Widget(),required=False)
+    jumping_3_question_choices = forms.CharField(label=_('Question 3 Choices'),required=False)
+    # -------------------------------------------
+    jumping_4_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='4',required=False)
+    jumping_4_question_text = forms.CharField(label=_('Question 4 Body'), widget=CKEditor5Widget(),required=False)
+    jumping_4_question_choices = forms.CharField(label=_('Question 4 Choices'),required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user = kwargs.pop("user")
-        self.requests = kwargs.pop("requests")
 
 
 
+
+
+class CreateDefaultRandomForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["text"].required = False
+    class Meta:
+        model = Question
+        fields = ['text', 'choices']
+        labels = {
+            'text': _('Text'),
+            'choices': _('Choices'),
+        }
+        widgets = {
+            "text": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="extends"
+            )
+        }
 
 

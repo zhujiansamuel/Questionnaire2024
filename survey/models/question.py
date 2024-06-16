@@ -141,7 +141,7 @@ class Question(models.Model):
         ("certainty_degree",_("certainty_degree")),
     )
     markings = models.CharField(_("markings"), max_length=100, blank=True, null=True, help_text=MARKINGS)
-    text = CKEditor5Field(_("Question Body"), help_text=TYPE_HELP_TEXT, config_name='extends')
+    text = CKEditor5Field(_("Question Body"), blank=True, null=True, help_text=TYPE_HELP_TEXT, config_name='extends')
     # text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
     order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=0)
     required = models.BooleanField(_("Required"), default=True, help_text=REQUIRED_HELP_TEXT)

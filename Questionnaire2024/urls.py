@@ -84,6 +84,7 @@ urlpatterns += [
     path("dashboards/<int:survey_id>/add-sequence-question/", Add_sequence_question.as_view(), name="add-sequence-question"),
     path("dashboards/<int:survey_id>/add-branch-question/", Add_branch_question.as_view(), name="add-branch-question"),
     path("dashboards/<int:survey_id>/add-default-random-question/", Add_default_random_question.as_view(), name="add-default-random-question"),
+
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

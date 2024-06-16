@@ -1,0 +1,116 @@
+{% load bootstrap %}
+
+
+<div class="container">
+    <br>
+    <br>
+      <h1>枝分かれの質問</h1>
+        <p>説明：</p>
+    
+      <h2>質問文と選択肢の入力</h2>
+        <br>
+
+    <div class="fieldWrapper">
+        {{ form.question_text.errors }}
+        {{ form.question_text.label_tag }} {{ form.question_text }}
+        {% if form.question_text.help_text %}
+        <p class="help">{{ form.question_text.help_text|safe }}</p>
+        {% endif %}
+    </div>
+<br>
+    <div class="fieldWrapper">
+        {{ form.question_choices.errors }}
+        {{ form.question_choices.label_tag }} {{ form.question_choices }}
+        {% if form.question_choices.help_text %}
+        <p class="help">{{ form.question_choices.help_text|safe }}</p>
+        {% endif %}
+    </div>
+
+    
+    <h2>選択肢の枝分かれの質問</h2>
+    <p>説明：</p>
+        <br>
+    <h2>選択肢1の質問</h2>
+    <br>
+{#    {{ form.jumping_1_choices_order }}#}
+    <div class="fieldWrapper">
+        {{ form.jumping_1_question_text.errors }}
+        {{ form.jumping_1_question_text.label_tag }} {{ form.jumping_1_question_text }}
+        {% if form.jumping_1_question_text.help_text %}
+        <p class="help">{{ form.jumping_1_question_text.help_text|safe }}</p>
+        {% endif %}
+    </div>
+<br>
+    <div class="fieldWrapper">
+        {{ form.jumping_1_question_choices.errors }}
+        {{ form.jumping_1_question_choices.label_tag }} {{ form.jumping_1_question_choices }}
+        {% if form.jumping_1_question_choices.help_text %}
+        <p class="help">{{ form.jumping_1_question_choices.help_text|safe }}</p>
+        {% endif %}
+    </div>
+    <br>
+    <h2>選択肢2の質問(option)</h2>
+            <br>
+{#    {{ form.jumping_1_choices_order }}#}
+    <div class="fieldWrapper">
+        {{ form.jumping_2_question_text.errors }}
+        {{ form.jumping_2_question_text.label_tag }} {{ form.jumping_2_question_text }}
+        {% if form.jumping_2_question_text.help_text %}
+        <p class="help">{{ form.jumping_2_question_text.help_text|safe }}</p>
+        {% endif %}
+    </div>
+<br>
+    <div class="fieldWrapper">
+        {{ form.jumping_2_question_choices.errors }}
+        {{ form.jumping_2_question_choices.label_tag }} {{ form.jumping_2_question_choices }}
+        {% if form.jumping_2_question_choices.help_text %}
+        <p class="help">{{ form.jumping_2_question_choices.help_text|safe }}</p>
+        {% endif %}
+    </div>
+    <br>
+    <br>
+    <h2>選択肢3の質問(option)</h2>
+            <br>
+{#    {{ form.jumping_1_choices_order }}#}
+    <div class="fieldWrapper">
+        {{ form.jumping_3_question_text.errors }}
+        {{ form.jumping_3_question_text.label_tag }} {{ form.jumping_3_question_text }}
+        {% if form.jumping_3_question_text.help_text %}
+        <p class="help">{{ form.jumping_3_question_text.help_text|safe }}</p>
+        {% endif %}
+    </div>
+<br>
+    <div class="fieldWrapper">
+        {{ form.jumping_3_question_choices.errors }}
+        {{ form.jumping_3_question_choices.label_tag }} {{ form.jumping_3_question_choices }}
+        {% if form.jumping_3_question_choices.help_text %}
+        <p class="help">{{ form.jumping_3_question_choices.help_text|safe }}</p>
+        {% endif %}
+    </div>
+    <br>
+    <h2>選択肢4の質問(option)</h2>
+            <br>
+{#    {{ form.jumping_1_choices_order }}#}
+    <div class="fieldWrapper">
+        {{ form.jumping_4_question_text.errors }}
+        {{ form.jumping_4_question_text.label_tag }} {{ form.jumping_4_question_text }}
+        {% if form.jumping_4_question_text.help_text %}
+        <p class="help">{{ form.jumping_4_question_text.help_text|safe }}</p>
+        {% endif %}
+    </div>
+<br>
+    <div class="fieldWrapper">
+        {{ form.jumping_4_question_choices.errors }}
+        {{ form.jumping_4_question_choices.label_tag }} {{ form.jumping_4_question_choices }}
+        {% if form.jumping_4_question_choices.help_text %}
+        <p class="help">{{ form.jumping_4_question_choices.help_text|safe }}</p>
+        {% endif %}
+    </div>
+    <br>
+            <br>
+
+
+    <br>
+    <br>
+
+</div>

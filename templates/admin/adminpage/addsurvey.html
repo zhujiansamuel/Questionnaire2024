@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load bootstrap %}
 
 
 {% block pretitle %}
@@ -39,7 +40,7 @@
 {#    </el-radio-group>#}
                 <form method="POST">
                     {% csrf_token %}
-                    {{ CreateSurveyForm }}
+                    {{ CreateSurveyForm|bootstrap }}
                 <button type="submit" class="btn btn-primary mb-3">次に</button>
                 </form>
             </div>
