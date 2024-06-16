@@ -66,7 +66,7 @@ urlpatterns += [
 
     path("accounts/mypage/", My_page.as_view(), name='mypage'),
     path("__debug__/", include("debug_toolbar.urls")),
-    path("dashboards/", include('dashboards.urls')),
+    # path("dashboards/", include('dashboards.urls')),
     path("survey/", include("survey.urls")),
     path("style/", HomeIndexView.as_view(), name="home"),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
@@ -75,7 +75,7 @@ urlpatterns += [
     path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
     path("accounts/signup/participant/", signup_participant, name='register-participant'),
     path("uploadsurvey/", upload_survey, name="upload_survey"),
-    path("dashboards/ExperimenterLogin/", ExperimenterLoginView.as_view(), name="dashboards"),
+    path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
     path("dashboards/global-setup-page/", Global_setup_page.as_view(), name="global-setup-page"),
     path("dashboards/add-survey/", Add_survey.as_view(), name="add-survey"),
     path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question-with-id"),
