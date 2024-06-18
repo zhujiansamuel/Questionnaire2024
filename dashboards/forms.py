@@ -12,10 +12,29 @@ from django_ckeditor_5.widgets import CKEditor5Widget
 from django.utils.translation import gettext_lazy as _
 from django.forms import formset_factory
 
+from django import forms
+
+class ListTextWidget(forms.TextInput):
+    def __init__(self, data_list, name, *args, **kwargs):
+        super(ListTextWidget, self).__init__(*args, **kwargs)
+        self._name = name
+        self._list = data_list
+        self.attrs.update({'list':'list__%s' % self._name})
+
+    def render(self, name, value, attrs=None, renderer=None):
+        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
+        data_list = '<datalist id="list__%s">' % self._name
+        for item in self._list:
+            data_list += '<option value="%s">' % item
+        data_list += '</datalist>'
+
+        return (text_html + data_list)
 
 class ExperimenterCreationForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
     # last_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your last name.')
+    extra_field = forms.CharField(required=False)
+
 
     class Meta:
         model = ApplicationUser

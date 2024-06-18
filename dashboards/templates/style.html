@@ -22,34 +22,55 @@
                 <br/>
                 <h1>セケンチ</h1>
                 <br/>
-
             </div>
-
             <!-- <p> メタ認知、すなわち "認知的認知 "とは、個人が自らの認知プロセス（知覚、感情、記憶、思考を含む）を客観的に把握し、評価し、調整する能力を指す。</p> -->
             <div class="" style="text-align:center;">
-              <a href="{% url "survey-list" %}" class="btn-get-started">プレイ開始</a>
-              <!-- <a href="{% url "login" %}" class="btn-get-started">アンケートを回答</a> -->
-              <!-- <a href="https://www.youtube.com/watch?v=T-V4dXOIA3g" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>研究者について</span></a> -->
+                    <a href="{% url "survey-consents" %}" class="btn-get-started">プレイ開始</a>
             </div>
           </div>
-          <!-- <div class="col-lg-6 order-1 order-lg-2 hero-img">
-{#            <img src="{% static 'assets/img/hero-img.svg' %}" class="img-fluid animated" alt="">#}
-          </div> -->
         </div>
       </div>
 
-    </section><!-- /Hero Section -->
+    </section>
 
-{#========================================================#}
-  {#========================================================#}
-    {#========================================================#}
-        {#========================================================#}
-        {#========================================================#}
-    {#========================================================#}
-  {#========================================================#}
-{#========================================================#}
 
+
+
+
+
+{#                {% if user.is_authenticated %}#}
+{#                    <h4>このゲームの回答は、学術調査に利用され、学術目的にのみ利用されます。#}
+{#                        <br/>#}
+{#                        途中でいつでもゲームを中止することができます。#}
+{#                        <br/>#}
+{#                        途中で中止した場合は、それまでの回答は登録されません。同意してゲームを開始しますか？#}
+{#                    </h4>#}
+{#                    <br/>#}
+{#                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">#}
+{#                    <label class="form-check-label" for="flexCheckChecked">#}
+{#                        同意する#}
+{#                    </label>#}
+{#                    <br/>#}
+{#                    <a href="{% url "survey-list" %}" class="btn-get-started">同意してゲームを開始します</a>#}
 {##}
+{#                {% else %}#}
+{#                    <a href="{% url "survey-list" %}" class="btn-get-started">プレイ開始</a>#}
+{#                {% endif %}#}
+{##}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {#    <!-- About Section -->#}
 {#    <section id="about" class="section about">#}
 {##}

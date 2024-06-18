@@ -36,6 +36,8 @@ from django.views.generic.edit import FormView
 
 class HomeIndexView(TemplateView):
     template_name = "home.html"
+
+    @method_decorator(never_cache)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_logged'] = self.request.user.is_authenticated
@@ -85,12 +87,17 @@ def signup_experimenter(request):
         form = ExperimenterCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            if form.cleaned_data.get('extra_field') is not None:
+                user.field_1 = form.cleaned_data.get('extra_field')
+                user.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
+
             user = authenticate(
                 username=username,
                 password=password
             )
+
             perm_codename = ["add_category",
                              "change_category",
                              "delete_category",
@@ -159,6 +166,7 @@ class My_page(PermissionRequiredMixin,TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(request=request, **kwargs)
         return self.render_to_response(context)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

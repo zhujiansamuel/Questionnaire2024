@@ -1,0 +1,70 @@
+{#{% extends 'survey/base.html' %}#}
+{% extends 'base_n.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% trans " Questionnaire:Survey list" %}
+{% endblock title %}
+
+
+
+{% block body %}
+
+    <!-- Team Section -->
+    <section id="" class="section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>メタ認知能力ゲーム</h2>
+      </div>
+
+      <div class="container">
+          <div class="col-xl-12 col-lg-12 col-md-12" data-aos="fade-up" data-aos-delay="200">
+            <div class="member">
+              <div class="member-info">
+                    <div id="intro">
+
+                    {% if user.is_authenticated %}
+                        <h4>このゲームの回答は、学術調査に利用され、学術目的にのみ利用されます。
+                            <br/>
+                            途中でいつでもゲームを中止することができます。
+                            <br/>
+                            途中で中止した場合は、それまでの回答は登録されません。同意してゲームを開始しますか？
+                        </h4>
+                        <br/>
+{#                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">#}
+{#                        <label class="form-check-label" for="flexCheckChecked">#}
+{#                            同意する#}
+{#                        </label>#}
+                        <br/>
+                        <a href="{% url "survey-list" %}" class="btn-get-started">同意してゲームを開始します</a>
+                    {% else %}
+                        <a href="{% url "survey-list" %}" class="btn-get-started">Login</a>
+                    {% endif %}
+
+                    </div>
+              </div>
+            </div>
+          </div><!-- End Team Member -->
+
+      </div>
+
+    </section><!-- /Team Section -->
+
+<style>
+    ul{
+        padding:0px;
+    }
+    li{
+        list-style-type: none;
+    }
+    #intro{
+        text-align: center;
+        margin-top:20px;
+        font-size: larger;
+        font-weight: bold;
+    }
+</style>
+
+<script src="https://kit.fontawesome.com/0acdd383dd.js" crossorigin="anonymous"></script>
+{% endblock %}

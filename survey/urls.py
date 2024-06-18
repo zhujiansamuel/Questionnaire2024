@@ -6,13 +6,14 @@ except ImportError:
     from django.urls import re_path as url
 
 from survey.views import ConfirmView, IndexView, SurveyCompleted, SurveyDetail
-
 from survey.views.survey_result import serve_result_csv
-from survey.views.index_view import download_csv
+from survey.views.index_view import download_csv, ConsentsView
 
 
 
 urlpatterns = [
+
+    url(r"^consents/$", ConsentsView.as_view(), name="survey-consents"),
     url(r"^$", IndexView.as_view(), name="survey-list"),
     url(r"^(?P<id>\d+)/", SurveyDetail.as_view(), name="survey-detail"),
     url(r"^csv/(?P<primary_key>\d+)/", serve_result_csv, name="survey-result"),

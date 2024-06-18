@@ -2,81 +2,121 @@
 {% load i18n %}
 
 
-  {% block title %}
+{% block title %}
     Questionnaire:Signup as participant
-  {% endblock %}
+{% endblock %}
 
 
 
 {% block body %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <section class="section">
+        <div class="container py-5 h-100" data-aos="fade-up">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
 
-<section class="section">
-  <div class="container py-5 h-100" data-aos="fade-up">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-        <div class="card bg-dark text-white" style="border-radius: 1rem;">
-          <div class="card-body p-5 text-center">
+                            <div class="mb-md-5 mt-md-4 pb-5 card_body_container">
 
-            <div class="mb-md-5 mt-md-4 pb-5 card_body_container">
+                                <h1>Signup</h1>
+                                <br>
 
-                <h1>Signup</h1>
-                <br>
+                                <form method="post" action="{% url 'register-participant' %}">
+                                    {% csrf_token %}
+                                    {#                            {{ form }}#}
+                                    <div class="login_input">
+                                        <label class="floatingInput" for="typeEmailX"
+                                               style="overflow:unset ;!important">Username</label>
+                                        {{ form.username }}
+                                    </div>
 
-                <form method="post" action="{% url 'register-participant' %}">
-                  {% csrf_token %}
-{#                            {{ form }}#}
-                          <div class="login_input">
-                            <label class="floatingInput" for="typeEmailX" style="overflow:unset ;!important">Username</label>
-                            {{ form.username }}
-                          </div>
-                        <br>
-                          <div class="login_input">
-                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Nicknames</label>
-                            {{ form.nicknames }}
-                          </div>
-                        <br>
-                          <div class="login_input">
-                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Email</label>
-                            {{ form.email }}
+                                    <br>
+                                    <div class="login_input">
+                                        <label class="form-label" for="typePasswordX"
+                                               style="overflow:unset ;!important">Nicknames</label>
+                                        {{ form.nicknames }}
+                                    </div>
 
-                          </div>
-                        <br>
-{#                          <div class="login_input">#}
-{#                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Gender</label>#}
-{#                            {{ form.Gender }}#}
-{#                          </div>#}
-                        <br>
-                          <div class="login_input">
-                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
-                            {{ form.password1 }}
-                                  {% for error in form.password1.errors %}
-                                      <p style="color: red">{{ error }}</p>
-                                    {% endfor %}
-                          </div>
-                        <br>
-                          <div class="login_input">
-                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
-                            {{ form.password2 }}
-                                    {% for error in form.password2.errors %}
-                                      <p style="color: red">{{ error }}</p>
-                                    {% endfor %}
-                          </div>
-                    <br>
-                    <br>
-                    <br>
+                                    <br>
+                                    <div class="login_input">
+                                        <label class="form-label" for="typePasswordX"
+                                               style="overflow:unset ;!important">Email</label>
+                                        {{ form.email }}
 
-                    <button type="submit" value="Login" class="btn btn-outline-light btn-lg px-5">Signup</button>
-                    <input type="hidden" name="next" value="{{ next }}" />
+                                    </div>
+                                    <br>
+                                    <div class="login_input">
+                                        <label class="form-label" for="typePasswordX"
+                                               style="overflow:unset ;!important">Password</label>
+                                        {{ form.password1 }}
+                                        {% for error in form.password1.errors %}
+                                            <p style="color: red">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                    <br>
+                                    <div class="login_input">
+                                        <label class="form-label" for="typePasswordX"
+                                               style="overflow:unset ;!important">Password(again)</label>
+                                        {{ form.password2 }}
+                                        {% for error in form.password2.errors %}
+                                            <p style="color: red">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <br/>
+                                    <p>＊実名は使用しないでください。</p>
+                                    <p>＊ニックネームとパスワードは、忘れないようメモしておいてください。</p>
+                                    <br>
+
+                                    <div class="form-check">
+                                        <h4>このゲームの回答は、学術調査に利用され、学術目的にのみ利用されます。同意しますか？</h4>
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                                        <label class="form-check-label" for="flexCheckChecked">
+                                            同意する
+                                        </label>
+                                    </div>
+                                <br>
 
 
-                </form>
+                                    <button id="Signupbutton" type="submit" value="Signup" class="btn btn-outline-light btn-lg px-5"  disabled>
+                                        Signup
+                                    </button>
+                                    <input type="hidden" name="next" value="{{ next }}"/>
 
+
+                                </form>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
-
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
+
+    <style>
+
+    .form-check .form-check-input {
+        float: none !important;
+        margin-left: -1.5em;
+    }
+    </style>
+
+    <script>
+        $(function () {
+            $('#flexCheckChecked').change(function () {
+                if ($('#flexCheckChecked').prop('checked')) {
+                    $('#Signupbutton').prop("disabled", false);
+                } else {
+                    $('#Signupbutton').prop("disabled", true);
+                }
+            });
+        });
+
+    </script>
+
+
 {% endblock %}

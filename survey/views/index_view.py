@@ -20,17 +20,23 @@ from django.dispatch import receiver
 init_cache = django.dispatch.Signal()
 
 # class IndexView(TemplateView):
-class IndexView(PermissionRequiredMixin,TemplateView):
+class ConsentsView(PermissionRequiredMixin,TemplateView):
+    template_name = "survey/consents_page.html"
+    permission_required = ('survey.participant',)
+    @method_decorator(never_cache)
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data( **kwargs)
+        return self.render_to_response(context)
 
+
+class IndexView(PermissionRequiredMixin,TemplateView):
     template_name = "survey/list.html"
     permission_required = ('survey.participant',)
-    # permission_required = ('login_required',)
 
     @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(request, **kwargs)
         return self.render_to_response(context)
-
 
     def get_context_data(self,request,  **kwargs):
         context = super().get_context_data(**kwargs)

@@ -9,7 +9,7 @@
 {% endblock nav %}
 
 {% block body %}
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <section class="section">
   <div class="container py-5 h-100" data-aos="fade-up">
     <div class="row d-flex justify-content-center align-items-center h-100">
@@ -50,6 +50,13 @@
                             {{ form.field_1 }}
                           </div>
                         <br>
+                        <div class="login_input">
+                            <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">If the choice for the Field is "OTHER",<br/>please fill in your field of study.</label>
+                            {{ form.extra_field }}
+                        </div>
+
+
+                        <br>
                           <div class="login_input">
                             <label class="form-label" for="typePasswordX" style="overflow:unset ;!important">Password</label>
                             {{ form.password1 }}
@@ -85,4 +92,17 @@
     </div>
   </div>
 </section>
+<script>
+$("#id_extra_field").prop('disabled', true);
+
+$('#id_field_1').on('change', function() {
+                  if (this.value=="OTHER") {
+                    $("#id_extra_field").prop('disabled', false);
+                } else {
+                    $("#id_extra_field").prop('disabled', true);
+                }
+});
+</script>
+
+
 {% endblock %}
