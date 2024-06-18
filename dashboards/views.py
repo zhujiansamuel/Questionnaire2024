@@ -148,6 +148,9 @@ def signup_participant(request):
     return render(request, './registration/register_participant.html', {'form': form})
 
 
+
+
+
 class My_page(PermissionRequiredMixin,TemplateView):
     template_name = "mypage.html"
     permission_required = ('survey.participant',)
@@ -229,7 +232,7 @@ class Add_one_random_question(FormView):
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
-        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
         template_name = "admin/adminpage/one_random_question.html"
         context = {
@@ -243,7 +246,7 @@ class Add_one_random_question(FormView):
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
-        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(self.request.POST,
             form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
 
@@ -273,7 +276,7 @@ class Add_sequence_question(FormView):
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
-        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
         print("Add_sequence_question(順番固定)")
         template_name = "admin/adminpage/sequence_question.html"
@@ -287,7 +290,7 @@ class Add_sequence_question(FormView):
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
-        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1)
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(self.request.POST,
             form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
         template_name = "admin/adminpage/sequence_question.html"
@@ -341,21 +344,17 @@ class Add_branch_question(FormView):
             question = Question.objects.create(survey=survey,
                                                category=category,
                                                text=form.cleaned_data["question_text"],
-                                               choices=form.cleaned_data["question_choices"])
+                                               choices=form.cleaned_data["question_choices"],
+                                               jump_type="parent-question")
             for i in range(jump_question_num):
                 text_label = "jumping_"+str(i+1)+"_question_text"
                 choice_label = "jumping_"+str(i+1)+"_question_choices"
                 question_1 = Question.objects.create(survey=survey,
                                                      category=category,
                                                      text=form.cleaned_data[text_label],
-                                                     choices=form.cleaned_data[choice_label])
-                jumping_question = Jumping_Question.objects.create(category=category,
-                                                                   jumping_question=question,
-                                                                   question=question_1,
-                                                                   answer_order=str(i+1)
-                                                                   )
+                                                     choices=form.cleaned_data[choice_label],
+                                                     jump_type=str(i+1))
                 question_1.save()
-                jumping_question.save()
             question.save()
             category.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
@@ -387,10 +386,10 @@ class Add_default_random_question(View):
             category_type = "default-random"
             category = Category.objects.create(survey=survey,
                                                block_type=category_type)
-            question = Question.objects.create(survey=survey,
-                                               category=category,
-                                               text=form.cleaned_data["question_text"],
-                                               choices=form.cleaned_data["question_choices"])
+            question = form.save()
+            question.survey=survey
+            question.survey = survey
+            question.category=category
             question.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
 

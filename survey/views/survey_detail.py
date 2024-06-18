@@ -161,6 +161,13 @@ class SurveyDetail(View):
                 # print(" ------------------------------------------------------------ ")
                 if key.startswith("question_") and not key.startswith("question_subsidiary_"):
                     choice = value
+                    if question.category.block_type == "branch":
+                        branch_mark_key = "branch_mark_{}_{}_{}".format(request.user, survey, question.category)
+                        branch_mark = cache.get(branch_mark_key)
+                        if branch_mark is None:
+                            cache.set(branch_mark_key, question.get_choice_index(choice))
+
+
                     # print(" ------------------------------------------------------------ ")
                     # print("choice:",choice)
                     # print(" ------------------------------------------------------------ ")

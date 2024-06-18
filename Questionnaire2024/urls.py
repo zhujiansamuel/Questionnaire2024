@@ -59,10 +59,10 @@ urlpatterns += [
     ),
          name='logout'),
 
-    path('accounts/password-reset/', PasswordResetView.as_view(
+    path('accounts/experimenter/password-reset/', PasswordResetView.as_view(
         template_name='./registration/password_reset_form.html'
     ),
-         name='password-reset'),
+         name='a-password-reset'),
 
     path("accounts/mypage/", My_page.as_view(), name='mypage'),
     path("__debug__/", include("debug_toolbar.urls")),
@@ -74,6 +74,7 @@ urlpatterns += [
     path("", StyleTest.as_view(), name="home_n"),
     path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
     path("accounts/signup/participant/", signup_participant, name='register-participant'),
+
     path("uploadsurvey/", upload_survey, name="upload_survey"),
     path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
     path("dashboards/global-setup-page/", Global_setup_page.as_view(), name="global-setup-page"),

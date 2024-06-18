@@ -84,10 +84,11 @@ class ResponseForm(models.ModelForm):
         self.answers = False
         # 注意：self._get_preexisting_response()方法内部直接设定self.response
         self.preexisting_response = self._get_preexisting_response()
-        # TranslateComments
-        # 以下内容用于实现产生新的response
-        # -------------------------------------------------------------------
 
+        # -------------------------------------------------------------------
+        # -------------------------------------------------------------------
+        # TranslateComments
+        # 产生新的response
         if self.response and self.response.count() > 1:
             repeat_order_list = [int(response_temp.repeat_order) for response_temp in self.response]
             self.repeat_order = max(repeat_order_list) + 1
@@ -100,8 +101,8 @@ class ResponseForm(models.ModelForm):
 
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-
-        # print(" ----------------------已经回答的问题-------------------------- ")
+        # TranslateComments
+        # 已经回答的问题
         self.questions_answered = []
         if self.preexisting_response.count() > 1:
             for response_temp in self.preexisting_response:
@@ -126,14 +127,10 @@ class ResponseForm(models.ModelForm):
         if self.questions_answered:
             self.questions_answered = flat(list(self.questions_answered))
 
-
+        # -------------------------------------------------------------------
         # -------------------------------------------------------------------
         # TranslateComments
-        # 以下的内容设定了每个调查问卷中的问题设置
-        # -------------------------------------------------------------------
-        # TranslateComments
-        # 初始化会话随机列表
-
+        # 随机组合所有类别
         self.categories = []
         categories_s = self.survey.random_categories()
         categories_dic = {}
@@ -143,8 +140,6 @@ class ResponseForm(models.ModelForm):
         categories_dic_sorted = sorted(categories_dic.items(), key=lambda x:x[0] )
         self.categories = [v for i, v in categories_dic_sorted]
 
-
-        # -------------------------------------------------------------------
         # -------------------------------------------------------------------
         self.qs_with_no_cat = self.survey.questions.filter(category__isnull=True).order_by("order", "id")
         if self.qs_with_no_cat:
@@ -152,9 +147,9 @@ class ResponseForm(models.ModelForm):
 
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-        self.hiding_question = []
         # TranslateComments
         # 获取隐藏问题，它们将被安插进允许由隐藏问题的类别中
+        self.hiding_question = []
         self.hiding_question_category = [x for x in list(self.survey.categories.order_by("id")) if x.name == "hiding_question"]
         self.hiding_question_category = self.eliminate_answered_questions(self.hiding_question_category)
         if self.hiding_question_category:
@@ -162,16 +157,16 @@ class ResponseForm(models.ModelForm):
             self.hiding_question = self.eliminate_answered_questions(self.hiding_question)
         else:
             self.hiding_question = []
-
-
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-
-        self.question_to_display = []
         # TranslateComments
         # self.question_to_display是可以显示在调查问卷中的问题的list
+        self.question_to_display = []
+
         for i_category, category in enumerate(self.categories):
             category_question_all = self.eliminate_answered_questions(category.questions.all())
+            # category_question_all = self.eliminate_answered_questions(category.questions.all().order_by("order"))
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if category.block_type == "sequence":
                 # TranslateComments
                 # 对于1类类别，可加入隐藏问题
@@ -188,6 +183,7 @@ class ResponseForm(models.ModelForm):
 
                 else:
                     question_s = []
+
                 if category.hiding_question_order and self.hiding_question:
                     # TranslateComments
                     # 如果该类别允许添加隐藏问题，以及有隐藏问题可以添加
@@ -259,17 +255,21 @@ class ResponseForm(models.ModelForm):
                     # 汇总各类别的问题，形成最终的调查问题列表
                     self.question_to_display += question_add
                 else:
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     self.question_to_display += question_s
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
             elif category.block_type == "one-random":
                 # TranslateComments
                 # 对于2类类别，只加入类别中的一个问题
                 # 同时保留添加隐藏问题的可能
                 # 由category.hiding_question_order判定是否需要添加隐藏问题
                 # category.hiding_question_order为0的时候意味着该类别中不添加隐藏问题
+                # all_question = self.eliminate_answered_questions(category.questions.all().order_by("oeder"))
+                # ？
                 all_question = self.eliminate_answered_questions(category.questions.all())
-                # print("-->all_question:",all_question)
-                # print(category.questions.all())
                 # ----->
+                # todo-sam 这里需要修改为按顺序执行
                 random_question_dic = {}
                 for i, question in enumerate(all_question):
                     random_order = self.session_random_list[str(i + 10)]
@@ -341,26 +341,44 @@ class ResponseForm(models.ModelForm):
                                     question_add.append(hq)
                     self.question_to_display += question_add
                 else:
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     if random_question:
                         self.question_to_display.append(random_question)
+                    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            elif category.block_type == "branch":
+                # 思路是缓存中存入一个标识，根据标识决定载入的问题
+                branch_mark_key = "branch_mark_{}_{}_{}".format(self.user, self.survey, category)
+                branch_mark = cache.get(branch_mark_key)
+                if branch_mark is None:
+                    question_s = Question.objects.get(category=category,jump_type="parent-question")
+                    self.question_to_display += question_s
+                if branch_mark and branch_mark != "no-jumping":
+                    question_s = Question.objects.get(category=category,jump_type=branch_mark)
+
+                self.question_to_display += question_s
+
+            elif category.block_type == "default-random":
+                self.question_to_display += category_question_all
+
+
+
+
+        # -------------------------------------------------------------------
         if self.qs_with_no_cat:
             self.question_to_display.append(self.qs_with_no_cat)
+        # -------------------------------------------------------------------
         self.question_to_display = flat(self.question_to_display)
-
-
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-
         # -------------------------------------------------------------------
-        # if self.step == 0:
-        #     print(" ------------------------------------------------------------ ")
-        #     print("生成的问题")
-        #     print(" -------- ")
-        #     for i, question in enumerate(self.question_to_display):
-        #         print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
-        #     print(" ------------------------------------------------------------ ")
+        if self.step == 0:
+            print(" ------------------------------------------------------------ ")
+            print("生成的问题")
+            print(" -------- ")
+            for i, question in enumerate(self.question_to_display):
+                print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
+            print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
-        # TranslateComments
         print(" ------------------------------------------------------------ ")
         print("Step:", self.step)
         print(" ------------------------------------------------------------ ")
@@ -371,13 +389,14 @@ class ResponseForm(models.ModelForm):
         else:
             self.steps_count = len(self.question_to_display)
         # -------------------------------------------------------------------
-
         self.add_questions(kwargs.get("data"))
+
+
+
+
 
     def eliminate_answered_questions(self, question_sequence):
         return [q for q in question_sequence if q not in self.questions_answered]
-
-
 
     def add_questions(self, data):
         # add a field for each survey question, corresponding to the question
