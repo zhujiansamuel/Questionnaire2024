@@ -104,8 +104,9 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS":  [
             './templates',
-            os.path.join(BASE_DIR, 'templates', 'allauth'),
-            os.path.join(BASE_DIR, 'dashboards', 'static')
+            # os.path.join(BASE_DIR, 'templates', 'allauth'),
+            os.path.join(BASE_DIR, 'dashboards', 'static'),
+            os.path.join(BASE_DIR, 'dashboards', 'templates')
                   ],
         "APP_DIRS": True,
         "OPTIONS": {
