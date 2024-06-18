@@ -138,3 +138,9 @@ cd /srv/Questionnaire2024/
 
 
 sudo killall -9 uwsgi
+
+
+
+68STEXH9BVLKQPKL7U5TMGAH
+samuel20210214@gmail.com
+Samuel7673Xdb73008762@

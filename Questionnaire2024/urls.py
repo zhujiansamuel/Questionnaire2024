@@ -28,14 +28,19 @@ from dashboards.views import (HomeIndexView,
                               Add_default_random_question,
                               Add_branch_question,
                               Add_sequence_question)
-from django.contrib.auth.views import LogoutView, LoginView, PasswordResetView
+from django.contrib.auth.views import (LogoutView,
+                                       LoginView,
+                                       PasswordResetView,
+                                       PasswordResetDoneView,
+                                       PasswordResetConfirmView,
+                                       PasswordResetCompleteView)
 from survey.views.index_view import upload_survey
 from survey.views.index_view import ExperimenterLoginView
 
 
 from django.conf.urls.static import static
 from django.conf import settings
-# from django.conf.urls import
+
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
@@ -59,14 +64,31 @@ urlpatterns += [
     ),
          name='logout'),
 
-    path('accounts/experimenter/password-reset/', PasswordResetView.as_view(
-        template_name='./registration/password_reset_form.html'
+    # path('accounts/experimenter/password-reset/', PasswordResetView.as_view(
+    #     template_name='./registration/password_reset_form.html'
+    # ), name='a-password-reset'),
+
+    path('accounts/experimenter/reset_password/', PasswordResetView.as_view(
+        template_name='./registration/reset_password.html',
+        email_template_name="./registration/password_reset_email.html",
     ),
-         name='a-password-reset'),
+         name='reset_password'),
+    path('accounts/experimenter/reset_password_sent/', PasswordResetDoneView.as_view(template_name="./registration/password_reset_sent.html"),
+         name='password_reset_done'),
+
+    path('accounts/experimenter/reset/<uidb64>/<token>',
+         PasswordResetConfirmView.as_view(template_name="./registration/password_reset_form.html"),
+         name='a-password_reset_confirm'),
+
+    path('accounts/experimenter/reset_password_complete/',
+         PasswordResetCompleteView.as_view(template_name="./registration/password_reset_done.html"),
+         name='password_reset_complete'),
+
+
 
     path("accounts/mypage/", My_page.as_view(), name='mypage'),
     path("__debug__/", include("debug_toolbar.urls")),
-    # path("dashboards/", include('dashboards.urls')),
+
     path("survey/", include("survey.urls")),
     path("style/", HomeIndexView.as_view(), name="home"),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),

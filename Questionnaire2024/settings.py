@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 from django.conf import settings
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,7 +74,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
@@ -76,10 +82,20 @@ MIDDLEWARE = [
 
 SITE_ID = 1
 
+
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_LOGOUT_ON_GET = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = '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'
+DEFAULT_FROM_EMAIL = 'samuel20210214@gmail.com'
+FROM_EMAIL = 'samuel20210214@gmail.com'
+EMAIL_USE_TLS = True
+
 
 ROOT_URLCONF = "Questionnaire2024.urls"
 
