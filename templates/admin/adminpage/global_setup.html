@@ -1,23 +1,32 @@
 {% extends "admin/base_site.html" %}
-
+{% load bootstrap %}
 
 
 {% block pretitle %}
-    
-    1
+    <h1>Global Variable_</h1>
 {% endblock %}
 
 
 {% block content_title %}
-2
+
 {% endblock %}
 
 
 {% block content %}
-3
+        <div id="content-main">
+        <div class="module filtered" id="changelist">
+    <form id="formId" method='POST' action=''>
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <br/>
+    <button name="btn_submit" type="submit" class="btn btn-success">保存</button>
+    <br>
+    
+        </div>
+    </div>
 {% endblock %}
 
 
 {% block sidebar %}
-    4
+
 {% endblock %}

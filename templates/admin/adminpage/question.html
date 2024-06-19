@@ -1,26 +1,32 @@
+{% extends "admin/adminpage/addquestion.html" %}
 {% load bootstrap %}
 
 
+{% block question %}
 
-<div class="container">
-    <br>
-    <br>
-    <h1>デフォルト・ランダムの質問</h1>
-    <p>説明：</p>
-    <br>
-    
-  <h2>質問文と選択肢の入力</h2>
-<br>
-{{ form.media }}
-{#{{ form|bootstrap}}#}
-<br>
-{{ form.as_p}}
+    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-default-random-question/'>
+        {% csrf_token %}
+        {{ form.media }}
+        <div class="container">
+            <br>
+            <br>
+            <h1>デフォルト・ランダムの質問</h1>
+            <p>説明：</p>
+            <br>
+        
+            <h2>質問文と選択肢の入力</h2>
+            <br>
+            
+            {#{{ form|bootstrap}}#}
+            <br>
+            {{ form.as_p }}
+            <div></div>
+            <br>
+            <br/>
+        
+            <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
+            <br>
+        </div>
+    </form>
 
-    <br>
-    <br/>
-
-                    <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
-    <br>
-</div>
-
-
+{% endblock %}

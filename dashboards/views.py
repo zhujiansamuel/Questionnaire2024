@@ -11,6 +11,7 @@ from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
 from django.forms import formset_factory
 
+from django.contrib.auth.decorators import user_passes_test
 
 from survey.models import Answer
 from survey.models.category import Category
@@ -18,6 +19,7 @@ from survey.models.survey import Survey
 from survey.models.response import Response
 from survey.models.question import Question
 from survey.models.jumping import Jumping_Question
+from survey.models.global_variable import GlobalVariable
 from django.contrib.auth.views import LoginView, LogoutView
 
 from django.contrib.auth import logout as auth_logout
@@ -26,13 +28,16 @@ from .forms import (ExperimenterCreationForm,
                     CreateEveryQuestionForm,
                     CreateQuestionForm,
                     CreateSurveyForm,
-                    CreateDefaultRandomForm)
+                    CreateDefaultRandomForm,
+                    GlobalSetupForm)
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
 from survey.decorators import survey_available
 
 from django.views.generic.edit import FormView
+from django.views.generic.edit import UpdateView
+
 
 class HomeIndexView(TemplateView):
     template_name = "home.html"
@@ -155,9 +160,6 @@ def signup_participant(request):
     return render(request, './registration/register_participant.html', {'form': form})
 
 
-
-
-
 class My_page(PermissionRequiredMixin,TemplateView):
     template_name = "mypage.html"
     permission_required = ('survey.participant',)
@@ -193,10 +195,17 @@ class My_page(PermissionRequiredMixin,TemplateView):
         return context
 
 
-
 # class Global_setup_page(PermissionRequiredMixin, TemplateView):
-class Global_setup_page(TemplateView):
-    template_name = "../templates/admin/adminpage/global_setup.html"
+
+def Global_setup_page(request):
+    instance = get_object_or_404(GlobalVariable, id=1)
+    form = GlobalSetupForm(request.POST or None, instance=instance)
+    if form.is_valid():
+        form.save()
+        return redirect('admin:index')
+    return render(request, 'admin/adminpage/global_setup.html', {'form': form})
+
+
 
 
 class Add_survey(View):
@@ -244,6 +253,7 @@ class Add_one_random_question(FormView):
         formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
         template_name = "admin/adminpage/one_random_question.html"
         context = {
+            'survey': survey,
             'formset': formset,
         }
         return render(request, template_name, context)
@@ -255,23 +265,34 @@ class Add_one_random_question(FormView):
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
         CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=4, min_num=1, validate_min=True)
-        formset = CreateQuestionFormset(self.request.POST,
-            form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+        formset = CreateQuestionFormset(request.POST,
+            form_kwargs={'user': request.user, 'survey': survey, 'requests': request})
 
         if formset.is_valid():
             category = Category.objects.create(survey=survey,
                                                block_type="one-random"
                                                )
             for form in formset:
-                if form.is_valid():
-                    question = form.save(commit=False)
-                    question.survey = survey
-                    question.category = category
-                    # question.number_of_responses =
-                    question.save()
+                print(form.cleaned_data)
+                try:
+                    text = form.cleaned_data['text']
+                except KeyError:
+                    pass
+                else:
+                    print(text)
+                    if text != None:
+                        question = Question.objects.create(
+                            text=text,
+                            choices=form.cleaned_data['choices'],
+                            category=category,
+                            order=form.cleaned_data['order'],
+                            survey=survey,
+                        )
+                        question.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         template_name = "admin/adminpage/one_random_question.html"
         context = {
+            'survey': survey,
             'formset': formset,
         }
         return render(request, template_name, context)
@@ -289,6 +310,7 @@ class Add_sequence_question(FormView):
         print("Add_sequence_question(順番固定)")
         template_name = "admin/adminpage/sequence_question.html"
         context = {
+            'survey': survey,
             'formset': formset,
         }
         return render(request, template_name, context)
@@ -303,6 +325,7 @@ class Add_sequence_question(FormView):
             form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
         template_name = "admin/adminpage/sequence_question.html"
         context = {
+            'survey': survey,
             'formset': formset,
         }
         if formset.is_valid():
@@ -310,12 +333,20 @@ class Add_sequence_question(FormView):
                                                block_type="sequence"
                                                )
             for form in formset:
-                if form.is_valid():
-                    question = form.save(commit=False)
-                    question.survey = survey
-                    question.category = category
-                    # question.number_of_responses =
-                    question.save()
+                try:
+                    text = form.cleaned_data['text']
+                except KeyError:
+                    pass
+                else:
+                    if text != None:
+                        question = Question.objects.create(
+                            text=text,
+                            choices=form.cleaned_data['choices'],
+                            category=category,
+                            order=form.cleaned_data['order'],
+                            survey=survey,
+                        )
+                        question.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
 
@@ -324,9 +355,14 @@ class Add_sequence_question(FormView):
 class Add_branch_question(FormView):
 
     def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
         form = CreateEveryQuestionForm()
         template_name = "admin/adminpage/branch_question.html"
         context = {
+            'survey': survey,
             'form': form,
         }
         return render(request, template_name, context)
@@ -368,6 +404,7 @@ class Add_branch_question(FormView):
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         template_name = "admin/adminpage/branch_question.html"
         context = {
+            'survey': survey,
             'form': form,
         }
         return render(request, template_name, context)
@@ -375,12 +412,16 @@ class Add_branch_question(FormView):
 
 class Add_default_random_question(View):
     def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+        )
         form = CreateDefaultRandomForm()
         template_name = "admin/adminpage/question.html"
         context = {
+            'survey': survey,
             'form': form,
         }
-        print("Add_default_random_question(デフォルト・ランダム)")
         return render(request, template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -402,6 +443,7 @@ class Add_default_random_question(View):
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
 
         context = {
+            'survey': survey,
             'form': form,
         }
         return render(request, template_name, context)

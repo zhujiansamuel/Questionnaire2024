@@ -21,13 +21,13 @@ from dashboards.views import (HomeIndexView,
                               signup_experimenter,
                               signup_participant,
                               My_page,
-                              Global_setup_page,
                               Add_survey,
                               Add_question,
                               Add_one_random_question,
                               Add_default_random_question,
                               Add_branch_question,
-                              Add_sequence_question)
+                              Add_sequence_question,
+                              Global_setup_page)
 from django.contrib.auth.views import (LogoutView,
                                        LoginView,
                                        PasswordResetView,
@@ -100,7 +100,7 @@ urlpatterns += [
 
     path("uploadsurvey/", upload_survey, name="upload_survey"),
     path("dashboards/", ExperimenterLoginView.as_view(), name="dashboards"),
-    path("dashboards/global-setup-page/", Global_setup_page.as_view(), name="global-setup-page"),
+    path("dashboards/global-setup-page/", Global_setup_page, name="global-setup-page"),
     path("dashboards/add-survey/", Add_survey.as_view(), name="add-survey"),
     path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question-with-id"),
 

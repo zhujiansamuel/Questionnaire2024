@@ -7,6 +7,7 @@ from survey.models.jumping import Jumping_Question
 from survey.models.question import Question
 from survey.models.category import Category
 from survey.models.survey import Survey
+from survey.models.global_variable import GlobalVariable
 from django_ckeditor_5.fields import CKEditor5Field
 from django_ckeditor_5.widgets import CKEditor5Widget
 from django.utils.translation import gettext_lazy as _
@@ -29,6 +30,18 @@ class ListTextWidget(forms.TextInput):
         data_list += '</datalist>'
 
         return (text_html + data_list)
+
+
+class GlobalSetupForm(forms.ModelForm):
+
+    class Meta:
+        model = GlobalVariable
+        fields = [
+            "number_of_responses",
+            "diagnostic_page_indexing",
+            "download_top_number"
+        ]
+
 
 class ExperimenterCreationForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')

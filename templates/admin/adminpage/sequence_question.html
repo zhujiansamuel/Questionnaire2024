@@ -1,25 +1,35 @@
+{% extends "admin/adminpage/addquestion.html" %}
 {% load bootstrap %}
 
 
-<div class="container">
-    <br>
-    <br>
-      <h1>順番固定の質問</h1>
+
+{% block question %}
+    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-sequence-question/'>
+        {% csrf_token %}
+<link href="/static/django_ckeditor_5/dist/styles.css" media="all" rel="stylesheet">
+        <script src="/static/django_ckeditor_5/dist/bundle.js"></script>
+    <div class="container">
+        <br>
+        <br>
+        <h1>順番固定の質問</h1>
         <p>説明：次の質問を必ずこの質問の後に来るようにします</p>
 
-    {% for form in formset %}
-      <h2>質問文と選択肢の入力</h2>
+        {% for form in formset %}
+            <h2>質問文と選択肢の入力</h2>
+
+            <br>
+            {{ form|bootstrap }}
+
+            <br>
+        {% endfor %}
+
 
         <br>
-        {{ form|bootstrap}}
+        <br/>
 
+        <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
         <br>
-    {% endfor %}
-    
+    </div>
 
-<br>
-<br/>
 
-                    <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
-    <br>
-</div>
+{% endblock %}
