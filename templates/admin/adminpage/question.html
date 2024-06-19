@@ -1,6 +1,7 @@
 {% load bootstrap %}
 
 
+
 <div class="container">
     <br>
     <br>
@@ -10,8 +11,15 @@
     
   <h2>質問文と選択肢の入力</h2>
 <br>
-{{ form|bootstrap}}
+{{ form.media }}
+{#{{ form|bootstrap}}#}
+<br>
+{{ form.as_p}}
+
     <br>
+    <br/>
+
+                    <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
     <br>
 </div>
 

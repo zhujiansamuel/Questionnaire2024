@@ -1,6 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load static simpletags admin_urls admin_modify %}
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+{{ block.super }}
 
     <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
     {{ media }}
@@ -80,9 +81,7 @@
                     <div id="questioninput">
 
                     </div>
-                    <br/>
 
-                    <button name="btn_submit" type="submit" class="btn btn-success">次の質問を入力</button>
 {#                    <button id="add-form" type="button" class="btn btn-primary">Primary</button>#}
                 </form>
             </div>
@@ -137,7 +136,7 @@
         </script>
     {% endblock %}
 
-    {#{% prepopulated_fields_js %}#}
+
 {% endblock %}
 
 
