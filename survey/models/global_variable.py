@@ -10,4 +10,7 @@ class GlobalVariable(models.Model):
         verbose_name = _("Global Variable")
         verbose_name_plural = _("Global Variables")
 
+    def __str__(self):
+        return "調査のグローバル設定"
+
 

@@ -74,7 +74,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
+    # "allauth.account.middleware.AccountMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
@@ -297,7 +297,7 @@ AUTH_USER_MODEL = "dashboards.ApplicationUser"
 LOGIN_REDIRECT_URL = '/survey/'
 LOGOUT_REDIRECT_URL = '/'
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 EXCEL_COMPATIBLE_CSV = True
 CHOICES_SEPARATOR = "|"
@@ -312,7 +312,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 
 SIMPLEUI_HOME_INFO = False
-SIMPLEUI_HOME_ACTION = False
+SIMPLEUI_HOME_ACTION = True
 SIMPLEUI_ANALYSIS = False
 
 SIMPLEUI_CONFIG = {

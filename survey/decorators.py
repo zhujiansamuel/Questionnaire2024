@@ -7,6 +7,7 @@ from django.shortcuts import Http404, get_object_or_404, redirect, reverse
 from django.utils.translation import gettext_lazy as _
 
 from survey.models import Survey
+from survey.models.global_variable import GlobalVariable
 
 
 def survey_available(func):
@@ -33,3 +34,11 @@ def survey_available(func):
         return func(self, request, *args, **kwargs, survey=survey)
 
     return survey_check
+
+
+def global_value(func):
+    @wraps(func)
+    def global_get(self, request, *args, **kwargs):
+        global_value_s = get_object_or_404(GlobalVariable, id=1)
+        return func(self, request, *args, **kwargs, global_value_dict=global_value_s.__dict__)
+    return global_get

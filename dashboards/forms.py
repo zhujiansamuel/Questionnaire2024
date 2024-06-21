@@ -32,15 +32,11 @@ class ListTextWidget(forms.TextInput):
         return (text_html + data_list)
 
 
-class GlobalSetupForm(forms.ModelForm):
+class GlobalSetupForm(forms.Form):
+    number_of_responses = forms.IntegerField()
+    diagnostic_page_indexing = forms.IntegerField()
+    download_top_number = forms.IntegerField()
 
-    class Meta:
-        model = GlobalVariable
-        fields = [
-            "number_of_responses",
-            "diagnostic_page_indexing",
-            "download_top_number"
-        ]
 
 
 class ExperimenterCreationForm(UserCreationForm):

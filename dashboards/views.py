@@ -2,17 +2,26 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.core.cache import cache
-
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponseRedirect,HttpResponse
-from dashboards.models import ApplicationUser
 from django.contrib.auth.models import Permission
 from django.forms import formset_factory
+from django.views.generic.edit import FormView
+from django.views.generic.edit import UpdateView
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.contrib import messages
 
+from django.contrib.admin.options import get_content_type_for_model
+from django.contrib.auth import logout as auth_logout
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.views import LoginView, LogoutView
 
+from dashboards.models import ApplicationUser
 from survey.models import Answer
 from survey.models.category import Category
 from survey.models.survey import Survey
@@ -20,9 +29,7 @@ from survey.models.response import Response
 from survey.models.question import Question
 from survey.models.jumping import Jumping_Question
 from survey.models.global_variable import GlobalVariable
-from django.contrib.auth.views import LoginView, LogoutView
 
-from django.contrib.auth import logout as auth_logout
 from .forms import (ExperimenterCreationForm,
                     ParticipantCreationForm,
                     CreateEveryQuestionForm,
@@ -30,13 +37,10 @@ from .forms import (ExperimenterCreationForm,
                     CreateSurveyForm,
                     CreateDefaultRandomForm,
                     GlobalSetupForm)
-from django.views.decorators.cache import never_cache
-from django.utils.decorators import method_decorator
 
-from survey.decorators import survey_available
+from survey.decorators import survey_available, global_value
 
-from django.views.generic.edit import FormView
-from django.views.generic.edit import UpdateView
+
 
 
 class HomeIndexView(TemplateView):
@@ -195,21 +199,68 @@ class My_page(PermissionRequiredMixin,TemplateView):
         return context
 
 
-# class Global_setup_page(PermissionRequiredMixin, TemplateView):
 
 def Global_setup_page(request):
     instance = get_object_or_404(GlobalVariable, id=1)
-    form = GlobalSetupForm(request.POST or None, instance=instance)
-    if form.is_valid():
-        form.save()
-        return redirect('admin:index')
+    form = GlobalSetupForm(request.POST or None, initial=instance.__dict__)
+    if request.method == 'POST':
+        if form.is_valid():
+            instance.number_of_responses = form.cleaned_data["number_of_responses"]
+            instance.diagnostic_page_indexing = form.cleaned_data["diagnostic_page_indexing"]
+            instance.download_top_number = form.cleaned_data["download_top_number"]
+            instance.save()
+
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(instance).pk,
+                object_id=instance.id,
+                object_repr=str(instance),
+                action_flag=CHANGE)
+
+            survey_list = Survey.objects.all()
+            if survey_list:
+                if len(survey_list)==1:
+                    survey = survey_list[0]
+                    survey.download_top_number = instance.download_top_number
+                    survey.diagnostic_page_indexing = instance.diagnostic_page_indexing
+                    survey.save()
+                    question_list = Question.objects.filter(survey=survey)
+                    if question_list:
+                        if len(question_list)==1:
+                            question_s = question_list[0]
+                            question_s.number_of_responses = instance.number_of_responses
+                            question_s.save()
+                        elif len(question_list)>1:
+                            for question_s in question_list:
+                                question_s.number_of_responses = instance.number_of_responses
+                                question_s.save()
+                elif len(survey_list)>1:
+                    for survey_s in survey_list:
+                        survey_s.download_top_number = instance.download_top_number
+                        survey_s.diagnostic_page_indexing = instance.diagnostic_page_indexing
+                        survey_s.save()
+                        question_list = Question.objects.filter(survey=survey_s)
+                        if question_list:
+                            if len(question_list) == 1:
+                                question_s = question_list[0]
+                                question_s.number_of_responses = instance.number_of_responses
+                                question_s.save()
+                            elif len(question_list) > 1:
+                                for question_s in question_list:
+                                    question_s.number_of_responses = instance.number_of_responses
+                                    question_s.save()
+            instance = get_object_or_404(GlobalVariable, id=1)
+            form = GlobalSetupForm(request.POST,initial=instance.__dict__)
+            return render(request, 'admin/adminpage/global_setup.html', {'form': form})
+    else:
+        form = GlobalSetupForm(initial=instance.__dict__)
     return render(request, 'admin/adminpage/global_setup.html', {'form': form})
 
 
 
 
 class Add_survey(View):
-
+    @global_value
     def get(self, request, *args, **kwargs):
         template_name = "../templates/admin/adminpage/addsurvey.html"
         form = CreateSurveyForm(user=request.user, requests=request)
@@ -218,7 +269,9 @@ class Add_survey(View):
         }
         return render(request, template_name, context)
 
+    @global_value
     def post(self, request, *args, **kwargs):
+        global_value_dict = kwargs.pop("global_value_dict")
         template_name = "../templates/admin/adminpage/addsurvey.html"
         form = CreateSurveyForm(request.POST, user=request.user, requests=request)
         context = {
@@ -226,6 +279,19 @@ class Add_survey(View):
         }
         if form.is_valid():
             survey = form.save()
+            survey.diagnostic_page_indexing = global_value_dict["diagnostic_page_indexing"]
+            survey.download_top_number = global_value_dict["download_top_number"]
+            survey.save()
+
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(survey).pk,
+                object_id=survey.id,
+                object_repr=str(survey),
+                action_flag=ADDITION,
+                change_message="Add Survey"
+            )
+            messages.success(self.request, '調査セットを保存しました。')
         if survey is not None:
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
@@ -258,9 +324,10 @@ class Add_one_random_question(FormView):
         }
         return render(request, template_name, context)
 
-
+    @global_value
     def post(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
@@ -272,6 +339,7 @@ class Add_one_random_question(FormView):
             category = Category.objects.create(survey=survey,
                                                block_type="one-random"
                                                )
+
             for form in formset:
                 print(form.cleaned_data)
                 try:
@@ -279,7 +347,6 @@ class Add_one_random_question(FormView):
                 except KeyError:
                     pass
                 else:
-                    print(text)
                     if text != None:
                         question = Question.objects.create(
                             text=text,
@@ -287,14 +354,27 @@ class Add_one_random_question(FormView):
                             category=category,
                             order=form.cleaned_data['order'],
                             survey=survey,
+                            number_of_responses=global_value_dict["number_of_responses"]
                         )
                         question.save()
+
+                        LogEntry.objects.log_action(
+                            user_id=request.user.id,
+                            content_type_id=get_content_type_for_model(question).pk,
+                            object_id=question.id,
+                            object_repr=str(question),
+                            action_flag = ADDITION,
+                            change_message = "Add Question"
+                        )
+            messages.success(self.request, '質問を保存しました。')
+
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         template_name = "admin/adminpage/one_random_question.html"
         context = {
             'survey': survey,
             'formset': formset,
         }
+        messages.success(self.request, '質問を保存しました。')
         return render(request, template_name, context)
 
 
@@ -315,8 +395,10 @@ class Add_sequence_question(FormView):
         }
         return render(request, template_name, context)
 
+    @global_value
     def post(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
@@ -345,8 +427,17 @@ class Add_sequence_question(FormView):
                             category=category,
                             order=form.cleaned_data['order'],
                             survey=survey,
+                            number_of_responses=global_value_dict["number_of_responses"]
                         )
                         question.save()
+                        LogEntry.objects.log_action(
+                            user_id=request.user.id,
+                            content_type_id=get_content_type_for_model(question).pk,
+                            object_id=question.id,
+                            object_repr=str(question),
+                            action_flag = ADDITION,
+                            change_message = "Add Question")
+            messages.success(self.request, '質問を保存しました。')
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
 
@@ -367,9 +458,10 @@ class Add_branch_question(FormView):
         }
         return render(request, template_name, context)
 
-
+    @global_value
     def post(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
@@ -389,7 +481,8 @@ class Add_branch_question(FormView):
                                                category=category,
                                                text=form.cleaned_data["question_text"],
                                                choices=form.cleaned_data["question_choices"],
-                                               jump_type="parent-question")
+                                               jump_type="parent-question",
+                                               number_of_responses=global_value_dict["number_of_responses"])
             for i in range(jump_question_num):
                 text_label = "jumping_"+str(i+1)+"_question_text"
                 choice_label = "jumping_"+str(i+1)+"_question_choices"
@@ -399,7 +492,21 @@ class Add_branch_question(FormView):
                                                      choices=form.cleaned_data[choice_label],
                                                      jump_type=str(i+1))
                 question_1.save()
+                LogEntry.objects.log_action(
+                    user_id=request.user.id,
+                    content_type_id=get_content_type_for_model(question_1).pk,
+                    object_id=question_1.id,
+                    object_repr=str(question_1),
+                    action_flag = ADDITION,
+                    change_message = "Add Question")
             question.save()
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(question).pk,
+                object_id=question.id,
+                object_repr=str(question),
+                action_flag=ADDITION,
+                change_message="Add Question")
             category.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         template_name = "admin/adminpage/branch_question.html"
@@ -407,6 +514,7 @@ class Add_branch_question(FormView):
             'survey': survey,
             'form': form,
         }
+        messages.success(self.request, '質問を保存しました。')
         return render(request, template_name, context)
 
 
@@ -424,8 +532,10 @@ class Add_default_random_question(View):
         }
         return render(request, template_name, context)
 
+    @global_value
     def post(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
             Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
         )
@@ -439,13 +549,22 @@ class Add_default_random_question(View):
             question.survey=survey
             question.survey = survey
             question.category=category
+            question.number_of_responses=global_value_dict["number_of_responses"]
             question.save()
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(question).pk,
+                object_id=question.id,
+                object_repr=str(question),
+                action_flag=ADDITION,
+                change_message="Add Question")
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
 
         context = {
             'survey': survey,
             'form': form,
         }
+        messages.success(self.request, '質問を保存しました。')
         return render(request, template_name, context)
 
 
