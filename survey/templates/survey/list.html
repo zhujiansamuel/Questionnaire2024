@@ -39,7 +39,7 @@
                     {% if user.is_authenticated %}
                         <ul>
                             {% for survey in surveys %}
-                                <li><h3><a href="{{ survey.get_absolute_url }}">Take the survey - {{survey.name}}</a></h3></li>
+                                <li><h3><a href="{{ survey.get_absolute_url }}">調査セット:　{{survey.name}}　（カテゴリー:　{{ survey.description }}）</a></h3></li>
                     {#            <a href="{% url 'download-csv' survey.pk %}">Download answers list</a>#}
 
                             {% endfor %}

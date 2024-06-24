@@ -1,10 +1,10 @@
 {% extends "admin/adminpage/addquestion.html" %}
 {% load bootstrap %}
 
-
+{% block sequence-checked %}checked{% endblock %}
 
 {% block question %}
-    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-sequence-question/'>
+    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-sequence-question/{{ num }}/'>
         {% csrf_token %}
 <link href="/static/django_ckeditor_5/dist/styles.css" media="all" rel="stylesheet">
         <script src="/static/django_ckeditor_5/dist/bundle.js"></script>

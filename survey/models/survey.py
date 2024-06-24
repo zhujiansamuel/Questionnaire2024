@@ -59,6 +59,10 @@ FOUNDER = _("""
 Creator of the questionnaire. Creators can only view and edit their own questionnaires.
 """)
 
+NUMBER_OF_QUESTION = _("""
+At last 10 questions.
+""")
+
 def in_duration_day():
     return now() + timedelta(days=settings.DEFAULT_SURVEY_PUBLISHING_DURATION)
 
@@ -93,6 +97,7 @@ class Survey(models.Model):
 
     diagnostic_page_indexing = models.IntegerField(_("診断結果の表示の最低数"), default=20, help_text=DIAGNOSTIC_PAGE_INDEXING)
     download_top_number = models.IntegerField(_("Download the top results"), default=0, help_text=DOWNLOAD_TOP_NUMBER)
+    number_of_question = models.IntegerField(_("質問の数"), default=0, help_text=NUMBER_OF_QUESTION)
 
     class Meta:
         verbose_name = _("調査セット")

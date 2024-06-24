@@ -1,6 +1,9 @@
 {% extends "admin/adminpage/addquestion.html" %}
 {% load bootstrap %}
 
+{% block branch-checked %}checked{% endblock %}
+
+
 {% block question %}
 
     <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-branch-question/'>
@@ -17,7 +20,10 @@
             <br>
 
             <div class="fieldWrapper">
-                {{ form.question_text.errors }}
+                              {% for error in form.question_text.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.question_text.label_tag }} {{ form.question_text }}
                 {% if form.question_text.help_text %}
                     <p class="help">{{ form.question_text.help_text|safe }}</p>
@@ -25,14 +31,17 @@
             </div>
             <br>
             <div class="fieldWrapper">
-                {{ form.question_choices.errors }}
+            {% for error in form.question_choices.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.question_choices.label_tag }} {{ form.question_choices }}
                 {% if form.question_choices.help_text %}
                     <p class="help">{{ form.question_choices.help_text|safe }}</p>
                 {% endif %}
             </div>
 
-
+<br>
             <h2>選択肢の枝分かれの質問</h2>
             <p>説明：</p>
             <br>
@@ -40,7 +49,10 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-                {{ form.jumping_1_question_text.errors }}
+            {% for error in form.jumping_1_question_text.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_1_question_text.label_tag }} {{ form.jumping_1_question_text }}
                 {% if form.jumping_1_question_text.help_text %}
                     <p class="help">{{ form.jumping_1_question_text.help_text|safe }}</p>
@@ -48,7 +60,10 @@
             </div>
             <br>
             <div class="fieldWrapper">
-                {{ form.jumping_1_question_choices.errors }}
+            {% for error in form.jumping_1_question_choices.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_1_question_choices.label_tag }} {{ form.jumping_1_question_choices }}
                 {% if form.jumping_1_question_choices.help_text %}
                     <p class="help">{{ form.jumping_1_question_choices.help_text|safe }}</p>
@@ -59,7 +74,10 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-                {{ form.jumping_2_question_text.errors }}
+                        {% for error in form.jumping_2_question_text.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_2_question_text.label_tag }} {{ form.jumping_2_question_text }}
                 {% if form.jumping_2_question_text.help_text %}
                     <p class="help">{{ form.jumping_2_question_text.help_text|safe }}</p>
@@ -67,7 +85,10 @@
             </div>
             <br>
             <div class="fieldWrapper">
-                {{ form.jumping_2_question_choices.errors }}
+            {% for error in form.jumping_2_question_choices.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_2_question_choices.label_tag }} {{ form.jumping_2_question_choices }}
                 {% if form.jumping_2_question_choices.help_text %}
                     <p class="help">{{ form.jumping_2_question_choices.help_text|safe }}</p>
@@ -79,7 +100,10 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-                {{ form.jumping_3_question_text.errors }}
+            {% for error in form.jumping_3_question_text.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_3_question_text.label_tag }} {{ form.jumping_3_question_text }}
                 {% if form.jumping_3_question_text.help_text %}
                     <p class="help">{{ form.jumping_3_question_text.help_text|safe }}</p>
@@ -87,7 +111,10 @@
             </div>
             <br>
             <div class="fieldWrapper">
-                {{ form.jumping_3_question_choices.errors }}
+            {% for error in form.jumping_3_question_choices.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
+
                 {{ form.jumping_3_question_choices.label_tag }} {{ form.jumping_3_question_choices }}
                 {% if form.jumping_3_question_choices.help_text %}
                     <p class="help">{{ form.jumping_3_question_choices.help_text|safe }}</p>
@@ -98,7 +125,10 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-                {{ form.jumping_4_question_text.errors }}
+
+                {% for error in form.jumping_4_question_text.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
                 {{ form.jumping_4_question_text.label_tag }} {{ form.jumping_4_question_text }}
                 {% if form.jumping_4_question_text.help_text %}
                     <p class="help">{{ form.jumping_4_question_text.help_text|safe }}</p>
@@ -106,7 +136,10 @@
             </div>
             <br>
             <div class="fieldWrapper">
-                {{ form.jumping_4_question_choices.errors }}
+
+                {% for error in form.jumping_4_question_choices.errors %}
+                                  <p style="color: red">{{ error }}</p>
+                              {% endfor %}
                 {{ form.jumping_4_question_choices.label_tag }} {{ form.jumping_4_question_choices }}
                 {% if form.jumping_4_question_choices.help_text %}
                     <p class="help">{{ form.jumping_4_question_choices.help_text|safe }}</p>

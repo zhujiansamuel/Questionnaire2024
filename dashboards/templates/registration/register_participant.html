@@ -1,4 +1,4 @@
-{% extends "base_n.html" %}
+a{% extends "base_n.html" %}
 {% load i18n %}
 
 
@@ -36,6 +36,9 @@
                                         <label class="form-label" for="typePasswordX"
                                                style="overflow:unset ;!important">Nicknames</label>
                                         {{ form.nicknames }}
+                                        {% for error in form.nicknames.errors %}
+                                            <p style="color: red">{{ error }}</p>
+                                        {% endfor %}
                                     </div>
 
                                     <br>

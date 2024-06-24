@@ -14,9 +14,12 @@ def make_published(modeladmin, request, queryset):
     ) % {"count": count}
     modeladmin.message_user(request, message)
 
-
 make_published.short_description = _("Mark selected surveys as published")
 
+
+def add_question_button(self, request, queryset):
+    survey_s = queryset.first()
+    return redirect("add-question-with-id",id=survey_s.id)
 
 def add_survey_button(self, request, queryset):
     pass

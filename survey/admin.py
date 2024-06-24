@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from survey.actions import make_published, add_survey_button
+from survey.actions import make_published, add_question_button, add_survey_button
 from survey.exporter.csv import Survey2Csv
 from survey.exporter.tex import Survey2Tex
 from survey.models import Answer, Category, Question, Response, Survey
@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 # from simpleui.admin import AjaxAdmin
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ("username", "email","is_participant","is_staff","affiliated_school")
+    list_display = ("username", "email", "is_participant", "is_staff", "affiliated_school")
     # list_filter = ("survey", "created", "user")
     ordering = ("username",)
     fieldsets = None
@@ -70,40 +70,39 @@ class CategoryInline(admin.StackedInline):
 
 class SurveyAdmin(admin.ModelAdmin):
 
-    list_display = ("name","founder", "is_published", "expire_date", "download_top_number")
+    list_display = ("name","hide_name", "number_of_question", "founder", "is_published", "expire_date")
     list_filter = ("is_published", "publish_date")
     ordering = ("name",)
     search_fields = ("name",)
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description', 'founder', 'diagnostic_page_indexing'],
+            'fields': ['name', 'description', 'founder'],
         }),
 
         ("Privilege Management", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
             'fields': ['is_published', 'publish_date', 'expire_date'],
         }),
-        ("Export Management", {
-            'description': '',
-            'fields': ['download_top_number'],
-        }),
-
 
     ]
     readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
-    actions = [add_survey_button, make_published, Survey2Csv.export_as_csv]
+    actions = [add_survey_button, add_question_button, make_published, Survey2Csv.export_as_csv]
 
-    add_survey_button.short_description = ' 新たな調査セットを作成する'
+    add_survey_button.short_description = '新たな調査セットを作成する'
     add_survey_button.icon = 'fa-solid fa-file-circle-plus'
     add_survey_button.type = 'success'
     # add_survey_button.style = 'color:black;'
     add_survey_button.action_type = 0
     add_survey_button.action_url = '/dashboards/add-survey/'
 
-    # def has_add_permission(self, request):
-    #     return False
+    add_question_button.short_description = '質問を追加する'
+    add_question_button.icon = 'fa-solid fa-list-check'
+    add_question_button.type = 'warning'
+
+    def has_add_permission(self, request):
+        return False
 
 
     def save_model(self, request, obj, form, change):

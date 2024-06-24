@@ -24,10 +24,13 @@ from dashboards.views import (HomeIndexView,
                               Add_survey,
                               Add_question,
                               Add_one_random_question,
+                              Add_one_random_question_ex,
                               Add_default_random_question,
                               Add_branch_question,
                               Add_sequence_question,
-                              Global_setup_page)
+                              Add_sequence_question_ex,
+                              Global_setup_page,
+                              Get_survey_question_num_ajax)
 from django.contrib.auth.views import (LogoutView,
                                        LoginView,
                                        PasswordResetView,
@@ -104,11 +107,14 @@ urlpatterns += [
     path("dashboards/add-survey/", Add_survey.as_view(), name="add-survey"),
     path("dashboards/<int:id>/add-question/", Add_question.as_view(), name="add-question-with-id"),
 
-    path("dashboards/<int:survey_id>/add-one-random-question/", Add_one_random_question.as_view(), name="add-one-random-question"),
-    path("dashboards/<int:survey_id>/add-sequence-question/", Add_sequence_question.as_view(), name="add-sequence-question"),
+    path("dashboards/<int:survey_id>/add-one-random-question/<int:extra_num>/", Add_one_random_question.as_view(), name="add-one-random-question"),
+    path("dashboards/<int:survey_id>/add-one-random-question/", Add_one_random_question_ex.as_view(), name="add-one-random-question-number"),
+    path("dashboards/<int:survey_id>/add-sequence-question/<int:extra_num>/", Add_sequence_question.as_view(), name="add-sequence-question"),
+    path("dashboards/<int:survey_id>/add-sequence-question/", Add_sequence_question_ex.as_view(), name="add-sequence-question-number"),
     path("dashboards/<int:survey_id>/add-branch-question/", Add_branch_question.as_view(), name="add-branch-question"),
     path("dashboards/<int:survey_id>/add-default-random-question/", Add_default_random_question.as_view(), name="add-default-random-question"),
 
+    path("ajax/add-question/", Get_survey_question_num_ajax.as_view()),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,24 @@
+{% extends "admin/adminpage/addquestion.html" %}
+{% load bootstrap %}
+
+{% block one-random-checked %}checked{% endblock %}
+
+{% block question %}
+
+    <form id="formId" method='POST' action=''>
+        {% csrf_token %}
+        <div class="container">
+        <br>
+            <h1>回答者をグループに分けます。いくつのグループに分けますか？</h1>
+            <br>
+            <br>
+            {{ form.as_p }}
+            <br>
+            <br/>
+
+            <button name="btn_submit" type="submit" class="btn btn-success">次に</button>
+            <br>
+        </div>
+    </form>
+
+{% endblock %}
