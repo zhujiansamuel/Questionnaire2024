@@ -43,7 +43,11 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         surveys = Survey.objects.filter(
             is_published=True, expire_date__gte=date.today(), publish_date__lte=date.today()
         )
+        survey_unanswered = []
         for survey in surveys:
+            responses = Response.objects.filter(survey=survey, user=request.user).exists()
+            if not responses:
+                survey_unanswered.append(survey)
             session_key = "survey_{}".format(survey.id)
             diagnostic_session_key = "diagnostic_{}_{}".format(request.user, survey.name)
             try:
@@ -67,7 +71,6 @@ class IndexView(PermissionRequiredMixin,TemplateView):
                 if step_database is not None:
                     cache.delete(step_cache_key)
                     cache.delete(current_key)
-                    # print("Delete step_cache!------1")
             is_diagnostic_current_key = "current_key_diagnostic_{}".format(request.user)
             is_diagnostic_key = cache.get(is_diagnostic_current_key)
             if is_diagnostic_key is not None:
@@ -86,7 +89,8 @@ class IndexView(PermissionRequiredMixin,TemplateView):
             print("permission_denied")
         if not self.request.user.is_authenticated:
             surveys = surveys.filter(need_logged_user=True)
-        context["surveys"] = surveys
+
+        context["surveys"] = survey_unanswered
         context["user_logged"] = self.request.user.is_authenticated,
         context["is_experimenter"] = self.request.user.has_perm('survey.experimenter')
 
