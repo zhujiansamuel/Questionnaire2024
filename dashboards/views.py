@@ -338,7 +338,7 @@ class Add_question(View):
         template_name = "../templates/admin/adminpage/addquestion.html"
         survey_id = kwargs.pop("survey_id", None)
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
@@ -360,7 +360,7 @@ class Add_one_random_question_ex(FormView):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         form = InputExtraNum()
         template_name = "../templates/admin/adminpage/input_extra.html"
@@ -391,7 +391,7 @@ class Add_one_random_question_ex(FormView):
         template_name = "../templates/admin/adminpage/input_extra.html"
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
@@ -415,7 +415,7 @@ class Add_one_random_question(FormView):
         num = kwargs.pop("extra_num")
         num_int = int(num) - 1
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num_int, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
@@ -441,7 +441,7 @@ class Add_one_random_question(FormView):
         num = kwargs.pop("extra_num")
         num_int = int(num) - 1
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num_int, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(request.POST,
@@ -536,7 +536,7 @@ class Add_sequence_question_ex(FormView):
         template_name = "../templates/admin/adminpage/input_extra_sq.html"
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
@@ -558,7 +558,7 @@ class Add_sequence_question(FormView):
         num_int = int(num) - 1
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num_int, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
@@ -584,11 +584,11 @@ class Add_sequence_question(FormView):
         num_int = int(num) - 1
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
-        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num, min_num=1, validate_min=True)
-        formset = CreateQuestionFormset(self.request.POST,
-            form_kwargs={'user': self.request.user, 'survey': survey, 'requests': self.request})
+        CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num_int, min_num=1, validate_min=True)
+        formset = CreateQuestionFormset(request.POST,
+            form_kwargs={'user': request.user, 'survey': survey, 'requests': request})
         template_name = "admin/adminpage/sequence_question.html"
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
@@ -632,7 +632,7 @@ class Add_sequence_question(FormView):
                             object_repr=str(question),
                             action_flag = ADDITION,
                             change_message = "Add Question")
-            messages.success(self.request, '質問を保存しました。')
+            messages.success(request, '質問を保存しました。')
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
 
@@ -643,7 +643,7 @@ class Add_branch_question(FormView):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         form = CreateEveryQuestionForm()
         template_name = "admin/adminpage/branch_question.html"
@@ -664,13 +664,10 @@ class Add_branch_question(FormView):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         form = CreateEveryQuestionForm(request.POST)
-        if survey.number_of_question < global_value_dict["number_of_question"]:
-            color = "red"
-        else:
-            color = "black"
+
         if form.is_valid():
             jump_question_num = 0
             for key in form.cleaned_data:
@@ -704,6 +701,7 @@ class Add_branch_question(FormView):
                     action_flag = ADDITION,
                     change_message = "Add Question")
             question.save()
+            messages.success(request, '質問を保存しました。')
             num_question = int(survey.number_of_question)
             num_question += 2
             survey.number_of_question = num_question
@@ -717,6 +715,10 @@ class Add_branch_question(FormView):
                 change_message="Add Question")
             category.save()
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
+        if survey.number_of_question < global_value_dict["number_of_question"]:
+            color = "red"
+        else:
+            color = "black"
         template_name = "admin/adminpage/branch_question.html"
         context = {
             'survey': survey,
@@ -724,7 +726,6 @@ class Add_branch_question(FormView):
             'color': color,
             'number_of_question': global_value_dict["number_of_question"]
         }
-        messages.success(self.request, '質問を保存しました。')
         return render(request, template_name, context)
 
 
@@ -734,7 +735,7 @@ class Add_default_random_question(View):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"),id=survey_id
         )
         form = CreateDefaultRandomForm()
         template_name = "admin/adminpage/question.html"
@@ -755,7 +756,7 @@ class Add_default_random_question(View):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         form = CreateDefaultRandomForm(request.POST)
         template_name = "admin/adminpage/question.html"
@@ -780,6 +781,7 @@ class Add_default_random_question(View):
                 object_repr=str(question),
                 action_flag=ADDITION,
                 change_message="Add Question")
+            messages.success(request, '質問を保存しました。')
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
@@ -791,7 +793,7 @@ class Add_default_random_question(View):
             'color': color,
             'number_of_question': global_value_dict["number_of_question"]
         }
-        messages.success(self.request, '質問を保存しました。')
+
         return render(request, template_name, context)
 
 
@@ -802,7 +804,7 @@ class Get_survey_question_num_ajax(View):
         survey_id = request.GET.get("survey_id")
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
