@@ -351,12 +351,14 @@ class ResponseForm(models.ModelForm):
                 branch_mark = cache.get(branch_mark_key)
                 if branch_mark is None:
                     question_s = Question.objects.get(category=category,jump_type="parent-question")
-                    self.question_to_display += question_s
+                    question_1 = Question.objects.get(category=category, jump_type="1")
+                    self.question_to_display.append(question_s)
+                    self.question_to_display.append(question_1)
                 if branch_mark and branch_mark != "no-jumping":
-                    question_s = Question.objects.get(category=category,jump_type=branch_mark)
-
-                self.question_to_display += question_s
-
+                    question_s = Question.objects.get(category=category, jump_type="parent-question")
+                    question_1 = Question.objects.get(category=category,jump_type=branch_mark)
+                    self.question_to_display.append(question_s)
+                    self.question_to_display.append(question_1)
             elif category.block_type == "default-random":
                 self.question_to_display += category_question_all
 
@@ -371,13 +373,13 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-        if self.step == 0:
-            print(" ------------------------------------------------------------ ")
-            print("生成的问题")
-            print(" -------- ")
-            for i, question in enumerate(self.question_to_display):
-                print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
-            print(" ------------------------------------------------------------ ")
+
+        print(" ------------------------------------------------------------ ")
+        print("生成的问题")
+        print(" -------- ")
+        for i, question in enumerate(self.question_to_display):
+            print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
+        print(" ------------------------------------------------------------ ")
         # -------------------------------------------------------------------
         print(" ------------------------------------------------------------ ")
         print("Step:", self.step)

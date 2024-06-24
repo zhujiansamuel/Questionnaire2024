@@ -4,14 +4,42 @@
 {% block branch-checked %}checked{% endblock %}
 
 
+{% block content_title %}
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <h3>調査セット「{{ survey }}」への質問追加</h3>
+            <p id="survey-id" hidden>{{ survey.id }}</p>
+            <p id="question_num_0" style="color:{{ color }}" nowrap>現在、調査セットの質問数：<span id="question_num" style="color:{{ color }}" nowrap></span> / {{ number_of_question }}</p>
+        </div>
+    </div>
+    <div>
+
+    <script>
+            $(document).ready(function () {
+            var survey_id = $("#survey-id").text();
+            $.get('/ajax/add-question/', {survey_id: survey_id}, function (data) {
+                data = JSON.parse(data);
+                $('#question_num').text(data["num_question"]);
+                $('#question_num').css("color",data["color"]);
+                $('#question_num_0').css("color",data["color"]);
+            });
+
+        });
+
+    </script>
+
+
+{% endblock %}
+
+
 {% block question %}
 
     <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-branch-question/'>
         {% csrf_token %}
-
+        <link href="/static/django_ckeditor_5/dist/styles.css" media="all" rel="stylesheet">
+        <script src="/static/django_ckeditor_5/dist/bundle.js"></script>
         <div class="container">
             <br>
-            {{ form.media }}
             <br>
             <h1>枝分かれの質問</h1>
             <p>説明：</p>
@@ -20,9 +48,9 @@
             <br>
 
             <div class="fieldWrapper">
-                              {% for error in form.question_text.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.question_text.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.question_text.label_tag }} {{ form.question_text }}
                 {% if form.question_text.help_text %}
@@ -31,9 +59,9 @@
             </div>
             <br>
             <div class="fieldWrapper">
-            {% for error in form.question_choices.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.question_choices.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.question_choices.label_tag }} {{ form.question_choices }}
                 {% if form.question_choices.help_text %}
@@ -41,7 +69,7 @@
                 {% endif %}
             </div>
 
-<br>
+            <br>
             <h2>選択肢の枝分かれの質問</h2>
             <p>説明：</p>
             <br>
@@ -49,9 +77,9 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-            {% for error in form.jumping_1_question_text.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_1_question_text.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_1_question_text.label_tag }} {{ form.jumping_1_question_text }}
                 {% if form.jumping_1_question_text.help_text %}
@@ -60,9 +88,9 @@
             </div>
             <br>
             <div class="fieldWrapper">
-            {% for error in form.jumping_1_question_choices.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_1_question_choices.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_1_question_choices.label_tag }} {{ form.jumping_1_question_choices }}
                 {% if form.jumping_1_question_choices.help_text %}
@@ -74,9 +102,9 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-                        {% for error in form.jumping_2_question_text.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_2_question_text.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_2_question_text.label_tag }} {{ form.jumping_2_question_text }}
                 {% if form.jumping_2_question_text.help_text %}
@@ -85,9 +113,9 @@
             </div>
             <br>
             <div class="fieldWrapper">
-            {% for error in form.jumping_2_question_choices.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_2_question_choices.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_2_question_choices.label_tag }} {{ form.jumping_2_question_choices }}
                 {% if form.jumping_2_question_choices.help_text %}
@@ -100,9 +128,9 @@
             <br>
             {#    {{ form.jumping_1_choices_order }}#}
             <div class="fieldWrapper">
-            {% for error in form.jumping_3_question_text.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_3_question_text.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_3_question_text.label_tag }} {{ form.jumping_3_question_text }}
                 {% if form.jumping_3_question_text.help_text %}
@@ -111,9 +139,9 @@
             </div>
             <br>
             <div class="fieldWrapper">
-            {% for error in form.jumping_3_question_choices.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                {% for error in form.jumping_3_question_choices.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
 
                 {{ form.jumping_3_question_choices.label_tag }} {{ form.jumping_3_question_choices }}
                 {% if form.jumping_3_question_choices.help_text %}
@@ -127,8 +155,8 @@
             <div class="fieldWrapper">
 
                 {% for error in form.jumping_4_question_text.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
                 {{ form.jumping_4_question_text.label_tag }} {{ form.jumping_4_question_text }}
                 {% if form.jumping_4_question_text.help_text %}
                     <p class="help">{{ form.jumping_4_question_text.help_text|safe }}</p>
@@ -138,8 +166,8 @@
             <div class="fieldWrapper">
 
                 {% for error in form.jumping_4_question_choices.errors %}
-                                  <p style="color: red">{{ error }}</p>
-                              {% endfor %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
                 {{ form.jumping_4_question_choices.label_tag }} {{ form.jumping_4_question_choices }}
                 {% if form.jumping_4_question_choices.help_text %}
                     <p class="help">{{ form.jumping_4_question_choices.help_text|safe }}</p>

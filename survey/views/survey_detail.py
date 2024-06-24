@@ -215,17 +215,10 @@ class SurveyDetail(View):
         # if there is a next step
         if next_url is not None:
             step = int(kwargs.get("step", 0)) + 1
-            if step % survey.diagnosis_stages_qs_num != 0:
-                context = self.result_pre_question(form, next_url, request)
-                template_name = "survey/result_pre_question.html"
-                return render(request, template_name, context)
-            elif step % survey.diagnosis_stages_qs_num == 0:
-                context1 = self.result_pre_question(form, next_url, request)
-                context2 = self.Diagnostic_Result(form, next_url, request, kwargs)
-                context = self.Merge(context1, context2)
-                # print("---------------->context:",context)
-                template_name = "survey/result_pre_question.html"
-                return render(request, template_name, context)
+            context = self.result_pre_question(form, next_url, request)
+            template_name = "survey/result_pre_question.html"
+            return render(request, template_name, context)
+
 
         if response is None:
             return redirect(reverse("survey-list"))

@@ -186,12 +186,12 @@ class CreateEveryQuestionForm(forms.Form):
     )
     # -------------------------------------------
     # -------------------------------------------
-    question_text = forms.CharField(label=_('Question Body'), widget=CKEditor5Widget())
+    question_text = forms.CharField(label=_('Question Body'), widget=CKEditor5Widget(),required=False)
     question_choices = forms.CharField(label=_('Question Choices'))
     # -------------------------------------------
     # -------------------------------------------
     jumping_1_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='1',required=False)
-    jumping_1_question_text = forms.CharField(label=_('Question 1 Body'), widget=CKEditor5Widget())
+    jumping_1_question_text = forms.CharField(label=_('Question 1 Body'), widget=CKEditor5Widget(),required=False)
     jumping_1_question_choices = forms.CharField(label=_('Question 1 Choices'))
     # -------------------------------------------
     jumping_2_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='2',required=False)

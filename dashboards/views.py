@@ -241,11 +241,9 @@ def Global_setup_page(request):
                     if question_list:
                         if len(question_list)==1:
                             question_s = question_list[0]
-                            question_s.number_of_responses = instance.number_of_responses
                             question_s.save()
                         elif len(question_list)>1:
                             for question_s in question_list:
-                                question_s.number_of_responses = instance.number_of_responses
                                 question_s.save()
                 elif len(survey_list)>1:
                     for survey_s in survey_list:
@@ -256,11 +254,9 @@ def Global_setup_page(request):
                         if question_list:
                             if len(question_list) == 1:
                                 question_s = question_list[0]
-                                question_s.number_of_responses = instance.number_of_responses
                                 question_s.save()
                             elif len(question_list) > 1:
                                 for question_s in question_list:
-                                    question_s.number_of_responses = instance.number_of_responses
                                     question_s.save()
             instance = get_object_or_404(GlobalVariable, id=1)
             form = GlobalSetupForm(request.POST,initial=instance.__dict__)
@@ -380,9 +376,7 @@ class Add_one_random_question_ex(FormView):
     @global_value
     def post(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
-
         form = InputExtraNum(request.POST)
-
         if form.is_valid():
             data = form.cleaned_data["num"]
             if int(data) in range(1, 11):
@@ -468,8 +462,7 @@ class Add_one_random_question(FormView):
                             choices=form.cleaned_data['choices'],
                             category=category,
                             order=form.cleaned_data['order'],
-                            survey=survey,
-                            number_of_responses=global_value_dict["number_of_responses"]
+                            survey=survey
                         )
                         question.save()
 
@@ -483,19 +476,19 @@ class Add_one_random_question(FormView):
                             content_type_id=get_content_type_for_model(question).pk,
                             object_id=question.id,
                             object_repr=str(question),
-                            action_flag = ADDITION,
-                            change_message = "Add Question"
+                            action_flag=ADDITION,
+                            change_message="Add Question"
                         )
             messages.success(self.request, '質問を保存しました。')
-
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
+
         template_name = "admin/adminpage/one_random_question.html"
         context = {
             'survey': survey,
             'formset': formset,
             'color': color,
             'number_of_question': global_value_dict["number_of_question"],
-            'num':num
+            'num': num
         }
         return render(request, template_name, context)
 
@@ -589,18 +582,7 @@ class Add_sequence_question(FormView):
         CreateQuestionFormset = formset_factory(CreateQuestionForm, extra=num_int, min_num=1, validate_min=True)
         formset = CreateQuestionFormset(request.POST,
             form_kwargs={'user': request.user, 'survey': survey, 'requests': request})
-        template_name = "admin/adminpage/sequence_question.html"
-        if survey.number_of_question < global_value_dict["number_of_question"]:
-            color = "red"
-        else:
-            color = "black"
-        context = {
-            'survey': survey,
-            'formset': formset,
-            'color': color,
-            'number_of_question': global_value_dict["number_of_question"],
-            'num':num
-        }
+
         if formset.is_valid():
             category = Category.objects.create(survey=survey,
                                                block_type="sequence"
@@ -617,23 +599,37 @@ class Add_sequence_question(FormView):
                             choices=form.cleaned_data['choices'],
                             category=category,
                             order=form.cleaned_data['order'],
-                            survey=survey,
-                            number_of_responses=global_value_dict["number_of_responses"]
+                            survey=survey
                         )
                         question.save()
+
                         num_question = int(survey.number_of_question)
                         num_question += 1
                         survey.number_of_question = num_question
                         survey.save()
+
                         LogEntry.objects.log_action(
                             user_id=request.user.id,
                             content_type_id=get_content_type_for_model(question).pk,
                             object_id=question.id,
                             object_repr=str(question),
-                            action_flag = ADDITION,
-                            change_message = "Add Question")
+                            action_flag=ADDITION,
+                            change_message="Add Question")
             messages.success(request, '質問を保存しました。')
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
+
+        template_name = "admin/adminpage/sequence_question.html"
+        if survey.number_of_question < global_value_dict["number_of_question"]:
+            color = "red"
+        else:
+            color = "black"
+        context = {
+            'survey': survey,
+            'formset': formset,
+            'color': color,
+            'number_of_question': global_value_dict["number_of_question"],
+            'num': num
+        }
         return render(request, template_name, context)
 
 
@@ -672,9 +668,10 @@ class Add_branch_question(FormView):
             jump_question_num = 0
             for key in form.cleaned_data:
                 for index in range(4,0,-1):
-                    if key == "jumping_"+str(index)+"_choices_order":
+                    if key == "jumping_"+str(index)+"_question_text":
                         if form.cleaned_data[key] != "":
                             jump_question_num += 1
+                            print("form.cleaned_data[key] :    ",form.cleaned_data[key] )
             category = Category.objects.create(survey=survey,
                                                block_type="branch"
                                                )
@@ -682,8 +679,7 @@ class Add_branch_question(FormView):
                                                category=category,
                                                text=form.cleaned_data["question_text"],
                                                choices=form.cleaned_data["question_choices"],
-                                               jump_type="parent-question",
-                                               number_of_responses=global_value_dict["number_of_responses"])
+                                               jump_type="parent-question")
             for i in range(jump_question_num):
                 text_label = "jumping_"+str(i+1)+"_question_text"
                 choice_label = "jumping_"+str(i+1)+"_question_choices"
@@ -768,7 +764,6 @@ class Add_default_random_question(View):
             question.survey=survey
             question.survey = survey
             question.category=category
-            question.number_of_responses=global_value_dict["number_of_responses"]
             question.save()
             num_question = int(survey.number_of_question)
             num_question += 1
@@ -811,9 +806,10 @@ class Get_survey_question_num_ajax(View):
         else:
             color = "black"
         data = {
-            "num_question":survey.number_of_question,
+            "num_question": survey.number_of_question,
             "color": color
         }
+        print(data)
         return HttpResponse(json.dumps(data))
 
 
