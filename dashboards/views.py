@@ -495,10 +495,10 @@ class Add_one_random_question(FormView):
                         )
             messages.success(request,
                              '質問を保存しました。調査セット「'+
-                             survey+
-                             '」の質問数：'+survey.number_of_question+
+                             survey.name+
+                             '」の質問数：'+str(survey.number_of_question)+
                              '/'+
-                              global_value_dict["number_of_question"])
+                              str(global_value_dict["number_of_question"]))
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
 
         template_name = "admin/adminpage/one_random_question.html"
@@ -636,10 +636,10 @@ class Add_sequence_question(FormView):
                             change_message="Add Question")
             messages.success(request,
                              '質問を保存しました。調査セット「'+
-                             survey+
-                             '」の質問数：'+survey.number_of_question+
+                             survey.name+
+                             '」の質問数：'+str(survey.number_of_question)+
                              '/'+
-                              global_value_dict["number_of_question"])
+                              str(global_value_dict["number_of_question"]))
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
 
         template_name = "admin/adminpage/sequence_question.html"
@@ -723,10 +723,10 @@ class Add_branch_question(FormView):
             question.save()
             messages.success(request,
                              '質問を保存しました。調査セット「'+
-                             survey+
-                             '」の質問数：'+survey.number_of_question+
+                             survey.name+
+                             '」の質問数：'+str(survey.number_of_question)+
                              '/'+
-                              global_value_dict["number_of_question"])
+                              str(global_value_dict["number_of_question"]))
             num_question = int(survey.number_of_question)
             num_question += 2
             survey.number_of_question = num_question
@@ -807,9 +807,10 @@ class Add_default_random_question(View):
                 change_message="Add Question")
             messages.success(request,
                              '質問を保存しました。調査セット「'+
-                             survey+
-                             '」の質問数：'+survey.number_of_question+
-                             '/'+global_value_dict["number_of_question"])
+                             survey.name+
+                             '」の質問数：'+str(survey.number_of_question)+
+                             '/'+
+                              str(global_value_dict["number_of_question"]))
             return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         if survey.number_of_question < global_value_dict["number_of_question"]:
             color = "red"
