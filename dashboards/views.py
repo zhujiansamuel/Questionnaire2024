@@ -213,23 +213,33 @@ class My_page(PermissionRequiredMixin,TemplateView):
 
 
 def Global_setup_page(request):
-    instance = get_object_or_404(GlobalVariable, id=1)
-    form = GlobalSetupForm(request.POST or None, initial=instance.__dict__)
+    instance = GlobalVariable.objects.all().first()
+    if instance is not None:
+        form = GlobalSetupForm(request.POST or None, initial=instance.__dict__)
+    else:
+        form = GlobalSetupForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
-            instance.number_of_responses = form.cleaned_data["number_of_responses"]
-            instance.diagnostic_page_indexing = form.cleaned_data["diagnostic_page_indexing"]
-            instance.download_top_number = form.cleaned_data["download_top_number"]
-            instance.number_of_question = form.cleaned_data["number_of_question"]
-            instance.save()
+            if instance is not None:
+                instance.number_of_responses = form.cleaned_data["number_of_responses"]
+                instance.diagnostic_page_indexing = form.cleaned_data["diagnostic_page_indexing"]
+                instance.download_top_number = form.cleaned_data["download_top_number"]
+                instance.number_of_question = form.cleaned_data["number_of_question"]
+                instance.save()
 
-            LogEntry.objects.log_action(
-                user_id=request.user.id,
-                content_type_id=get_content_type_for_model(instance).pk,
-                object_id=instance.id,
-                object_repr=str(instance),
-                action_flag=CHANGE)
-
+                LogEntry.objects.log_action(
+                    user_id=request.user.id,
+                    content_type_id=get_content_type_for_model(instance).pk,
+                    object_id=instance.id,
+                    object_repr=str(instance),
+                    action_flag=CHANGE)
+            else:
+                instance = GlobalVariable.objects.create(
+                    number_of_responses=form.cleaned_data["number_of_responses"],
+                    diagnostic_page_indexing=form.cleaned_data["diagnostic_page_indexing"],
+                    download_top_number=form.cleaned_data["download_top_number"],
+                    number_of_question=form.cleaned_data["number_of_question"],
+                )
             survey_list = Survey.objects.all()
             if survey_list:
                 if len(survey_list)==1:
@@ -258,11 +268,15 @@ def Global_setup_page(request):
                             elif len(question_list) > 1:
                                 for question_s in question_list:
                                     question_s.save()
-            instance = get_object_or_404(GlobalVariable, id=1)
+            instance = GlobalVariable.objects.all().first()
             form = GlobalSetupForm(request.POST,initial=instance.__dict__)
             return render(request, 'admin/adminpage/global_setup.html', {'form': form})
     else:
-        form = GlobalSetupForm(initial=instance.__dict__)
+        instance = GlobalVariable.objects.all().first()
+        if instance is not None:
+            form = GlobalSetupForm(initial=instance.__dict__)
+        else:
+            form = GlobalSetupForm(request.POST or None)
     return render(request, 'admin/adminpage/global_setup.html', {'form': form})
 
 
