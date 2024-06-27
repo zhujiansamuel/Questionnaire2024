@@ -27,10 +27,11 @@
         <div class="module filtered" id="changelist">
             <h3>調査セット「{{ survey }}」への質問追加</h3>
             <p id="survey-id" hidden>{{ survey.id }}</p>
-            <p id="question_num_0" style="color:{{ color }}" nowrap>現在、調査セットの質問数：<span id="question_num" style="color:{{ color }}" nowrap></span> / {{ number_of_question }}</p>
+{#            <p id="question_num_0" style="color:{{ color }}" nowrap>現在、調査セットの質問数：<span id="question_num" style="color:{{ color }}" nowrap></span> / {{ number_of_question }}</p>#}
+            
         </div>
     </div>
-    <div>
+
 
     <script>
             $(document).ready(function () {
@@ -70,50 +71,42 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     
-{#    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>#}
-
-{#    {% if change_add_success %}#}
-{#        <div class="toast-container position-absolute top-0 end-0 p-3">#}
-{#        <!-- Then put toasts within -->#}
-{#        <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">#}
-{#              <div class="toast-header">#}
-{#                <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#17A116"></rect></svg>#}
-{#                <strong class="me-auto"> {{ change_add_success_title }} </strong>#}
-{#                <small class="text-muted">just now</small>#}
-{#                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>#}
-{#              </div>#}
-{#              <div class="toast-body">#}
-{#                 {{ change_add_success_message }}#}
-{#              </div>#}
-{#        </div>#}
-{#    </div>#}
-{#{% endif %}#}
-
 
     <div id="content-main">
         <div class="module filtered" id="changelist">
+            <div class="el-col el-col-24">
+                <div class="el-card box-card is-always-shadow">
+                    <div class="el-card__body">
+                        <div class="clearfix">
+                                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off"
+                                        {% block default-random-checked %}{% endblock %}>
+                                <label class="btn btn-outline-primary" for="btnradio1"><a
+                                        href="{% url "add-default-random-question" survey_id=survey.id %}">デフォルト・ランダム</a></label>
 
-            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" {% block default-random-checked %}{% endblock %}>
-                <label class="btn btn-outline-primary" for="btnradio1"><a href="{% url "add-default-random-question" survey_id=survey.id %}">デフォルト・ランダム</a></label>
+                                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off"
+                                        {% block one-random-checked %}{% endblock %}>
+                                <label class="btn btn-outline-primary" for="btnradio2"><a
+                                        href="{% url "add-one-random-question-number" survey_id=survey.id %}">グループ分け</a></label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" {% block one-random-checked %}{% endblock %}>
-                <label class="btn btn-outline-primary" for="btnradio2"><a href="{% url "add-one-random-question-number" survey_id=survey.id %}">グループ分け</a></label>
+                                <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off"
+                                        {% block sequence-checked %}{% endblock %}>
+                                <label class="btn btn-outline-primary" for="btnradio3"><a
+                                        href="{% url "add-sequence-question-number" survey_id=survey.id %}">順番固定</a></label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" {% block sequence-checked %}{% endblock %}>
-                <label class="btn btn-outline-primary" for="btnradio3"><a href="{% url "add-sequence-question-number" survey_id=survey.id %}">順番固定</a></label>
+                                <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off"
+                                        {% block branch-checked %}{% endblock %}>
+                                <label class="btn btn-outline-primary" for="btnradio4"><a
+                                        href="{% url "add-branch-question" survey_id=survey.id %}">枝分かれ</a></label>
+                            </div>
+                        
+                            {% block question %}
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off" {% block branch-checked %}{% endblock %}>
-                <label class="btn btn-outline-primary" for="btnradio4"><a href="{% url "add-branch-question" survey_id=survey.id %}">枝分かれ</a></label>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
             </div>
-
-
-        
-            {% block question %}
-
-            {% endblock %}
-
-
         </div>
     </div>
 

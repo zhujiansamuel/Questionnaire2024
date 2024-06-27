@@ -13,19 +13,30 @@
 
 
 {% block content %}
-    <div id="content-main-s" style="margin-left: 50px;margin-right: 50px;">
-        <div class="module filtered" id="changelist" style="margin-left: 50px;">
-    <form id="formId" method='POST' action=''>
-    {% csrf_token %}
-    {{ form|bootstrap }}
-    <br/>
-    <button name="btn_submit" type="submit" class="btn btn-success">保存</button>
-    <br>
-    
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+
+            <div class="el-col el-col-24">
+                <div class="el-card box-card is-always-shadow">
+                    <div class="el-card__body">
+                        <div class="clearfix">
+
+                            <form id="formId" method='POST' action=''>
+                                {% csrf_token %}
+                                {{ form|bootstrap }}
+                                <br/>
+                                <button name="btn_submit" type="submit" class="btn btn-success">保存</button>
+                                <br>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    
 
-
+    
         <style type="text/css">
         .inline-group .tabular td.original p {
             margin-top: -50px;

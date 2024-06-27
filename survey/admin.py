@@ -40,14 +40,20 @@ class QuestionInline(admin.StackedInline):
             'fields': ['text', 'choices', ],
         }),
         ("Question Information",{
-            'fields': ['category','order'],
+            'fields': ['category','order', ],
          }),
+        ("Branch Information", {
+            'fields': ['jump_type', ],
+        }),
         ("hiding question", {
-            'fields': ['hiding_question_category_order'],
+            'fields': ['hiding_question_category_order', ],
          }),
         ("Answer situation",{
-            'fields': ['majority_choices', 'number_of_responses','markings'],
-         })
+            'fields': ['majority_choices', 'number_of_responses', ],
+         }),
+        ("Extra situation", {
+            'fields': ['markings', ],
+        })
     ]
     extra = 0
     readonly_fields = ('majority_choices', "number_of_responses",'markings')
