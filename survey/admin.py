@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from survey.actions import make_published, add_question_button, add_survey_button
+from survey.actions import make_published, add_question_button, add_survey_button, survey_summary
 from survey.exporter.csv import Survey2Csv
 from survey.exporter.tex import Survey2Tex
 from survey.models import Answer, Category, Question, Response, Survey
@@ -94,7 +94,7 @@ class SurveyAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
-    actions = [add_survey_button, add_question_button, make_published, Survey2Csv.export_as_csv]
+    actions = [add_survey_button, add_question_button, survey_summary, make_published, Survey2Csv.export_as_csv]
 
     add_survey_button.short_description = '新たな調査セットを作成する'
     add_survey_button.icon = 'fa-solid fa-file-circle-plus'

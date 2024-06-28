@@ -23,3 +23,8 @@ def add_question_button(self, request, queryset):
 
 def add_survey_button(self, request, queryset):
     pass
+
+
+def survey_summary(self, request, queryset):
+    survey_s = queryset.first()
+    return redirect("surey-summary", survey_id=survey_s.id)

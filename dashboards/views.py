@@ -49,10 +49,14 @@ from .forms import (ExperimenterCreationForm,
 
 from survey.decorators import survey_available, global_value
 
+
+
 class NeverCachemMixin(object):
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
         return super(NeverCachemMixin, self)
+
+
 
 
 class HomeIndexView(TemplateView):
@@ -63,6 +67,8 @@ class HomeIndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['user_logged'] = self.request.user.is_authenticated
         return context
+
+
 
 class StyleTest(TemplateView):
 
@@ -102,6 +108,8 @@ class StyleTest(TemplateView):
         context['is_staff'] = self.request.user.is_staff
         context['is_superuser'] = self.request.user.is_superuser
         return context
+
+
 
 def signup_experimenter(request):
     if request.method == 'POST':
@@ -153,6 +161,7 @@ def signup_experimenter(request):
     return render(request, './registration/register_experimenter.html', {'form': form})
 
 
+
 def signup_participant(request):
     if request.method == 'POST':
         form = ParticipantCreationForm(request.POST)
@@ -174,6 +183,7 @@ def signup_participant(request):
     else:
         form = ParticipantCreationForm()
     return render(request, './registration/register_participant.html', {'form': form})
+
 
 
 class My_page(PermissionRequiredMixin,TemplateView):
@@ -280,6 +290,7 @@ def Global_setup_page(request):
     return render(request, 'admin/adminpage/global_setup.html', {'form': form})
 
 
+
 class Add_survey(View):
     @global_value
     def get(self, request, *args, **kwargs):
@@ -316,6 +327,7 @@ class Add_survey(View):
             if survey is not None:
                 return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
         return render(request, template_name, context)
+
 
 
 class Add_question(View):
@@ -361,6 +373,8 @@ class Add_question(View):
             'number_of_question': global_value_dict["number_of_question"]
         }
         return render(request, template_name, context)
+
+
 
 
 class Add_one_random_question_ex(FormView):
@@ -412,7 +426,6 @@ class Add_one_random_question_ex(FormView):
             'number_of_question': global_value_dict["number_of_question"]
         }
         return render(request, template_name, context)
-
 
 class Add_one_random_question(FormView):
 
@@ -657,6 +670,7 @@ class Add_sequence_question(FormView):
         return render(request, template_name, context)
 
 
+
 class Add_branch_question(FormView):
     @global_value
     def get(self, request, *args, **kwargs):
@@ -754,6 +768,7 @@ class Add_branch_question(FormView):
         return render(request, template_name, context)
 
 
+
 class Add_default_random_question(View):
     @global_value
     def get(self, request, *args, **kwargs):
@@ -847,3 +862,25 @@ class Get_survey_question_num_ajax(View):
         return HttpResponse(json.dumps(data))
 
 
+
+class Surey_Summary(View):
+    @global_value
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
+        survey = get_object_or_404(
+            Survey.objects, id=survey_id)
+        category_list = Category.objects.filter(survey=survey)
+        question_list = []
+        for category in category_list:
+            question_s = Question.objects.filter(survey=survey, category=category)
+            question_list.extend(question_s)
+        template_name = "../templates/admin/adminpage/"
+        context = {
+            'survey': survey,
+            "question_list": question_list,
+            "category_list": category_list,
+            "global_value_dict": global_value_dict
+        }
+
+        return render(request, template_name, context)
