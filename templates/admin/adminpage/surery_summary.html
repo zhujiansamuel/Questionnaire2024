@@ -1,35 +1,32 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 {% block extrahead %}
-    
-    
-{{ block.super }}
+
+
+    {{ block.super }}
     <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
 {% endblock %}
 
 {% block extrastyle %}
-{#    {{ block.super }}#}
-{#    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}"/>#}
+    {#    {{ block.super }}#}
+    {#    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}"/>#}
 {% endblock %}
 
 {% block pretitle %}
-    <div id="content-main">
-        <div class="module filtered" id="changelist">
-            <h2>調査セット「{{ survey }}」のSummary</h2>
-        </div>
-    </div>
+    {#        <div id="content-main">#}
+    {#            <div class="module filtered" id="changelist">#}
+    {#                <h2>調査セット「{{ survey }}」のSummary</h2>#}
+    {#            </div>#}
+    {#        </div>#}
 {% endblock %}
 
 {% block content_title %}
     <div id="content-main">
         <div class="module filtered" id="changelist">
-            <h3>調査セット「{{ survey }}」への質問追加</h3>
+            <h2>調査セット「{{ survey }}」のSummary</h2>
             <p id="survey-id" hidden>{{ survey.id }}</p>
-{#            <p id="question_num_0" style="color:{{ color }}" nowrap>現在、調査セットの質問数：<span id="question_num" style="color:{{ color }}" nowrap></span> / {{ number_of_question }}</p>#}
         </div>
     </div>
-
-
 {% endblock %}
 
 
@@ -52,7 +49,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
-    
+
 
     <div id="content-main">
         <div class="module filtered" id="changelist">
@@ -61,9 +58,169 @@
                     <div class="el-card__body">
                         <div class="clearfix">
 
-                            
-                            
-                            
+
+                            <div class="container text-center">
+                                <div id="content-main">
+                                    <div class="module filtered" id="changelist">
+                                        <h1>調査セット「{{ survey }}」のSummary</h1>
+                                        <p id="survey-id" hidden>{{ survey.id }}</p>
+                                    </div>
+                                </div>
+                                <div class="row align-items-start">
+
+
+                                    <div class="col">
+
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">attributes</th>
+                                                <th scope="col">Information</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th scope="row">1</th>
+                                                <td>名前</td>
+                                                <td>{{ survey.name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">2</th>
+                                                <td>非表示の名前</td>
+                                                <td>{{ survey.hide_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">3</th>
+                                                <td>カテゴリー（分野）</td>
+                                                <td>{{ survey.description }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">4</th>
+                                                <td>作成者</td>
+                                                <td>{{ survey.founder }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">9</th>
+                                                <td>質問の数</td>
+                                                <td>{{ survey.number_of_question }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">5</th>
+                                                <td>Publication date</td>
+                                                <td>{{ survey.publish_date }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">6</th>
+                                                <td>Expiration date</td>
+                                                <td>{{ survey.expire_date }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">7</th>
+                                                <td>診断結果の表示の最低数</td>
+                                                <td>{{ survey.diagnostic_page_indexing }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">8</th>
+                                                <td>Download the top results</td>
+                                                <td>{{ survey.download_top_number }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+
+                                    <div class="col">
+                                        s
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="container text-center">
+                                <div id="content-main">
+                                    <div class="module filtered" id="changelist">
+                                        <h1>調査セット「{{ survey }}」の質問リスト</h1>
+                                        <p id="survey-id" hidden>{{ survey.id }}</p>
+                                    </div>
+                                </div>
+                                <div class="row align-items-start">
+                                    <div class="col">
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">質問文</th>
+                                                <th scope="col">選択肢</th>
+                                                <th scope="col">回答数</th>
+                                                <th scope="col">多数の選択</th>
+                                                <th scope="col">ブロックマーキング</th>
+                                                <th scope="col">類別</th>
+                                                <th scope="col">順番</th>
+                                                <th scope="col">選択飛び</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for question in question_list %}
+                                                <tr>
+                                                    <th scope="row">{{ loop.index }}</th>
+                                                    <td>{{ question.text }}</td>
+                                                    <td>{{ question.choices }}</td>
+                                                    <td>
+                                                        <div class="progress" role="progressbar"
+                                                             aria-label="Example with label" aria-valuenow="25"
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                            <div class="progress-bar" style="width: {{ question.number_rate }}%">{{ question.number_of_responses }}/{{ diagnostic_page_indexing }}</div>
+                                                        </div>
+                                                        
+                                                    </td>
+                                                    <td>{{ question.majority_choices }}</td>
+                                                    <td>{{ question.category.name }}</td>
+                                                
+                                                    {% if question.category.block_type == "default-random"  %}
+                                                        <td>--</td>
+                                                    {% elif question.category.block_type == "one-random"  %}
+                                                        <td>グループ分け</td>
+                                                    {% elif question.category.block_type == "sequence"  %}
+                                                        <td>順番固定</td>
+                                                     {% elif question.category.block_type == "branch"  %}
+                                                        <td>枝分け</td>   
+                                                    {% endif %}
+                                                
+                                                
+                                                    {% if question.category.block_type == "default-random"  %}
+                                                        <td>--</td>
+                                                    {% elif question.category.block_type == "one-random"  %}
+                                                        <td>{{ question.order }}</td>
+                                                    {% elif question.category.block_type == "sequence"  %}
+                                                        <td>{{ question.order }}</td>
+                                                     {% elif question.category.block_type == "branch"  %}
+                                                        <td>--</td>   
+                                                    {% endif %}
+                                                
+                                                
+                                                    {% if question.category.block_type == "default-random"  %}
+                                                        <td>--</td>
+                                                    {% elif question.category.block_type == "one-random"  %}
+                                                        <td>--</td>
+                                                    {% elif question.category.block_type == "sequence"  %}
+                                                        <td>--</td>
+                                                     {% elif question.category.block_type == "branch"  %}
+                                                        <td>{{ question.jump_type }}</td> 
+                                                    {% endif %}
+                                                
+                                                    
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -74,14 +231,13 @@
     <script>
 
 
-        
     </script>
 
-    
-    
+
+
 
     {% block admin_change_form_document_ready %}
-        
+
 
     {% endblock %}
 

@@ -10,11 +10,13 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 from django.core.cache import cache
-
+from survey.decorators import survey_available, global_value
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.signals import survey_completed
 from survey.widgets import ImageSelectWidget
+from survey.models.global_variable import GlobalVariable
 
 from survey.utility.recalculated_results import calculate_results
 
@@ -561,6 +563,7 @@ class ResponseForm(models.ModelForm):
 
     def save(self, commit=True):
         """Save the response object"""
+        global_value_s = get_object_or_404(GlobalVariable, id=1)
         response = super().save(commit=False)
         response.survey = self.survey
         response.survey_founder = self.survey.founder
@@ -569,6 +572,7 @@ class ResponseForm(models.ModelForm):
             response.user = self.user
         response.repeat_order = self.repeat_order
         response.save()
+
 
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
         for field_name, field_value in list(self.cleaned_data.items()):
@@ -583,6 +587,7 @@ class ResponseForm(models.ModelForm):
                     NB = int(question.number_of_responses)
                     NB += 1
                     question.number_of_responses = NB
+                    question.number_rate = (question.number_of_responses/global_value_s["diagnostic_page_indexing"])*100
                     question.save()
                     answer.body = field_value
                     data["responses"].append((answer.question.id, answer.body))

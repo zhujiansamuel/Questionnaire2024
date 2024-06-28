@@ -875,12 +875,13 @@ class Surey_Summary(View):
         for category in category_list:
             question_s = Question.objects.filter(survey=survey, category=category)
             question_list.extend(question_s)
-        template_name = "../templates/admin/adminpage/"
+        template_name = "../templates/admin/adminpage/surery_summary.html"
         context = {
             'survey': survey,
             "question_list": question_list,
             "category_list": category_list,
-            "global_value_dict": global_value_dict
+            "global_value_dict": global_value_dict,
+            "diagnostic_page_indexing": global_value_dict["diagnostic_page_indexing"],
         }
 
         return render(request, template_name, context)
