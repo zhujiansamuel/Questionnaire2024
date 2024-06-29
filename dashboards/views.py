@@ -16,14 +16,16 @@ from django.views.generic.edit import UpdateView
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib import messages
-
+from django.contrib.auth.decorators import permission_required
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth import logout as auth_logout
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import LoginView, LogoutView
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
+
+from django.views.defaults import permission_denied
+
 
 
 from dashboards.models import ApplicationUser
@@ -221,7 +223,7 @@ class My_page(PermissionRequiredMixin,TemplateView):
         return context
 
 
-
+@permission_required('globalvariable.view_globalvariable',raise_exception=True)
 def Global_setup_page(request):
     instance = GlobalVariable.objects.all().first()
     if instance is not None:
@@ -280,6 +282,8 @@ def Global_setup_page(request):
                                     question_s.save()
             instance = GlobalVariable.objects.all().first()
             form = GlobalSetupForm(request.POST,initial=instance.__dict__)
+            messages.success(request,
+                             'GlobalSetupを保存しました。')
             return render(request, 'admin/adminpage/global_setup.html', {'form': form})
     else:
         instance = GlobalVariable.objects.all().first()

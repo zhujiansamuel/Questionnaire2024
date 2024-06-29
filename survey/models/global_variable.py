@@ -10,6 +10,9 @@ class GlobalVariable(models.Model):
     class Meta:
         verbose_name = _("Global Variable")
         verbose_name_plural = _("Global Variables")
+        permissions = (
+            ("globalsetup", "Set Global Variable"),
+        )
 
     def __str__(self):
         return "調査のグローバル設定"

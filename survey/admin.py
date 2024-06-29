@@ -94,18 +94,29 @@ class SurveyAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
-    actions = [add_survey_button, add_question_button, survey_summary, make_published, Survey2Csv.export_as_csv]
+    actions = [add_survey_button, add_question_button, survey_summary, Survey2Csv.export_as_csv, make_published]
 
-    add_survey_button.short_description = '新たな調査セットを作成する'
+    add_survey_button.short_description = '　調査セットを作成する'
     add_survey_button.icon = 'fa-solid fa-file-circle-plus'
     add_survey_button.type = 'success'
-    # add_survey_button.style = 'color:black;'
     add_survey_button.action_type = 0
     add_survey_button.action_url = '/dashboards/add-survey/'
 
-    add_question_button.short_description = '質問を追加する'
+    add_question_button.short_description = '　質問を追加する'
     add_question_button.icon = 'fa-solid fa-list-check'
     add_question_button.type = 'warning'
+
+    survey_summary.short_description = '　概要'
+    survey_summary.icon = 'fa-solid fa-clipboard-list'
+    survey_summary.type = 'info'
+
+    Survey2Csv.export_as_csv.short_description = '　エクスポート'
+    Survey2Csv.export_as_csv.icon = 'fa-solid fa-download'
+    Survey2Csv.export_as_csv.type = 'primary'
+
+    make_published.short_description = '　公開'
+    make_published.icon = 'fa-solid fa-person-circle-check'
+    make_published.type = ''
 
     def has_add_permission(self, request):
         return False

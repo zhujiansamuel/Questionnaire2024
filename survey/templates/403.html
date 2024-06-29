@@ -1,0 +1,63 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{% endblock %}
+
+
+
+{% block extrastyle %}
+{% endblock %}
+
+
+{% block content_title %}
+
+{% endblock %}
+
+
+
+{% block content %}
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <div class="el-col el-col-24">
+                <div class="el-card box-card is-always-shadow">
+                    <div class="el-card__body">
+                        <div class="clearfix">
+                            <h1>403 Forbidden</h1>
+                            <br/>
+                            <h3>アクセスしようとしているWebページが閲覧禁止状態にある.</h3>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <div class="el-col el-col-24">
+                <div class="el-card box-card is-always-shadow">
+                    <div class="el-card__body">
+                        <div class="clearfix">
+                            <h1>補足</h1>
+                            <h3>実験者として、自分の実験を編集することができる。 権限を超えた内容の編集が必要な場合は、samuel20210214@gmail.comまでご連絡ください。</h3>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+
+
+
+

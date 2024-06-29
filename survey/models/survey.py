@@ -105,6 +105,7 @@ class Survey(models.Model):
         permissions = (
             ("participant","Questionnaires can be filled out"),
             ("experimenter","Possibility to edit the survey"),
+
         )
 
     def __str__(self):
