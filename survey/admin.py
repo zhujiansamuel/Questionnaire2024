@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from survey.actions import make_published, add_question_button, add_survey_button, survey_summary
+from survey.actions import make_published, add_survey_button, add_question_button, survey_summary
 from survey.exporter.csv import Survey2Csv
 from survey.exporter.tex import Survey2Tex
 from survey.models import Answer, Category, Question, Response, Survey
@@ -8,6 +8,7 @@ from dashboards.models import ApplicationUser
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+from django.shortcuts import redirect
 
 # from simpleui.admin import AjaxAdmin
 
@@ -40,20 +41,17 @@ class QuestionInline(admin.StackedInline):
             'fields': ['text', 'choices', ],
         }),
         ("Question Information",{
-            'fields': ['category','order', ],
+            'fields': [('category','order','jump_type'),('majority_choices', 'number_of_responses'), ],
          }),
-        ("Branch Information", {
-            'fields': ['jump_type', ],
-        }),
-        ("hiding question", {
-            'fields': ['hiding_question_category_order', ],
-         }),
-        ("Answer situation",{
-            'fields': ['majority_choices', 'number_of_responses', ],
-         }),
-        ("Extra situation", {
-            'fields': ['markings', ],
-        })
+        # ("hiding question", {
+        #     'fields': ['hiding_question_category_order', ],
+        #  }),
+        # ("Answer situation",{
+        #     'fields': [ ],
+        #  }),
+        # ("Extra situation", {
+        #     'fields': ['markings', ],
+        # })
     ]
     extra = 0
     readonly_fields = ('majority_choices', "number_of_responses",'markings')
@@ -69,31 +67,32 @@ class QuestionInline(admin.StackedInline):
 class CategoryInline(admin.StackedInline):
     model = Category
     extra = 0
-    fields = ['name', 'display_num', 'hiding_question_order', 'block_type', 'description']
+    # fields = ['name', 'display_num', 'hiding_question_order', 'block_type', 'description']
+    fields = [('name', 'block_type',)]
     show_change_link = True
 
 
 
 class SurveyAdmin(admin.ModelAdmin):
 
-    list_display = ("name","hide_name", "number_of_question", "founder", "is_published", "expire_date")
+    list_display = ("name", "hide_name", "number_of_question", "founder", "is_published", "expire_date")
     list_filter = ("is_published", "publish_date")
     ordering = ("name",)
     search_fields = ("name",)
     fieldsets = [
         ("General Information", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['name', 'description', 'founder'],
+            'fields': [('name', "hide_name"),( 'description', 'founder')],
         }),
-
         ("Privilege Management", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': ['is_published', 'publish_date', 'expire_date'],
+            'fields': [('is_published', 'publish_date', 'expire_date')],
         }),
-
     ]
     readonly_fields = ('founder',)
     inlines = [CategoryInline, QuestionInline]
+
+
     actions = [add_survey_button, add_question_button, survey_summary, Survey2Csv.export_as_csv, make_published]
 
     add_survey_button.short_description = '　調査セットを作成する'
@@ -102,13 +101,16 @@ class SurveyAdmin(admin.ModelAdmin):
     add_survey_button.action_type = 0
     add_survey_button.action_url = '/dashboards/add-survey/'
 
+
     add_question_button.short_description = '　質問を追加する'
     add_question_button.icon = 'fa-solid fa-list-check'
     add_question_button.type = 'warning'
 
+
     survey_summary.short_description = '　概要'
     survey_summary.icon = 'fa-solid fa-clipboard-list'
     survey_summary.type = 'info'
+
 
     Survey2Csv.export_as_csv.short_description = '　エクスポート'
     Survey2Csv.export_as_csv.icon = 'fa-solid fa-download'

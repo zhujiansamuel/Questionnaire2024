@@ -17,8 +17,6 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +37,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     "debug_toolbar",
     "simpleui",
+    # 'simplepro',
+    'easyaudit',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -78,6 +78,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
+    # 'simplepro.middlewares.SimpleMiddleware',
 ]
 
 SITE_ID = 1
@@ -317,7 +318,8 @@ SIMPLEUI_ANALYSIS = False
 
 SIMPLEUI_CONFIG = {
     'system_keep': False,
-    'menu_display': ['調査のグローバル設定', 'ユーザー', '調査セット', '回答のセット',],
+    'menu_display': ['調査のグローバル設定', 'ユーザー', '調査セット', '回答のセット','Request記録'],
+    'dynamic': True,
     'menus':
     [
         {
@@ -347,6 +349,11 @@ SIMPLEUI_CONFIG = {
             'url': '/admin/survey/response/',
             'newTab': False,
         },
+        {
+            'name': 'Request記録',
+            'icon': 'fa-solid fa-camera-retro',
+            'url': '/admin/easyaudit/requestevent/',
+        },
 
     ]
 }
@@ -367,4 +374,19 @@ CACHES = {
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 60 * 60 * 24
-SESSION_SAVE_EVERY_REQUEST = True
+
+
+DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS = True
+DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS = True
+DJANGO_EASY_AUDIT_UNREGISTERED_URLS_DEFAULT = [r'^/admin/',
+                                               r'^/ajax/',
+                                               r'^/dashboards/',
+                                               r'^/static/',
+                                               r'^/favicon.ico$',
+                                               r'^/media/',
+                                               r'^/sp/',
+                                               r'^/__debug__/',
+                                               r'^/ckeditor5/',
+                                               r'^/api-auth/',
+                                               ]

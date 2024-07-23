@@ -33,8 +33,7 @@ TEXT_HELP_TEXT = _("""
 """)
 
 ORDER_HELP_TEXT = _("""
-If the type of the Category to which the question belongs is SEQUENCE, 
-this value determines the order in which the questions are displayed in the same Category.
+Only for SEQUENCE
 """)
 
 REQUIRED_HELP_TEXT = _("""
@@ -58,15 +57,12 @@ CERTAINTY_DEGREE_HELP_TEXT = _("""
 """)
 
 MAJORITY_CHOICES_HELP_TEXT = _("""
-The backend of the site automatically records the most answered answers based on the existing answers. If you wish to display a majority-minority diagnostic when there are fewer than 10 existing answers, you can set it up here.
 """)
 
 HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT = _("""
-If the question is a hidden question, then you can set the CATEGORY in which the question appears. (Note that the order of the CATEGORY prompts is randomized.)
 """)
 
 CATEGORY_HELP_TEXT = _("""
-After creating a new CATEGORY, please click "Save" or "Save and continue editing" at the bottom of the page. The new CATEGORY will then appear in the options.
 """)
 
 NUMBER_OF_RESPONSES = _("""
@@ -75,7 +71,6 @@ Shows how many answers have been collected.
 
 
 MARKINGS = _("""
-For questions created via CSV files, this identifier is used to identify the different questions. For questions created from pages, this identifier is not required.
 """)
 
 def validate_choices(choices):
@@ -277,6 +272,7 @@ class Question(models.Model):
         sort_answer parameter."""
         cardinality = OrderedDict()
         for answer in self.answers.all():
+
             for value in answer.values:
                 value = self.__get_cardinality_value(value, group_by_letter_case, group_by_slugify, group_together)
                 if value not in filter and value not in standardized_filter:
@@ -464,4 +460,4 @@ class Question(models.Model):
         if self.required:
             msg += "(*) "
         msg += f"{self.get_clean_choices()}"
-        return msg
+        return str(msg)

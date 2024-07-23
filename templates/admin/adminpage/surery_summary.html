@@ -176,7 +176,7 @@
                                                         
                                                     </td>
                                                     <td>{{ question.majority_choices }}</td>
-                                                    <td>{{ question.category.name }}</td>
+                                                    <td><p style="color:{{ question.category.color }}">{{ question.category.name }}</p></td>
                                                 
                                                     {% if question.category.block_type == "default-random"  %}
                                                         <td>--</td>
