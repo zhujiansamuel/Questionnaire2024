@@ -272,19 +272,31 @@ class ResponseForm(models.ModelForm):
                 all_question = self.eliminate_answered_questions(category.questions.all())
                 # ----->
                 # todo-sam 这里需要修改为按顺序执行
-                random_question_dic = {}
+                top_number_rate = 0
+                top_index = 0
+
                 for i, question in enumerate(all_question):
-                    random_order = self.session_random_list[str(i + 10)]
-                    random_question_dic[random_order] = question
-                random_question_dic_sorted = sorted(random_question_dic.items(), key=lambda x: x[0])
-                # print("-->random_question_dic_sorted:",random_question_dic_sorted)
-                if isinstance(random_question_dic_sorted, list):
-                    if len(random_question_dic_sorted) > 1:
-                        random_question = [v for i, v in random_question_dic_sorted][0]
-                    elif len(random_question_dic_sorted) == 1:
-                        random_question = random_question_dic_sorted[0][1]
-                    else:
-                        random_question = []
+                    if float(question.number_rate) <= top_number_rate:
+                        top_number_rate = question.number_rate
+                        top_index = i
+
+                random_question = all_question[top_index]
+
+                # random_question_dic = {}
+                # for i, question in enumerate(all_question):
+                #     random_order = self.session_random_list[str(i + 10)]
+                #     random_question_dic[random_order] = question
+                # random_question_dic_sorted = sorted(random_question_dic.items(), key=lambda x: x[0])
+                # # print("-->random_question_dic_sorted:",random_question_dic_sorted)
+                # if isinstance(random_question_dic_sorted, list):
+                #     if len(random_question_dic_sorted) > 1:
+                #         random_question = [v for i, v in random_question_dic_sorted][0]
+                #     elif len(random_question_dic_sorted) == 1:
+                #         random_question = random_question_dic_sorted[0][1]
+                #     else:
+                #         random_question = []
+
+
                 # print("-->random_question:", random_question)
                 question_add = []
                 # TranslateComments
@@ -375,15 +387,13 @@ class ResponseForm(models.ModelForm):
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
         # -------------------------------------------------------------------
-
-        print(" ------------------------------------------------------------ ")
-        print("生成的问题")
-        print(" -------- ")
-        for i, question in enumerate(self.question_to_display):
-            print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name)
-        print(" ------------------------------------------------------------ ")
-        # -------------------------------------------------------------------
-        print(" ------------------------------------------------------------ ")
+        if self.step==0:
+            print(" ------------------------------------------------------------ ")
+            print("生成的问题")
+            print(" -------- ")
+            for i, question in enumerate(self.question_to_display):
+                print("生成的问题  ", str(i), " :", question.text, "    ", question.category.name, "---", question.category.block_type)
+            print(" ------------------------------------------------------------ ")
         print("Step:", self.step)
         print(" ------------------------------------------------------------ ")
 
@@ -587,7 +597,7 @@ class ResponseForm(models.ModelForm):
                     NB = int(question.number_of_responses)
                     NB += 1
                     question.number_of_responses = NB
-                    question.number_rate = (question.number_of_responses/global_value_s["diagnostic_page_indexing"])*100
+                    question.number_rate = (question.number_of_responses/global_value_s.diagnostic_page_indexing)*100
                     question.save()
                     answer.body = field_value
                     data["responses"].append((answer.question.id, answer.body))

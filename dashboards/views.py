@@ -178,10 +178,8 @@ def signup_participant(request):
 
             login(request, user)
             ad = Permission.objects.filter(codename='participant')[0]
-            print(ad)
             user.user_permissions.add(ad)
-            print(user.has_perm('survey.participant'))
-            return redirect('home_n')  # Replace 'home' with the URL name of your home page
+            return redirect('home_n')
     else:
         form = ParticipantCreationForm()
     return render(request, './registration/register_participant.html', {'form': form})
@@ -258,28 +256,32 @@ def Global_setup_page(request):
                     survey = survey_list[0]
                     survey.download_top_number = instance.download_top_number
                     survey.diagnostic_page_indexing = instance.diagnostic_page_indexing
+                    survey.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
                     survey.save()
-                    question_list = Question.objects.filter(survey=survey)
-                    if question_list:
-                        if len(question_list)==1:
-                            question_s = question_list[0]
-                            question_s.save()
-                        elif len(question_list)>1:
-                            for question_s in question_list:
-                                question_s.save()
+                    # question_list = Question.objects.filter(survey=survey)
+                    # if question_list:
+                    #     if len(question_list)==1:
+                    #         question_s = question_list[0]
+                    #
+                    #         question_s.save()
+                    #     elif len(question_list)>1:
+                    #         for question_s in question_list:
+                    #
+                    #             question_s.save()
                 elif len(survey_list)>1:
                     for survey_s in survey_list:
                         survey_s.download_top_number = instance.download_top_number
                         survey_s.diagnostic_page_indexing = instance.diagnostic_page_indexing
+                        survey_s.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
                         survey_s.save()
-                        question_list = Question.objects.filter(survey=survey_s)
-                        if question_list:
-                            if len(question_list) == 1:
-                                question_s = question_list[0]
-                                question_s.save()
-                            elif len(question_list) > 1:
-                                for question_s in question_list:
-                                    question_s.save()
+                        # question_list = Question.objects.filter(survey=survey_s)
+                        # if question_list:
+                        #     if len(question_list) == 1:
+                        #         question_s = question_list[0]
+                        #         question_s.save()
+                        #     elif len(question_list) > 1:
+                        #         for question_s in question_list:
+                        #             question_s.save()
             instance = GlobalVariable.objects.all().first()
             form = GlobalSetupForm(request.POST,initial=instance.__dict__)
             messages.success(request,

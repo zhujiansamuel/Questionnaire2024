@@ -26,31 +26,23 @@
                                     {% csrf_token %}
                                     {#                            {{ form }}#}
                                     <div class="login_input">
-                                        <label class="floatingInput" for="typeEmailX"
+                                        <label class="floatingInput"
                                                style="overflow:unset ;!important">Username</label>
                                         {{ form.username }}
                                     </div>
 
                                     <br>
                                     <div class="login_input">
-                                        <label class="form-label" for="typePasswordX"
+                                        <label class="form-label"
                                                style="overflow:unset ;!important">Nicknames</label>
                                         {{ form.nicknames }}
                                         {% for error in form.nicknames.errors %}
                                             <p style="color: red">{{ error }}</p>
                                         {% endfor %}
                                     </div>
-
                                     <br>
                                     <div class="login_input">
-                                        <label class="form-label" for="typePasswordX"
-                                               style="overflow:unset ;!important">Email</label>
-                                        {{ form.email }}
-
-                                    </div>
-                                    <br>
-                                    <div class="login_input">
-                                        <label class="form-label" for="typePasswordX"
+                                        <label class="form-label"
                                                style="overflow:unset ;!important">Password</label>
                                         {{ form.password1 }}
                                         {% for error in form.password1.errors %}
@@ -59,7 +51,7 @@
                                     </div>
                                     <br>
                                     <div class="login_input">
-                                        <label class="form-label" for="typePasswordX"
+                                        <label class="form-label"
                                                style="overflow:unset ;!important">Password(again)</label>
                                         {{ form.password2 }}
                                         {% for error in form.password2.errors %}

@@ -233,6 +233,7 @@ class SurveyDetail(View):
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
         is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
         diagnostic_status = int(cache.get(is_diagnostic_key))
+
         if diagnostic_status < response.number_of_questions * survey.diagnosis_stages_qs_num:
             majority_rate = 0
             correctness_rate = 0
@@ -248,7 +249,9 @@ class SurveyDetail(View):
         correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
         is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
         diagnostic_status = int(cache.get(is_diagnostic_key))
-        if diagnostic_status < (form.step+1) * form.survey.diagnosis_stages_qs_num:
+
+        # if diagnostic_status < (form.step+1) * form.survey.diagnosis_stages_qs_num:
+        if diagnostic_status < (form.step + 1) * form.survey.diagnosis_stages_qs_num:
             context["diagnostic_result"] = "Sorry,we don't haven enough answers yet."
             context["msg_diagnostic"] = "Zero-Zero"
         else:
@@ -278,14 +281,14 @@ class SurveyDetail(View):
                     if question.subsidiary_type == "majority_minority":
                         if question.majority_choices == choice:
                             if qqqq == "majority":
-                                msg = "正解、あなたの回答は多数派"
+                                msg = "正解、あなたの回答は多数派" # ok
                             else:
-                                msg = "不正解、あなたの回答は少数派"
+                                msg = "不正解、あなたの回答は多数派" # ok
                         else:
                             if qqqq == "minority":
-                                msg = "正解、あなたの回答は少数派"
+                                msg = "正解、あなたの回答は少数派" # ok
                             else:
-                                msg = "不正解、あなたの回答は多数派"
+                                msg = "不正解、あなたの回答は少数派"
             else:
                 not_enough = True
                 msg = "Error"

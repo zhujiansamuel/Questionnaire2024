@@ -34,10 +34,10 @@ class ListTextWidget(forms.TextInput):
 
 
 class GlobalSetupForm(forms.Form):
-    number_of_responses = forms.IntegerField()
-    diagnostic_page_indexing = forms.IntegerField()
-    download_top_number = forms.IntegerField()
-    number_of_question = forms.IntegerField()
+    number_of_responses = forms.IntegerField(label="?")
+    diagnostic_page_indexing = forms.IntegerField(label="診断結果の表示の最低数")
+    download_top_number = forms.IntegerField(label="最高点数の回答をダウンロードする数")
+    number_of_question = forms.IntegerField(label="調査セットの問題の最低数")
 
 
 
@@ -80,7 +80,7 @@ class ParticipantCreationForm(UserCreationForm):
         model = ApplicationUser
         fields = [
             'username',
-            'email',
+            # 'email',
             'password1',
             'password2',
             # 'Gender',

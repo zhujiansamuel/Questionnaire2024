@@ -97,7 +97,7 @@ urlpatterns += [
     path("survey/", include("survey.urls")),
     path("style/", HomeIndexView.as_view(), name="home"),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
-    path("accounts/", include("allauth.urls")),
+    # path("accounts/", include("allauth.urls")),
     path("", StyleTest.as_view(), name="home_n"),
     path("accounts/signup/experimenter/", signup_experimenter, name='register-experimenter'),
     path("accounts/signup/participant/", signup_participant, name='register-participant'),

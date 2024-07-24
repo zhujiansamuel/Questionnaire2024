@@ -38,13 +38,13 @@ class Survey2Csv(Survey2X):
         # user_answers[u"entity"] = response.user.entity
         for answer in response.answers.all():
             Survey2Csv.__get_user_line_from_answers(answer, user_answers)
-
         user_line = []
         for key_ in question_order:
             try:
                 user_line.append(user_answers[key_])
                 user_line.append(user_answers[str(key_)+"_subsidiary"])
             except KeyError:
+                user_line.append("")
                 user_line.append("")
         return user_line
 
@@ -74,6 +74,7 @@ class Survey2Csv(Survey2X):
         header = [_("user")]  # , u"entity"]
         question_order = ["user"]  # , u"entity" ]
         header.append("　")
+        header.append("　")
         for question in self.survey.questions.all():
             header.append(question.text)
             header.append("subsidiary_"+question.text)
@@ -82,8 +83,8 @@ class Survey2Csv(Survey2X):
 
     def __str__(self):
         csv = []
-        if settings.EXCEL_COMPATIBLE_CSV:
-            csv.append(self.EXCEL_HACK)
+        # if settings.EXCEL_COMPATIBLE_CSV:
+        #     csv.append(self.EXCEL_HACK)
         header, question_order = self.get_header_and_order()
         csv.append(Survey2Csv.line_list_to_string(header))
         response_list = self.survey.responses.all().order_by("-Majority_Rate_num", "-Correctness_Rate_num")
