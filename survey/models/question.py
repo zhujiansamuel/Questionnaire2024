@@ -1,5 +1,6 @@
 import logging
 import random
+import re
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -456,7 +457,8 @@ class Question(models.Model):
         return str(choices_list.index(choice)+1)
 
     def __str__(self):
-        msg = f"Question '{self.text}' "
+        question_text = re.sub('<[^<]+?>','',self.text).replace('\n','').strip()
+        msg = f"Question '{question_text}' "
         if self.required:
             msg += "(*) "
         msg += f"{self.get_clean_choices()}"

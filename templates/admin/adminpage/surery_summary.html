@@ -165,7 +165,7 @@
                                             {% for question in question_list %}
                                                 <tr>
                                                     <th scope="row">{{ loop.index }}</th>
-                                                    <td>{{ question.text }}</td>
+                                                    <td>{{ question.text |striptags }}</td>
                                                     <td>{{ question.choices }}</td>
                                                     <td>
                                                         <div class="progress" role="progressbar"
