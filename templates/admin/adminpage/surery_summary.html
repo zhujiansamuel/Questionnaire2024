@@ -165,9 +165,9 @@
                                             {% for question in question_list %}
                                                 <tr>
                                                     <th scope="row">{{ loop.index }}</th>
-                                                    <td>{{ question.text |striptags }}</td>
-                                                    <td>{{ question.choices }}</td>
-                                                    <td>
+                                                    <td style="width:40%">{{ question.text |striptags }}</td>
+                                                    <td style="width:10%">{{ question.choices }}</td>
+                                                    <td style="width:10%">
                                                         <div class="progress" role="progressbar"
                                                              aria-label="Example with label" aria-valuenow="25"
                                                              aria-valuemin="0" aria-valuemax="100">

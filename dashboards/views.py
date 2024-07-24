@@ -112,7 +112,7 @@ class StyleTest(TemplateView):
         return context
 
 
-
+@never_cache
 def signup_experimenter(request):
     if request.method == 'POST':
         form = ExperimenterCreationForm(request.POST)
@@ -163,7 +163,7 @@ def signup_experimenter(request):
     return render(request, './registration/register_experimenter.html', {'form': form})
 
 
-
+@never_cache
 def signup_participant(request):
     if request.method == 'POST':
         form = ParticipantCreationForm(request.POST)
@@ -222,6 +222,7 @@ class My_page(PermissionRequiredMixin,TemplateView):
 
 
 @permission_required('globalvariable.view_globalvariable',raise_exception=True)
+@never_cache
 def Global_setup_page(request):
     instance = GlobalVariable.objects.all().first()
     if instance is not None:
@@ -340,6 +341,7 @@ class Add_question(View):
 
     @survey_available
     @global_value
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         global_value_dict = kwargs.pop("global_value_dict")
         print(global_value_dict)
@@ -850,6 +852,7 @@ class Add_default_random_question(View):
 
 class Get_survey_question_num_ajax(View):
     @global_value
+    @method_decorator(never_cache)
     def get(self,request ,*args, **kwargs):
         survey_id = request.GET.get("survey_id")
         global_value_dict = kwargs.pop("global_value_dict")
@@ -871,6 +874,7 @@ class Get_survey_question_num_ajax(View):
 
 class Surey_Summary(View):
     @global_value
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")

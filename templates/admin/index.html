@@ -230,7 +230,7 @@
                             {% endblock %}
                         </div>
                         <div v-else class="iframe-wrap">
-                            <iframe :src="item.url" :id="item.id" @load="iframeLoad(item,$event)"></iframe>
+                            <iframe :src="item.url" :id="item.id" @load="iframeLoad(item,$event)" onload="load()"></iframe>
                             {% if "SIMPLEUI_LOADING"|get_config != False %}
                                 <div v-if="loading" class="loading" @dblclick="loading=false">
                                     <div class="center">
@@ -248,6 +248,29 @@
             </el-main>
         </el-container>
     </el-container>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+    <script>
+        {#function load()#}
+        {#    {#}
+                {#alert("Iframe is loaded");#}
+        {#        console.log("Load");#}
+        {#    }#}
+    function load(){
+        
+        if ($("#survey-id").length > 0) {
+            var survey_id = $("#survey-id").text();
+            console.log(survey_id);
+            $.get('/ajax/add-question/', {survey_id: survey_id}, function (data) {
+                data = JSON.parse(data);
+                $('#question_num').text(data["num_question"]);
+                $('#question_num').css("color",data["color"]);
+                $('#question_num_0').css("color",data["color"]);
+            });
+            
+        }
+
+    };
+    </script>
 
     <ul v-if="popup.show" class="el-dropdown-menu el-popper" ref="popupmenu"
         :style="{position: 'absolute',top: popup.top+'px',left: popup.left+'px'}" x-placement="top-end">
