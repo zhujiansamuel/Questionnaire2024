@@ -246,7 +246,6 @@ def Global_setup_page(request):
                     action_flag=CHANGE)
             else:
                 instance = GlobalVariable.objects.create(
-                    number_of_responses=form.cleaned_data["number_of_responses"],
                     diagnostic_page_indexing=form.cleaned_data["diagnostic_page_indexing"],
                     download_top_number=form.cleaned_data["download_top_number"],
                     number_of_question=form.cleaned_data["number_of_question"],
