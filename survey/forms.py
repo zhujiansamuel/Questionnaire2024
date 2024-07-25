@@ -271,7 +271,6 @@ class ResponseForm(models.ModelForm):
                 # ？
                 all_question = self.eliminate_answered_questions(category.questions.all())
                 # ----->
-                # todo-sam 这里需要修改为按顺序执行
                 top_number_rate = 0
                 top_index = 0
 
@@ -625,6 +624,7 @@ class ResponseForm(models.ModelForm):
 
         Majority_Rate_num, Correctness_Rate_num = calculate_results(response)
         response_list = Response.objects.filter(survey=self.survey)
+
         if len(response_list)>1:
             for response_t in response_list:
                 Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)

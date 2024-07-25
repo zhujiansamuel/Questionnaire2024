@@ -148,3 +148,16 @@ class Survey(models.Model):
             display_num=100
         )
 
+    def recalculation_number_of_questions(self):
+        temp_num = 0
+        for category in self.categories.all():
+            if category.block_type == "one-random":
+                temp_num += 1
+            elif category.block_type == "sequence":
+                temp_num += category.questions.count()
+            elif category.block_type == "branch":
+                temp_num += 2
+            elif category.block_type == "default-random":
+                temp_num += category.questions.count()
+        self.number_of_question = temp_num
+

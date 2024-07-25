@@ -201,6 +201,7 @@ class My_page(PermissionRequiredMixin,TemplateView):
         response_list = Response.objects.filter(
             user=self.request.user
         )
+        # sam-todo:考虑不用每次更新
         response_list_to_desplay = []
         response_list_without_Diagnostic = []
         for response_a in response_list:
@@ -250,38 +251,40 @@ def Global_setup_page(request):
                     download_top_number=form.cleaned_data["download_top_number"],
                     number_of_question=form.cleaned_data["number_of_question"],
                 )
-            survey_list = Survey.objects.all()
-            if survey_list:
-                if len(survey_list)==1:
-                    survey = survey_list[0]
-                    survey.download_top_number = instance.download_top_number
-                    survey.diagnostic_page_indexing = instance.diagnostic_page_indexing
-                    survey.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
-                    survey.save()
-                    # question_list = Question.objects.filter(survey=survey)
-                    # if question_list:
-                    #     if len(question_list)==1:
-                    #         question_s = question_list[0]
-                    #
-                    #         question_s.save()
-                    #     elif len(question_list)>1:
-                    #         for question_s in question_list:
-                    #
-                    #             question_s.save()
-                elif len(survey_list)>1:
-                    for survey_s in survey_list:
-                        survey_s.download_top_number = instance.download_top_number
-                        survey_s.diagnostic_page_indexing = instance.diagnostic_page_indexing
-                        survey_s.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
-                        survey_s.save()
-                        # question_list = Question.objects.filter(survey=survey_s)
-                        # if question_list:
-                        #     if len(question_list) == 1:
-                        #         question_s = question_list[0]
-                        #         question_s.save()
-                        #     elif len(question_list) > 1:
-                        #         for question_s in question_list:
-                        #             question_s.save()
+            survey_list = Survey.objects.all().updata(download_top_number = instance.download_top_number)
+            survey_list = Survey.objects.all().updata(diagnostic_page_indexing = instance.diagnostic_page_indexing)
+            survey_list = Survey.objects.all().updata(diagnosis_stages_qs_num = instance.diagnostic_page_indexing)
+            # if survey_list:
+            #     if len(survey_list)==1:
+            #         survey = survey_list[0]
+            #         survey.download_top_number = instance.download_top_number
+            #         survey.diagnostic_page_indexing = instance.diagnostic_page_indexing
+            #         survey.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
+            #         survey.save()
+            #         # question_list = Question.objects.filter(survey=survey)
+            #         # if question_list:
+            #         #     if len(question_list)==1:
+            #         #         question_s = question_list[0]
+            #         #
+            #         #         question_s.save()
+            #         #     elif len(question_list)>1:
+            #         #         for question_s in question_list:
+            #         #
+            #         #             question_s.save()
+            #     elif len(survey_list)>1:
+            #         for survey_s in survey_list:
+            #             survey_s.download_top_number = instance.download_top_number
+            #             survey_s.diagnostic_page_indexing = instance.diagnostic_page_indexing
+            #             survey_s.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
+            #             survey_s.save()
+            #             # question_list = Question.objects.filter(survey=survey_s)
+            #             # if question_list:
+            #             #     if len(question_list) == 1:
+            #             #         question_s = question_list[0]
+            #             #         question_s.save()
+            #             #     elif len(question_list) > 1:
+            #             #         for question_s in question_list:
+            #             #             question_s.save()
             instance = GlobalVariable.objects.all().first()
             form = GlobalSetupForm(request.POST,initial=instance.__dict__)
             messages.success(request,
@@ -500,10 +503,7 @@ class Add_one_random_question(FormView):
                         )
                         question.save()
 
-                        num_question = int(survey.number_of_question)
-                        num_question += 1
-                        survey.number_of_question = num_question
-                        survey.save()
+
 
                         LogEntry.objects.log_action(
                             user_id=request.user.id,
@@ -513,6 +513,10 @@ class Add_one_random_question(FormView):
                             action_flag=ADDITION,
                             change_message="Add Question"
                         )
+            num_question = int(survey.number_of_question)
+            num_question += 1
+            survey.number_of_question = num_question
+            survey.save()
             messages.success(request,
                              '質問を保存しました。調査セット「'+
                              survey.name+

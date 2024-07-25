@@ -229,14 +229,17 @@ class SurveyDetail(View):
             return redirect(next_)
 
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
-        majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
-        correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
-        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
-        diagnostic_status = int(cache.get(is_diagnostic_key))
 
         if diagnostic_status < response.number_of_questions * survey.diagnosis_stages_qs_num:
             majority_rate = 0
             correctness_rate = 0
+        else:
+            majority_rate = int(request.session[diagnostic_session_key]["Majority_Rate"])
+            correctness_rate = int(request.session[diagnostic_session_key]["Correctness_Rate"])
+            is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, form.survey)
+            diagnostic_status = int(cache.get(is_diagnostic_key))
+
+
         # return redirect(survey.redirect_url or "survey-confirmation", uuid=response.interview_uuid)
         return redirect("survey-confirmation", uuid=response.interview_uuid, majority_rate=majority_rate, correctness_rate=correctness_rate)
 

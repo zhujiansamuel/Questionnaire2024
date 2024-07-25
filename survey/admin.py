@@ -62,7 +62,16 @@ class QuestionInline(admin.StackedInline):
             formset.form.base_fields["category"].queryset = survey_obj.categories.all()
         return formset
 
-#
+    def delate_model(self, request, obj):
+        print(obj)
+        survey = obj.survey
+        obj.delate()
+        survey.recalculation_number_of_questions()
+        survey.save()
+
+
+
+
 
 class CategoryInline(admin.StackedInline):
     model = Category
