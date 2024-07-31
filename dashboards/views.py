@@ -232,7 +232,6 @@ def Global_setup_page(request):
     if request.method == 'POST':
         if form.is_valid():
             if instance is not None:
-                instance.number_of_responses = form.cleaned_data["number_of_responses"]
                 instance.diagnostic_page_indexing = form.cleaned_data["diagnostic_page_indexing"]
                 instance.number_of_question = form.cleaned_data["number_of_question"]
                 instance.save()
