@@ -34,7 +34,7 @@ def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
         msg_2 = "I"
 
     msg = msg_1 + "-" + msg_2
-    if msg=="-------":
+    if msg=="Zero-Zero":
         # case "Zero-Zero":
             result_msg = """
             申し訳ありませんが、まだ十分な回答が得られていません。また後で診断結果を見直してください。
