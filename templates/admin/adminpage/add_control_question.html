@@ -1,7 +1,7 @@
 {% extends "admin/adminpage/addquestion.html" %}
 {% load bootstrap static i18n simpletags %}
 
-{% block default-random-checked %}checked{% endblock %}
+{% block control-checked %}checked{% endblock %}
 
 {% block hint %}{% endblock %}
 
@@ -31,19 +31,21 @@
         </div>
     </div>
     <div>
-    
+
+
+
 {% endblock %}
 
 
 {% block question %}
 
-    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-default-random-question/'>
+    <form id="formId" method='POST' action='/dashboards/{{ survey.id }}/add-control-question/'>
         {% csrf_token %}
         {{ form.media }}
         <div class="container">
             <br>
             <br>
-            <h1>デフォルト・ランダムの質問</h1>
+            <h1>コントロール問題</h1>
             <p>説明：</p>
             <br>
 

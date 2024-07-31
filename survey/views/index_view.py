@@ -54,6 +54,9 @@ class IndexView(PermissionRequiredMixin,TemplateView):
                 survey_unanswered.append(survey)
             session_key = "survey_{}".format(survey.id)
             diagnostic_session_key = "diagnostic_{}_{}".format(request.user, survey.name)
+            control_question_key = "control_question_{}_{}".format(request.user, survey.name)
+            cache.delete(control_question_key)
+
             try:
                 temp = request.session[diagnostic_session_key]
             except:
@@ -87,7 +90,6 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         if request.session.get("session_random_list",False):
             del request.session['session_random_list']
             print("Delete session_random_list")
-
 
         if not self.request.user.has_perm('survey.participant'):
             print("permission_denied")

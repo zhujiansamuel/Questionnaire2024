@@ -46,7 +46,8 @@ from .forms import (ExperimenterCreationForm,
                     CreateSurveyForm,
                     CreateDefaultRandomForm,
                     GlobalSetupForm,
-                    InputExtraNum)
+                    InputExtraNum,
+                    CreateControlQuestionForm)
 
 from survey.decorators import survey_available, global_value
 
@@ -855,6 +856,81 @@ class Add_default_random_question(View):
 
         return render(request, template_name, context)
 
+
+class Add_control_question_question(View):
+    @global_value
+    def get(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"),id=survey_id
+        )
+        form = CreateControlQuestionForm()
+        template_name = "admin/adminpage/add_control_question.html"
+        if survey.number_of_question < global_value_dict["number_of_question"]:
+            color = "red"
+        else:
+            color = "black"
+        context = {
+            'survey': survey,
+            'form': form,
+            'color': color,
+            'number_of_question': global_value_dict["number_of_question"]
+        }
+        return render(request, template_name, context)
+
+    @global_value
+    def post(self, request, *args, **kwargs):
+        survey_id = kwargs.pop("survey_id", None)
+        global_value_dict = kwargs.pop("global_value_dict")
+        survey = get_object_or_404(
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
+        )
+        form = CreateControlQuestionForm(request.POST)
+        template_name = "admin/adminpage/add_control_question.html"
+        if form.is_valid():
+            category_type = "control-question"
+            category = Category.objects.create(survey=survey,
+                                               block_type=category_type)
+            question = form.save()
+            question.survey=survey
+            question.category=category
+            question.choices = form.data.get("choice_1_field") +"|"+ form.data.get("choice_2_field")
+            question.majority_choices = form.data.get("majority_choices")
+            question.save()
+            num_question = int(survey.number_of_question)
+            num_question += 1
+            survey.number_of_question = num_question
+            number_of_control_question = int(survey.number_of_control_question)
+            number_of_control_question += 1
+            survey.number_of_control_question = number_of_control_question
+            survey.save()
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(question).pk,
+                object_id=question.id,
+                object_repr=str(question),
+                action_flag=ADDITION,
+                change_message="Add Question")
+            messages.success(request,
+                             '質問を保存しました。調査セット「'+
+                             survey.name+
+                             '」の質問数：'+str(survey.number_of_question)+
+                             '/'+
+                              str(global_value_dict["number_of_question"]))
+            return redirect(reverse("add-question-with-id", kwargs={"id": survey.id}))
+        if survey.number_of_question < global_value_dict["number_of_question"]:
+            color = "red"
+        else:
+            color = "black"
+        context = {
+            'survey': survey,
+            'form': form,
+            'color': color,
+            'number_of_question': global_value_dict["number_of_question"]
+        }
+
+        return render(request, template_name, context)
 
 
 class Get_survey_question_num_ajax(View):

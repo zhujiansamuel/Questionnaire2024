@@ -62,12 +62,13 @@ class Category(models.Model):
     SEQUENCE = "sequence"
     BRANCH = "branch"
     DEFAULT_Random = "default-random"
+    CONTROL_QUESTION = "control-question"
     BLOCKTYPE = {
         (ONE_Random, _("グループ分け")),
         (SEQUENCE, _("順番固定")),
         (BRANCH, _("枝分かれ")),
         (DEFAULT_Random, _("デフォルト・ランダム")),
-
+        (CONTROL_QUESTION, _("コントロール問題")),
     }
     
     name = models.CharField(_("Name"), max_length=400, default=random_number, help_text=NAME_HELP_TEXT)

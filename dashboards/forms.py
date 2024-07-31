@@ -269,3 +269,31 @@ class CreateDefaultRandomForm(forms.ModelForm):
         }
 
 
+class CreateControlQuestionForm(forms.ModelForm):
+
+    choice_1_field = forms.CharField(label="選択肢１", required=True)
+    choice_2_field = forms.CharField(label="選択肢２", required=True)
+    majority_choices = forms.CharField(label="多数派の選択", required=True)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["choice_1_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
+        self.fields["choice_2_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
+        self.fields["majority_choices"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
+        self.fields["text"].required = False
+    class Meta:
+        model = Question
+        fields = ['text']
+        labels = {
+            'text': _('Text'),
+        }
+        widgets = {
+            "text": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="extends"
+            ),
+        }

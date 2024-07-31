@@ -41,7 +41,10 @@ class Response(models.Model):
     interview_uuid = models.CharField(_("ID"), max_length=36)
     repeat_order = models.IntegerField(_("Order of repeated"), default=0)
     completion_status = models.CharField(_("completion_status"), max_length=50, choices=COMPLETION_STATUS_CHOICE, default="Initial state")
+
     number_of_questions = models.IntegerField(_("Number of questions"), default=0)
+    number_of_control_question = models.IntegerField(_("コントロール質問の数"), default=0)
+
     Majority_Rate_num = models.CharField(_("Majority Rate(Number)"), default=0, max_length=20)
     Correctness_Rate_num = models.CharField(_("Correctness Rate(Number)"), default=0, max_length=20)
     DIAGNOSTIC_RESULT = models.CharField(_("DIAGNOSTIC"), default="Zero", max_length=20)

@@ -24,8 +24,7 @@ class SurveyDetail(View):
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
         step = kwargs.get("step", 0)
-
-        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user,survey)
+        is_diagnostic_key = "is_diagnostic_{}_{}".format(request.user, survey)
         is_diagnostic_current_key = "current_key_diagnostic_{}".format(request.user)
         cache.set(is_diagnostic_current_key, is_diagnostic_key)
         diagnostic_status = cache.get(is_diagnostic_key)
@@ -37,8 +36,6 @@ class SurveyDetail(View):
         cache.set(current_key, step_cache_key)
         step_database = cache.get(step_cache_key)
 
-        print("step-form", step)
-        print("step-database", step_database)
         if step_database is not None:
             if int(step_database) != int(step):
                 messages.warning(request, "It appears that your experimental process has been interrupted. We will restart the experiment.")
@@ -47,6 +44,15 @@ class SurveyDetail(View):
             messages.warning(request,
                              "It appears that your experimental process has been interrupted. We will restart the experiment.")
             return redirect("home_n")
+
+
+        control_question_key = "control_question_{}_{}".format(request.user,survey.name)
+        current_control_question_key = "current_key_control_question_{}".format(request.user)
+        cache.set(current_control_question_key, control_question_key)
+        control_question_ = cache.get(control_question_key)
+        if not control_question_:
+            cache.set(control_question_key, 0)
+
 
         session_random_list = request.session.get("session_random_list",False)
         if not session_random_list:
@@ -65,6 +71,7 @@ class SurveyDetail(View):
                 template_name = "survey/survey.html"
         if survey.need_logged_user and not request.user.is_authenticated:
             return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+
 
         form = ResponseForm(survey=survey, user=request.user, step=step, requests=request, session_random_list=session_random_list)
         categories = form.current_categories()
@@ -120,6 +127,7 @@ class SurveyDetail(View):
 
     def treat_valid_form(self, form, kwargs, request, survey):
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
+        # 配置缓存，特别是第一次生成表格
         if diagnostic_session_key not in request.session:
             request.session[diagnostic_session_key] = {}
             request.session.modified = True
@@ -135,71 +143,55 @@ class SurveyDetail(View):
         diagnostic_status = int(cache.get(is_diagnostic_key))
 
         session_key = "survey_{}".format(kwargs["id"])
+        # 该循环为了计算是否要显示最后的结果
         for field_name, field_value in list(form.cleaned_data.items()):
-            if field_name.startswith("question_"):
+            if field_name.startswith("question_") and not field_name.startswith("question_subsidiary"):
                 q_id = int(field_name.split("_")[1])
                 question = Question.objects.get(pk=q_id)
-                if question.number_of_responses >= survey.diagnosis_stages_qs_num:
-                    diagnostic_status += survey.diagnosis_stages_qs_num
-                    cache.set(is_diagnostic_key,diagnostic_status)
-                else:
-                    diagnostic_status += question.number_of_responses
-                    cache.set(is_diagnostic_key, diagnostic_status)
-                break
+                # 因此抛弃控制问题
+                if question.category.block_type != "control-question":
+                    if question.number_of_responses >= survey.diagnosis_stages_qs_num:
+                        diagnostic_status += survey.diagnosis_stages_qs_num
+                        cache.set(is_diagnostic_key,diagnostic_status)
+                    else:
+                        diagnostic_status += question.number_of_responses
+                        cache.set(is_diagnostic_key, diagnostic_status)
+                    break
+
         if session_key not in request.session:
             request.session[session_key] = {}
+        # 该循环计算多数率与正确率
         for key, value in list(form.cleaned_data.items()):
-            # print("-----------------------------------------------")
-            # print("key:",key)
-            # print("value:",value)
             request.session[session_key][key] = value
             request.session.modified = True
-
-            if question.subsidiary_type == "majority_minority":
-                # print(" ------------------------------------------------------------ ")
-                # print("Question:",question)
-                # print(" ------------------------------------------------------------ ")
-                if key.startswith("question_") and not key.startswith("question_subsidiary_"):
-                    choice = value
-                    if question.category.block_type == "branch":
-                        branch_mark_key = "branch_mark_{}_{}_{}".format(request.user, survey, question.category)
-                        branch_mark = cache.get(branch_mark_key)
-                        if branch_mark is None:
-                            cache.set(branch_mark_key, question.get_choice_index(choice))
-
-
-                    # print(" ------------------------------------------------------------ ")
-                    # print("choice:",choice)
-                    # print(" ------------------------------------------------------------ ")
-                if key.startswith("question_subsidiary_"):
-                    if value == "majority":
-                        request.session[diagnostic_session_key]["Majority_Rate"] = str(majority_rate + 1)
-                        request.session.modified = True
-                        if question.majority_choices == choice:
-                            request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+            # 因此不计算控制问题
+            if question.category.block_type != "control-question":
+                if question.subsidiary_type == "majority_minority":
+                    if key.startswith("question_") and not key.startswith("question_subsidiary_"):
+                        choice = value
+                        if question.category.block_type == "branch":
+                            branch_mark_key = "branch_mark_{}_{}_{}".format(request.user, survey, question.category)
+                            branch_mark = cache.get(branch_mark_key)
+                            if branch_mark is None:
+                                cache.set(branch_mark_key, question.get_choice_index(choice))
+                    if key.startswith("question_subsidiary_"):
+                        if value == "majority":
+                            request.session[diagnostic_session_key]["Majority_Rate"] = str(majority_rate + 1)
                             request.session.modified = True
-                    elif value == "minority":
-                        if question.majority_choices!="Null" and question.majority_choices != choice:
-                            request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
-                            request.session.modified = True
+                            if question.majority_choices == choice:
+                                request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+                                request.session.modified = True
+                        elif value == "minority":
+                            if question.majority_choices!="Null" and question.majority_choices != choice:
+                                request.session[diagnostic_session_key]["Correctness_Rate"] = str(correctness_rate + 1)
+                                request.session.modified = True
 
-            elif question.subsidiary_type == "certainty_degree":
-                pass
-        if settings.DISPLAY_SURVEY_QUESTIONNAIRE_INFORMATION:
-            print(" ------------------------------------------------------------ ")
-            print("request.session[diagnostic_session_key][Correctness_Rate]",
-                  request.session[diagnostic_session_key]["Correctness_Rate"])
-            print("request.session[diagnostic_session_key][Majority_Rate]",
-                  request.session[diagnostic_session_key]["Majority_Rate"])
-            print(" -------- ")
+                elif question.subsidiary_type == "certainty_degree":
+                    pass
+
         next_url = form.next_step_url()
         response = None
         session_random_list = request.session.get("session_random_list",False)
-        # if not session_random_list:
-        #     request.session["session_random_list"] = {}
-        #     for i in range(1,50):
-        #         request.session["session_random_list"][str(i)] = random.randint(100, 9999999)
-        #     session_random_list = request.session.get("session_random_list")
         if survey.is_all_in_one_page():
             # 如果是单页调查问卷，那么提交意味着答题结束
             response = form.save()
@@ -230,7 +222,8 @@ class SurveyDetail(View):
 
         diagnostic_session_key = "diagnostic_{}_{}".format(request.user, kwargs["survey"].name)
 
-        if diagnostic_status < response.number_of_questions * survey.diagnosis_stages_qs_num:
+
+        if diagnostic_status < (response.number_of_questions-response.number_of_control_question) * survey.diagnosis_stages_qs_num:
             majority_rate = 0
             correctness_rate = 0
         else:
@@ -258,7 +251,7 @@ class SurveyDetail(View):
             context["diagnostic_result"] = "Sorry,we don't haven enough answers yet."
             context["msg_diagnostic"] = "Zero-Zero"
         else:
-            msg, diagnostic_result_msg = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
+            msg, diagnostic_result_msg, _, _ = Diagnostic_Analyze(majority_rate, correctness_rate, kwargs)
             context["diagnostic_result"] = diagnostic_result_msg
             context["msg_diagnostic"] = msg
         return context
@@ -267,6 +260,7 @@ class SurveyDetail(View):
     def result_pre_question(self, form, next_url, request):
         # not_enough = True
         # msg=""
+
         for field_name, field_value in list(form.cleaned_data.items()):
             if field_name.startswith("question_") and not field_name.startswith("question_subsidiary_"):
                 choice = field_value
@@ -274,24 +268,50 @@ class SurveyDetail(View):
                 qqqq = field_value
                 pk = int(field_name.split("_")[2])
                 question = Question.objects.get(pk=pk)
+                if question.category.block_type != "control-question":
+                    if question.number_of_responses < question.survey.diagnostic_page_indexing:
+                        not_enough = True
+                        msg = "あなたの回答の正解・不正解はまだ十分に回答が集まっていないため、後ほどまたログインして確かめてください."
+                    else:
+                        not_enough = False
 
-                if question.number_of_responses < question.survey.diagnostic_page_indexing:
-                    not_enough = True
-                    msg = "あなたの回答の正解・不正解はまだ十分に回答が集まっていないため、後ほどまたログインして確かめてください."
-                else:
-                    not_enough = False
-
+                        if question.subsidiary_type == "majority_minority":
+                            if question.majority_choices == choice:
+                                if qqqq == "majority":
+                                    msg = "正解、あなたの回答は多数派" # ok
+                                else:
+                                    msg = "不正解、あなたの回答は多数派" # ok
+                            else:
+                                if qqqq == "minority":
+                                    msg = "正解、あなたの回答は少数派" # ok
+                                else:
+                                    msg = "不正解、あなたの回答は少数派"
+                elif question.category.block_type == "control-question":
                     if question.subsidiary_type == "majority_minority":
                         if question.majority_choices == choice:
                             if qqqq == "majority":
-                                msg = "正解、あなたの回答は多数派" # ok
+                                msg = "正解、あなたの回答は多数派"  # ok
                             else:
-                                msg = "不正解、あなたの回答は多数派" # ok
+                                msg = "不正解、あなたの回答は多数派"  # ok
+                                # 在这里设置cache
+
+                                control_question_key = "control_question_{}_{}".format(request.user, question.survey.name)
+                                print("Before", cache.get(control_question_key))
+                                control_question_ = int(cache.get(control_question_key))+1
+                                cache.set(control_question_key, control_question_)
+                                print("After",cache.get(control_question_key))
+
                         else:
                             if qqqq == "minority":
-                                msg = "正解、あなたの回答は少数派" # ok
+                                msg = "正解、あなたの回答は少数派"  # ok
                             else:
                                 msg = "不正解、あなたの回答は少数派"
+                                # 在这里设置cache
+                                control_question_key = "control_question_{}_{}".format(request.user, question.survey.name)
+                                print("Before", cache.get(control_question_key))
+                                control_question_ = int(cache.get(control_question_key))+1
+                                cache.set(control_question_key, control_question_)
+                                print("After", cache.get(control_question_key))
             else:
                 not_enough = True
                 msg = "Error"

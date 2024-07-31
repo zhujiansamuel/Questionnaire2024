@@ -32,7 +32,8 @@ from dashboards.views import (HomeIndexView,
                               Global_setup_page,
                               Get_survey_question_num_ajax,
                               Surey_Summary,
-                              Set_survey_public_ajax)
+                              Set_survey_public_ajax,
+                              Add_control_question_question)
 from django.contrib.auth.views import (LogoutView,
                                        LoginView,
                                        PasswordResetView,
@@ -115,6 +116,7 @@ urlpatterns += [
     path("dashboards/<int:survey_id>/add-sequence-question/", Add_sequence_question_ex.as_view(), name="add-sequence-question-number"),
     path("dashboards/<int:survey_id>/add-branch-question/", Add_branch_question.as_view(), name="add-branch-question"),
     path("dashboards/<int:survey_id>/add-default-random-question/", Add_default_random_question.as_view(), name="add-default-random-question"),
+    path("dashboards/<int:survey_id>/add-control-question/", Add_control_question_question.as_view(), name="add-control-question"),
 
     path("dashboards/<int:survey_id>/survey-summary/", Surey_Summary.as_view(), name="surey-summary"),
 

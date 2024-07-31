@@ -6,29 +6,31 @@ from ..utility.diagnostic_result import Diagnostic_Result
 
 def calculate_results(response):
     survey = response.survey
-    answers = Answer.objects.filter(response=response).prefetch_related("question")
+    answers = Answer.objects.filter(response=response).exclude(question__category__block_type="control-question")
     Majority_Rate = 0
     Correctness_Rate = 0
     if len(answers) == 0:
         pass
     elif len(answers) == 1:
-        if answers[0].subsidiary == "majority":
-            Majority_Rate = Majority_Rate + 1
-            if answers[0].body == answers[0].question.majority_choices:
-                Correctness_Rate = Correctness_Rate + 1
-        elif answers[0].subsidiary == "minority":
-            if answers[0].question.majority_choices != "Null" and answers[0].body != answers[0].question.majority_choices:
-                Correctness_Rate = Correctness_Rate + 1
+        if answers[0].question.category.block_type != "control-question":
+            if answers[0].subsidiary == "majority":
+                Majority_Rate = Majority_Rate + 1
+                if answers[0].body == answers[0].question.majority_choices:
+                    Correctness_Rate = Correctness_Rate + 1
+            elif answers[0].subsidiary == "minority":
+                if answers[0].question.majority_choices != "Null" and answers[0].body != answers[0].question.majority_choices:
+                    Correctness_Rate = Correctness_Rate + 1
     else:
         for answer in answers:
             question = answer.question
-            if answer.subsidiary == "majority":
-                Majority_Rate = Majority_Rate + 1
-                if answer.body == question.majority_choices:
-                    Correctness_Rate = Correctness_Rate + 1
-            elif answer.subsidiary == "minority":
-                if answer.question.majority_choices != "Null" and answer.body != answer.question.majority_choices:
-                    Correctness_Rate = Correctness_Rate + 1
+            if answer.question.category.block_type != "control-question":
+                if answer.subsidiary == "majority":
+                    Majority_Rate = Majority_Rate + 1
+                    if answer.body == question.majority_choices:
+                        Correctness_Rate = Correctness_Rate + 1
+                elif answer.subsidiary == "minority":
+                    if answer.question.majority_choices != "Null" and answer.body != answer.question.majority_choices:
+                        Correctness_Rate = Correctness_Rate + 1
     if len(answers) != 0:
         Majority_Rate_num = Majority_Rate / len(answers)
         Correctness_Rate_num = Correctness_Rate / len(answers)

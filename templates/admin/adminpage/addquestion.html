@@ -100,23 +100,34 @@
                                     <label class="btn btn-outline-primary" for="btnradio1"><a
                                             href="{% url "add-default-random-question" survey_id=survey.id %}">デフォルト・ランダム</a></label>
 
+                                
                                     <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
                                            autocomplete="off"
                                             {% block one-random-checked %}{% endblock %}>
                                     <label class="btn btn-outline-primary" for="btnradio2"><a
                                             href="{% url "add-one-random-question-number" survey_id=survey.id %}">グループ分け</a></label>
 
+                                
                                     <input type="radio" class="btn-check" name="btnradio" id="btnradio3"
                                            autocomplete="off"
                                             {% block sequence-checked %}{% endblock %}>
                                     <label class="btn btn-outline-primary" for="btnradio3"><a
                                             href="{% url "add-sequence-question-number" survey_id=survey.id %}">順番固定</a></label>
 
+                                
                                     <input type="radio" class="btn-check" name="btnradio" id="btnradio4"
                                            autocomplete="off"
                                             {% block branch-checked %}{% endblock %}>
                                     <label class="btn btn-outline-primary" for="btnradio4"><a
                                             href="{% url "add-branch-question" survey_id=survey.id %}">枝分かれ</a></label>
+                                
+                                
+                                    <input type="radio" class="btn-check" name="btnradio" id="btnradio4"
+                                           autocomplete="off"
+                                            {% block control-checked %}{% endblock %}>
+                                    <label class="btn btn-outline-primary" for="btnradio4"><a
+                                            href="{% url "add-control-question" survey_id=survey.id %}">コントロール問題</a></label>
+                                
                                 </div>
                             </div>
                             <br/>

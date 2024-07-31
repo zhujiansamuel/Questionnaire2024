@@ -11,192 +11,206 @@
 
 {% block body %}
 
-        <div class="toast-container position-absolute top-0 end-0 p-3">
-            <!-- Then put toasts within -->
-            <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
-                  <div class="toast-header">
-                    <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="100%" fill="#17A116"></rect></svg>
-                    <strong class="me-auto">メタ認知能力ゲーム</strong>
-                    <small class="text-muted">just now</small>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                  </div>
-                  <div class="toast-body">
-                    {% trans "Thanks! Your answers have been saved" %}
-                  </div>
+    <div class="toast-container position-absolute top-0 end-0 p-3">
+        <!-- Then put toasts within -->
+        <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+                     aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <rect width="100%" height="100%" fill="#17A116"></rect>
+                </svg>
+                <strong class="me-auto">メタ認知能力ゲーム</strong>
+                <small class="text-muted">just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {% trans "Thanks! Your answers have been saved" %}
             </div>
         </div>
+    </div>
 
 
     <!-- Faq Section -->
     <section id="faq" class="faq section">
 
-{#        <div class="alert alert-success">#}
-{#{% trans "Thanks! Your answers have been saved" %}#}
-{#        </div>#}
+        {#        <div class="alert alert-success">#}
+        {#{% trans "Thanks! Your answers have been saved" %}#}
+        {#        </div>#}
 
-      <div class="container section-title" data-aos="fade-up">
-        <h2>{% trans "ゲームの終了"%}</h2>
-
-
-      </div><!-- End Section Title -->
-
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12" data-aos="fade-up" data-aos-delay="100">
-            <div class="question result-pre-question">
+        <div class="container section-title" data-aos="fade-up">
+            <h2>{% trans "ゲームの終了" %}</h2>
 
 
+        </div><!-- End Section Title -->
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12" data-aos="fade-up" data-aos-delay="100">
+                    <div class="question result-pre-question">
 
 
-                <div class="card" style="width: auto;">
-                  <img src="{% static 'assets/img/7.jpg' %}" class="card-img-top" alt="...">
-                  <div class="card-body">
-                      <h1 class="card-title">{{ survey }}</h1>
-                      <h1 class="card-title">診断結果</h1>
-                        <br>
-                      <h3>多数派率（自分の答えが多数派に属する度合い）：</h3>
-                        <br>
-                      <h5>このスコアは、あなたがどれだけ「普通」か「ユニーク」かを示している。</h5>
-                        <br>
-                        <br>
-                      <h3>正答率（多数派か少数派かについてのメタ判断がどれくらいの頻度で正しかったか）：</h3>
-                        <br>
-                      <h5>このスコアは、あなたが他人との関係において自分自身をどの程度理解しているかを示すものである。</h5>
-                        <br>
-                      <h2>{{ msg }}</h2>
-                        <br>
-                      <h2 class="card-text">{{ diagnostic_result_msg|safe }}</h2>
-                        <br>
-                      <h2> ＊また後で診断結果を見直してください。データが増えることで、より正確な診断になっています。 </h2>
+                        <div class="card" style="width: auto;">
+{#                            <img style="width:40%;" src="{% static 'assets/img/7.jpg' %}" class="card-img-top" alt="...">#}
+                            <div class="card-body">
+                                <h1 class="card-title"> ゲーム「{{ survey }}」の診断結果</h1>
+                                <br>
+                                <h2>あなたのスコア</h2>
+                                <h2>多数派率:{{ majority_rate_r|floatformat:2 }}      正解率：{{ correctness_rate_r|floatformat:2 }}</h2>
+                                <br>
+                                <h2>診断：{{ msg }}</h2>
+                                <br>
+                                <h3 class="card-text">{{ diagnostic_result_msg|safe }}</h3>
+                                <br>
+                                <br>
+                                <br>
+                                <h5> ＊また後で診断結果を見直してください。データが増えることで、より正確な診断になっています。 </h5>
 
 
-                      <div class="row container_row">
-                        {#    ----------------------#}
-                        <div class="col">
-                            <div class="fb-share-button" data-href="https://developers.facebook.com/docs/plugins/" data-layout="" data-size=""><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
+                                <div class="row container_row">
+                                    {#    ----------------------#}
+                                    <div class="col">
+                                        <div class="fb-share-button"
+                                             data-href="https://developers.facebook.com/docs/plugins/" data-layout=""
+                                             data-size=""><a target="_blank"
+                                                             href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse"
+                                                             class="fb-xfbml-parse-ignore">Share</a></div>
+                                    </div>
+                                    {#    ----------------------#}
+                                    <div class="col">
+                                        <div><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                                        </div>
+                                    </div>
+                                    {#    ----------------------#}
+                                    <div class="col">
+                                        <div><a href="http://www.reddit.com/submit"
+                                                onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+                                            <img src="http://www.reddit.com/static/spreddit7.gif" alt="submit to reddit"
+                                                 border="0"/> </a></div>
+                                    </div>
+                                    {#    ----------------------#}
+
+                                    <div class="col">
+                                        <script type="IN/Share" data-counter="right"></script>
+                                    </div>
+                                    {#    ----------------------#}
+                                    <br>
+                                    <br>
+                                    <br>
+                                    <br>
+
+
+                                    <a href="{% url "survey-list" %}"
+                                       class="btn btn-primary">調査セットのリストに戻る</a>
+                                </div>
+                            </div>
+
+
                         </div>
-                        {#    ----------------------#}
-                        <div class="col">
-                            <div><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div>
-                        </div>
-                        {#    ----------------------#}
-                        <div class="col">
-                            <div><a href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false"> <img src="http://www.reddit.com/static/spreddit7.gif" alt="submit to reddit" border="0" /> </a></div>
-                        </div>
-                        {#    ----------------------#}
-
-                        <div class="col">
-                            <script type="IN/Share" data-counter="right"></script>
-                        </div>
-                        {#    ----------------------#}
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-
-
-                    <a href="{% url "survey-list" %}" class="btn btn-primary">調査セットのリストに戻る</a>
-                  </div>
+                    </div>
                 </div>
-
-
-
             </div>
-          </div>
-        </div>
-      </div>
 
     </section><!-- /Faq Section -->
 
-{##}
-{##}
-{#    <div class="container">#}
-{#        <div class="panel-collapse collapse show">#}
-{#            <div class="panel-body">#}
-{#                    <table class="table table-hover">#}
-{#                        <thead>#}
-{#                        <tr>#}
-{#                            <td>#}
-{#                                <h3>{{ msg }}</h3>#}
-{#                            </td>#}
-{#                        </tr>#}
-{##}
-{#                        </thead>#}
-{##}
-{#                        <tbody>#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    <p>{{ diagnostic_result_msg }}</p>#}
-{#                                </td>#}
-{##}
-{#                            </tr>#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-{##}
-{##}
+    {##}
+    {##}
+    {#    <div class="container">#}
+    {#        <div class="panel-collapse collapse show">#}
+    {#            <div class="panel-body">#}
+    {#                    <table class="table table-hover">#}
+    {#                        <thead>#}
+    {#                        <tr>#}
+    {#                            <td>#}
+    {#                                <h3>{{ msg }}</h3>#}
+    {#                            </td>#}
+    {#                        </tr>#}
+    {##}
+    {#                        </thead>#}
+    {##}
+    {#                        <tbody>#}
+    {#                            <tr>#}
+    {#                                <td>#}
+    {#                                    <p>{{ diagnostic_result_msg }}</p>#}
+    {#                                </td>#}
+    {##}
+    {#                            </tr>#}
+    {#                        </tbody>#}
+    {#                    </table>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
+    {##}
+    {##}
 
 
-{#    <div class="card" style="width: 18rem;">#}
-{#  <img class="card-img-top" src="..." alt="Card image cap">#}
-{#  <div class="card-body">#}
-{#    <h5 class="card-title">Card title</h5>#}
-{#    <p class="card-text">{{ diagnostic_result }}</p>#}
-{#    <a href="#" class="btn btn-primary">Go somewhere</a>#}
-{#  </div>#}
-{#</div>#}
-{#    <div class="container text-center">#}
-{##}
-{#  </div>#}
+    {#    <div class="card" style="width: 18rem;">#}
+    {#  <img class="card-img-top" src="..." alt="Card image cap">#}
+    {#  <div class="card-body">#}
+    {#    <h5 class="card-title">Card title</h5>#}
+    {#    <p class="card-text">{{ diagnostic_result }}</p>#}
+    {#    <a href="#" class="btn btn-primary">Go somewhere</a>#}
+    {#  </div>#}
+    {#</div>#}
+    {#    <div class="container text-center">#}
+    {##}
+    {#  </div>#}
 
     {#    ----------------------#}
-{#    <div class="row container_row">#}
-{#       <div class="col">#}
-{#          <h4><a href="{% url "survey-list" %}">#}
-{#            <button class="login_button">Back to survey list</button>#}
-{#          </a></h4>#}
-{#    </div>#}
-{##}
+    {#    <div class="row container_row">#}
+    {#       <div class="col">#}
+    {#          <h4><a href="{% url "survey-list" %}">#}
+    {#            <button class="login_button">Back to survey list</button>#}
+    {#          </a></h4>#}
+    {#    </div>#}
+    {##}
 
 
 
-<script src="//platform.linkedin.com/in.js" type="text/javascript">
- lang: en_US
-</script>
+    <script src="//platform.linkedin.com/in.js" type="text/javascript">
+        lang: en_US
+    </script>
 
 
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v19.0" nonce="PFbqAFhA"></script>
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v19.0"
+            nonce="PFbqAFhA"></script>
 
     <!-- Place this tag where you want the share button to render. -->
 
 
-<!-- Place this tag after the last share tag -->
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=1"></script>
+    <!-- Place this tag after the last share tag -->
+    <script>!function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+        if (!d.getElementById(id)) {
+            js = d.createElement(s);
+            js.id = id;
+            js.src = p + '://platform.twitter.com/widgets.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }
+    }(document, 'script', 'twitter-wjs');</script>
+    <script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=1"></script>
 
 
-<style>
-  .container_row{
-        margin:30px 0;
-    }
+    <style>
+        .container_row {
+            margin: 30px 0;
+        }
 
-    .login_button{
-        border-radius: 10px;
-    }
-    .question{
-        text-align: center;
-    }
+        .login_button {
+            border-radius: 10px;
+        }
 
-    .card{
-        margin: 0 auto; /* Added */
-        float: none; /* Added */
-        margin-bottom: 10px; /* Added */
-    }
+        .question {
+            text-align: center;
+        }
 
-</style>
+        .card {
+            margin: 0 auto; /* Added */
+            float: none; /* Added */
+            margin-bottom: 10px; /* Added */
+        }
+
+    </style>
 
 {% endblock %}
 

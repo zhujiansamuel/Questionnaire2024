@@ -223,7 +223,9 @@
                                                     {% elif question.category.block_type == "sequence"  %}
                                                         <td>順番固定</td>
                                                      {% elif question.category.block_type == "branch"  %}
-                                                        <td>枝分け</td>   
+                                                        <td>枝分け</td>
+                                                     {% elif question.category.block_type == "control-question"  %}
+                                                        <td>コントロール</td>
                                                     {% endif %}
                                                 
                                                 
@@ -235,6 +237,8 @@
                                                         <td>{{ question.order }}</td>
                                                      {% elif question.category.block_type == "branch"  %}
                                                         <td>--</td>   
+                                                    {% elif question.category.block_type == "control-question"  %}
+                                                        <td>--</td>  
                                                     {% endif %}
                                                 
                                                 
@@ -246,6 +250,8 @@
                                                         <td>--</td>
                                                      {% elif question.category.block_type == "branch"  %}
                                                         <td>{{ question.jump_type }}</td> 
+                                                    {% elif question.category.block_type == "control-question"  %}
+                                                        <td>--</td> 
                                                     {% endif %}
                                                 
                                                     

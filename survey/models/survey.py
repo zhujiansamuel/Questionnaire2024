@@ -98,6 +98,7 @@ class Survey(models.Model):
     diagnostic_page_indexing = models.IntegerField(_("診断結果の表示の最低数"), default=20, help_text=DIAGNOSTIC_PAGE_INDEXING)
     download_top_number = models.IntegerField(_("Download the top results"), default=0, help_text=DOWNLOAD_TOP_NUMBER)
     number_of_question = models.IntegerField(_("質問の数"), default=0, help_text=NUMBER_OF_QUESTION)
+    number_of_control_question = models.IntegerField(_("コントロール質問の数"), default=0)
 
     class Meta:
         verbose_name = _("調査セット")

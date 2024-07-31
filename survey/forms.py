@@ -381,6 +381,8 @@ class ResponseForm(models.ModelForm):
                     self.question_to_display.append(question_1)
             elif category.block_type == "default-random":
                 self.question_to_display += category_question_all
+            elif category.block_type == "control-question":
+                self.question_to_display += category_question_all
 
 
 
@@ -580,7 +582,9 @@ class ResponseForm(models.ModelForm):
 
     def save(self, commit=True):
         """Save the response object"""
+        # ----------------------
         time_s = time.time()
+        # ----------------------
         response_list = Response.objects.filter(survey=self.survey)
         global_value_s = get_object_or_404(GlobalVariable, id=1)
         response = super().save(commit=False)
@@ -594,9 +598,9 @@ class ResponseForm(models.ModelForm):
 
 
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
-
+        # ----------------------
         time_s_2 = time.time()
-
+        # ----------------------
         print("-----------------------")
         print("表格数据")
         print("-----------------------")
@@ -611,50 +615,61 @@ class ResponseForm(models.ModelForm):
                 if field_name_split[1] != "subsidiary":
                     q_id = int(field_name.split("_")[1])
                     question = Question.objects.get(pk=q_id)
-                    answer = Answer(question=question)
-                    NB = int(question.number_of_responses)
-                    NB += 1
-                    question.number_of_responses = NB
-                    question.number_rate = (question.number_of_responses/global_value_s.diagnostic_page_indexing)*100
-                    question.save()
-                    answer.body = field_value
+                    if question.category.block_type != "control-question":
+                        answer = Answer(question=question)
+                        NB = int(question.number_of_responses)
+                        NB += 1
+                        question.number_of_responses = NB
+                        question.number_rate = (question.number_of_responses/global_value_s.diagnostic_page_indexing)*100
+                        question.save()
+                        answer.body = field_value
 
-                    data["responses"].append((answer.question.id, answer.body))
-                    LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type, field_value)
-                    answer.response = response
-                    key = f"question_subsidiary_{q_id}"
-                    answer.subsidiary = self.cleaned_data[key]
-                    answer.save()
+                        data["responses"].append((answer.question.id, answer.body))
+                        LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type, field_value)
+                        answer.response = response
+                        key = f"question_subsidiary_{q_id}"
+                        answer.subsidiary = self.cleaned_data[key]
+                        answer.save()
 
+                        if question.category.block_type != "control-question":
+                            # 更新最多回答的记录
+                            # ----------------------
+                            time_s_3 = time.time()
+                            # ----------------------
+                            answers_all_saved = Answer.objects.filter(question=question).values("body")
+                            # answers_all_saved = Answer.objects.filter(question=question)
+                            majority_choices_list = []
+                            for ans in answers_all_saved:
+                                majority_choices_list.append(ans["body"])
 
-                    # 更新最多回答的记录
-                    time_s_3 = time.time()
-                    answers_all_saved = Answer.objects.filter(question=question).values("body")
-                    # answers_all_saved = Answer.objects.filter(question=question)
-                    majority_choices_list = []
-                    for ans in answers_all_saved:
-                        majority_choices_list.append(ans["body"])
+                            question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
+                            question.save()
+                            # ----------------------
+                            time_e_3 = time.time()
+                            # ----------------------
+                            print("更新最多回答记录的时间:   ", (time_e_3 - time_s_3) * 1000)
 
-                    question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
-                    question.save()
-                    time_e_3 = time.time()
-                    print("更新最多回答记录的时间:   ", (time_e_3 - time_s_3) * 1000)
-
-
+        # ----------------------
         time_e_2 = time.time()
+        # ----------------------
         Majority_Rate_num, Correctness_Rate_num = calculate_results(response)
-
+        # ----------------------
         time_s_1 = time.time()
+        # ----------------------
         if len(response_list)>1:
             for response_t in response_list:
                 Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)
+        # ----------------------
         time_e_1 = time.time()
+        # ----------------------
         # print("Forms saved.     Majority_Rate_num=", Majority_Rate_num)
         # print("Forms saved.  Correctness_Rate_num=", Correctness_Rate_num)
 
         cache.delete("step_{}_{}".format(self.user, self.survey))
         survey_completed.send(sender=Response, instance=response, data=data)
+        # ----------------------
         time_e = time.time()
+        # ----------------------
         print("表格保存时间:   ", (time_e - time_s) * 1000)
         print("计算结果时间:   ", (time_e_1 - time_s_1) * 1000)
         print("保存答案时间:   ", (time_e_2 - time_s_2) * 1000)
