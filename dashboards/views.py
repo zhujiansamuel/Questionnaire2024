@@ -247,8 +247,16 @@ def Global_setup_page(request):
                     diagnostic_page_indexing=form.cleaned_data["diagnostic_page_indexing"],
                     number_of_question=form.cleaned_data["number_of_question"],
                 )
-            survey_list = Survey.objects.all().updata(diagnostic_page_indexing = instance.diagnostic_page_indexing)
-            survey_list = Survey.objects.all().updata(diagnosis_stages_qs_num = instance.diagnostic_page_indexing)
+
+            surveys=[]
+            for survey in Survey.objects.all():
+                survey.diagnostic_page_indexing = instance.diagnostic_page_indexing
+                survey.diagnosis_stages_qs_num = instance.diagnostic_page_indexing
+                surveys.append(survey)
+
+            Survey.objects.bulk_update(surveys, fields=['diagnostic_page_indexing','diagnosis_stages_qs_num'])
+
+
             # if survey_list:
             #     if len(survey_list)==1:
             #         survey = survey_list[0]
