@@ -46,6 +46,7 @@ class ApplicationUser(AbstractUser):
         help_text=_("Non-essential items. Please rely on the experimenter's prompts to determine if an answer is required.")
     )
 
+
     field_1_choice = {
         ("Philosophy", "Philosophy"),
         ("Sociology", "Sociology"),
@@ -96,8 +97,8 @@ class ApplicationUser(AbstractUser):
     nicknames = models.CharField(
         _("Nicknames"),
         max_length=100,
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         help_text=_("Nicknames"),
     )
 

@@ -38,6 +38,7 @@ class Answer(models.Model):
 
     def __init__(self, *args, **kwargs):
         try:
+            # ok
             question = Question.objects.get(pk=kwargs["question_id"])
         except KeyError:
             question = kwargs.get("question")

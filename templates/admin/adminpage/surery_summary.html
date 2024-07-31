@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load static i18n simpletags%}
 {% block extrahead %}
 
 
@@ -52,6 +52,16 @@
 
 
     <div id="content-main">
+
+    <div class="page-header">
+        <el-page-header title="{% trans '調査セットのリストに戻る' %}" @back="goBack" content="{{title}}"/>
+        <div class="el-button-group btn-group" size="small" style="margin-bottom: 10px;">
+                                        <a href="" class="el-button el-button--default el-button--small">
+                                <span class="el-icon-refresh">  リフレッシュ</span>
+                                </a>
+        </div>
+    </div>
+    
         <div class="module filtered" id="changelist">
             <div class="el-col el-col-24">
                 <div class="el-card box-card is-always-shadow">
@@ -62,9 +72,15 @@
                             <div class="container text-center">
                                 <div id="content-main">
                                     <div class="module filtered" id="changelist">
-                                        <h1>調査セット「{{ survey }}」のSummary</h1>
+                                        <h3>調査セット「{{ survey }}」の概要</h3>
                                         <p id="survey-id" hidden>{{ survey.id }}</p>
                                     </div>
+                                </div>
+                                <div class="el-button-group btn-group" size="small" style="margin-bottom: 10px;">
+                                    <a href="/admin/survey/survey/{{ survey.id }}/change/"
+                                       class="el-button el-button--default el-button--small">
+                                        <span class="el-icon-plus">　調査セットを編集する</span>
+                                    </a>
                                 </div>
                                 <div class="row align-items-start">
 
@@ -120,19 +136,15 @@
                                                 <td>診断結果の表示の最低数</td>
                                                 <td>{{ survey.diagnostic_page_indexing }}</td>
                                             </tr>
-                                            <tr>
-                                                <th scope="row">8</th>
-                                                <td>Download the top results</td>
-                                                <td>{{ survey.download_top_number }}</td>
-                                            </tr>
+
                                             </tbody>
                                         </table>
 
                                     </div>
 
-                                    <div class="col">
-                                        s
-                                    </div>
+{#                                    <div class="col">#}
+{#                                        s#}
+{#                                    </div>#}
 
                                 </div>
 
@@ -141,10 +153,25 @@
                             <div class="container text-center">
                                 <div id="content-main">
                                     <div class="module filtered" id="changelist">
-                                        <h1>調査セット「{{ survey }}」の質問リスト</h1>
+                                        <h3>「{{ survey }}」の質問リスト</h3>
                                         <p id="survey-id" hidden>{{ survey.id }}</p>
                                     </div>
                                 </div>
+                            
+                            
+                            
+                            <div class="el-button-group btn-group" size="small" style="margin-bottom: 10px;">
+                                <a href="{% url "add-question-with-id" survey.id %}" class="el-button el-button--default el-button--small">
+                                <span class="el-icon-plus">　質問を追加する</span>
+                                </a> 
+                                
+                                <a href="" class="el-button el-button--default el-button--small">
+                                <span class="el-icon-refresh">  リフレッシュ</span>
+                                </a>
+                            </div>
+                            <br>
+                            
+                            
                                 <div class="row align-items-start">
                                     <div class="col">
                                         <table class="table">
@@ -164,9 +191,20 @@
                                             <tbody>
                                             {% for question in question_list %}
                                                 <tr>
-                                                    <th scope="row">{{ loop.index }}</th>
-                                                    <td style="width:40%">{{ question.text |striptags }}</td>
-                                                    <td style="width:10%">{{ question.choices }}</td>
+                                                
+                                                
+                                                
+                                                    <th scope="row">{{ forloop.counter }}</th>
+                                                
+                                                
+                                                
+                                                
+                                                    <td style="width:30%">
+                                                        <a href="/admin/survey/question/{{ question.pk }}/change/">
+                                                            {{ question.text |striptags }}
+                                                        </a>
+                                                    </td>
+                                                    <td style="width:30%">{{ question.choices }}</td>
                                                     <td style="width:10%">
                                                         <div class="progress" role="progressbar"
                                                              aria-label="Example with label" aria-valuenow="25"
@@ -219,6 +257,19 @@
 
                                     </div>
                                 </div>
+
+                            <div class="el-button-group btn-group" size="small">
+                                <a href="{% url "add-question-with-id" survey.id %}" class="el-button el-button--default el-button--small">
+                                <span class="el-icon-plus">　質問を追加する</span>
+                                </a> 
+                                
+                                <a href="" class="el-button el-button--default el-button--small">
+                                <span class="el-icon-refresh"></span>
+                                </a> 
+                                
+
+                            </div>
+                            
                             </div>
 
                         </div>
@@ -229,7 +280,14 @@
     </div>
 
     <script>
-
+    new Vue({
+        el: '.page-header',
+        methods: {
+            goBack: function () {
+                window.location.href = '{% url "admin:survey_survey_changelist" %}'
+            }
+        }
+    })
 
     </script>
 

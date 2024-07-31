@@ -1,6 +1,9 @@
 {% load admin_list %}
 {% load i18n %}
 {% load simpletags %}
+
+
+
 <div id="pagination">
     {% django_version_is_gte_32x as is_32x %}
     {% if pagination_required %}

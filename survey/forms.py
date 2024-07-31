@@ -1,5 +1,7 @@
 import logging
 import uuid
+import time
+
 import random
 from django import forms
 from random import choice
@@ -12,6 +14,8 @@ from django.shortcuts import redirect
 from django.core.cache import cache
 from survey.decorators import survey_available, global_value
 from django.shortcuts import render, redirect, reverse, get_object_or_404
+
+from django.db.models import Min
 
 from survey.models import Answer, Category, Question, Response, Survey
 from survey.signals import survey_completed
@@ -51,6 +55,8 @@ class ResponseForm(models.ModelForm):
         fields = ()
 
     def __init__(self, *args, **kwargs):
+        time_s = time.time()
+
         """Expects a survey object to be passed in initially"""
         flat = lambda L: sum(map(flat, L), []) if isinstance(L, list) else [L]
         self.survey = kwargs.pop("survey")
@@ -267,19 +273,20 @@ class ResponseForm(models.ModelForm):
                 # 同时保留添加隐藏问题的可能
                 # 由category.hiding_question_order判定是否需要添加隐藏问题
                 # category.hiding_question_order为0的时候意味着该类别中不添加隐藏问题
-                # all_question = self.eliminate_answered_questions(category.questions.all().order_by("oeder"))
+                # all_question = self.eliminate_answered_questions(category.questions.all().order_by("order"))
                 # ？
-                all_question = self.eliminate_answered_questions(category.questions.all())
+                # all_question = self.eliminate_answered_questions(category.questions.all())
+
                 # ----->
                 top_number_rate = 0
                 top_index = 0
-
-                for i, question in enumerate(all_question):
-                    if float(question.number_rate) <= top_number_rate:
+                # all_question是一个list，所以不用Entry.objects.aggregate(first_published_year=Min("pub_date__year"))
+                for i, question in enumerate(category_question_all):
+                    if float(question.number_rate) <= float(top_number_rate):
                         top_number_rate = question.number_rate
                         top_index = i
 
-                random_question = all_question[top_index]
+                random_question = category_question_all[top_index]
 
                 # random_question_dic = {}
                 # for i, question in enumerate(all_question):
@@ -403,7 +410,8 @@ class ResponseForm(models.ModelForm):
             self.steps_count = len(self.question_to_display)
         # -------------------------------------------------------------------
         self.add_questions(kwargs.get("data"))
-
+        time_e = time.time()
+        print("表格初始化时间:   ",(time_e - time_s)*1000)
 
 
 
@@ -572,6 +580,8 @@ class ResponseForm(models.ModelForm):
 
     def save(self, commit=True):
         """Save the response object"""
+        time_s = time.time()
+        response_list = Response.objects.filter(survey=self.survey)
         global_value_s = get_object_or_404(GlobalVariable, id=1)
         response = super().save(commit=False)
         response.survey = self.survey
@@ -584,6 +594,15 @@ class ResponseForm(models.ModelForm):
 
 
         data = {"survey_id": response.survey.id, "interview_uuid": response.interview_uuid, "responses": []}
+
+        time_s_2 = time.time()
+
+        print("-----------------------")
+        print("表格数据")
+        print("-----------------------")
+        print(type(self.cleaned_data))
+        print("-----------------------")
+
         for field_name, field_value in list(self.cleaned_data.items()):
             if field_name.startswith("question_"):
                 # print("field_name:      ", field_name)
@@ -599,41 +618,45 @@ class ResponseForm(models.ModelForm):
                     question.number_rate = (question.number_of_responses/global_value_s.diagnostic_page_indexing)*100
                     question.save()
                     answer.body = field_value
+
                     data["responses"].append((answer.question.id, answer.body))
                     LOGGER.debug("Creating answer for question %d of type %s : %s", q_id, answer.question.type, field_value)
                     answer.response = response
+                    key = f"question_subsidiary_{q_id}"
+                    answer.subsidiary = self.cleaned_data[key]
                     answer.save()
 
-                elif field_name_split[1] == "subsidiary":
-                    q_id = int(field_name.split("_")[2])
-                    question = Question.objects.get(pk=q_id)
-                    try:
-                        answers = Answer.objects.filter(response=response, question=question).prefetch_related("question").first()
-                        answers.subsidiary = field_value
-                        answers.save()
-                    except Answer.DoesNotExist:
-                        print("Error:")
 
                     # 更新最多回答的记录
-                    answers_all_saved = Answer.objects.filter(question=question)
+                    time_s_3 = time.time()
+                    answers_all_saved = Answer.objects.filter(question=question).values("body")
+                    # answers_all_saved = Answer.objects.filter(question=question)
                     majority_choices_list = []
                     for ans in answers_all_saved:
-                        majority_choices_list.append(ans.body)
+                        majority_choices_list.append(ans["body"])
+
                     question.majority_choices = max(majority_choices_list, key=majority_choices_list.count)
                     question.save()
+                    time_e_3 = time.time()
+                    print("更新最多回答记录的时间:   ", (time_e_3 - time_s_3) * 1000)
 
+
+        time_e_2 = time.time()
         Majority_Rate_num, Correctness_Rate_num = calculate_results(response)
-        response_list = Response.objects.filter(survey=self.survey)
 
+        time_s_1 = time.time()
         if len(response_list)>1:
             for response_t in response_list:
                 Majority_Rate_num, Correctness_Rate_num = calculate_results(response_t)
-
-        print("Forms saved.     Majority_Rate_num=", Majority_Rate_num)
-        print("Forms saved.  Correctness_Rate_num=", Correctness_Rate_num)
+        time_e_1 = time.time()
+        # print("Forms saved.     Majority_Rate_num=", Majority_Rate_num)
+        # print("Forms saved.  Correctness_Rate_num=", Correctness_Rate_num)
 
         cache.delete("step_{}_{}".format(self.user, self.survey))
-
-
         survey_completed.send(sender=Response, instance=response, data=data)
+        time_e = time.time()
+        print("表格保存时间:   ", (time_e - time_s) * 1000)
+        print("计算结果时间:   ", (time_e_1 - time_s_1) * 1000)
+        print("保存答案时间:   ", (time_e_2 - time_s_2) * 1000)
+
         return response

@@ -1,5 +1,6 @@
 import json
-
+import pprint
+from datetime import datetime
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
@@ -25,8 +26,6 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.utils.decorators import method_decorator
 
 from django.views.defaults import permission_denied
-
-
 
 from dashboards.models import ApplicationUser
 from survey.models import Answer
@@ -235,7 +234,6 @@ def Global_setup_page(request):
             if instance is not None:
                 instance.number_of_responses = form.cleaned_data["number_of_responses"]
                 instance.diagnostic_page_indexing = form.cleaned_data["diagnostic_page_indexing"]
-                instance.download_top_number = form.cleaned_data["download_top_number"]
                 instance.number_of_question = form.cleaned_data["number_of_question"]
                 instance.save()
 
@@ -248,10 +246,8 @@ def Global_setup_page(request):
             else:
                 instance = GlobalVariable.objects.create(
                     diagnostic_page_indexing=form.cleaned_data["diagnostic_page_indexing"],
-                    download_top_number=form.cleaned_data["download_top_number"],
                     number_of_question=form.cleaned_data["number_of_question"],
                 )
-            survey_list = Survey.objects.all().updata(download_top_number = instance.download_top_number)
             survey_list = Survey.objects.all().updata(diagnostic_page_indexing = instance.diagnostic_page_indexing)
             survey_list = Survey.objects.all().updata(diagnosis_stages_qs_num = instance.diagnostic_page_indexing)
             # if survey_list:
@@ -357,7 +353,7 @@ class Add_question(View):
         context = {
             'survey': survey,
             'color': color,
-            'number_of_question': global_value_dict["number_of_question"]
+            'number_of_question': global_value_dict["number_of_question"],
         }
         return render(request, template_name, context)
 
@@ -380,7 +376,7 @@ class Add_question(View):
         context = {
             'survey': survey,
             'color': color,
-            'number_of_question': global_value_dict["number_of_question"]
+            'number_of_question': global_value_dict["number_of_question"],
         }
         return render(request, template_name, context)
 
@@ -496,9 +492,8 @@ class Add_one_random_question(FormView):
                     if text != None:
                         question = Question.objects.create(
                             text=text,
-                            choices=form.cleaned_data['choices'],
+                            choices=form.cleaned_data["choice_1_field"]+"|"+form.cleaned_data["choice_2_field"],
                             category=category,
-                            order=form.cleaned_data['order'],
                             survey=survey
                         )
                         question.save()
@@ -544,7 +539,7 @@ class Add_sequence_question_ex(FormView):
         survey_id = kwargs.pop("survey_id", None)
         global_value_dict = kwargs.pop("global_value_dict")
         survey = get_object_or_404(
-            Survey.objects.prefetch_related("questions", "questions__category"), is_published=True, id=survey_id
+            Survey.objects.prefetch_related("questions", "questions__category"), id=survey_id
         )
         form = InputExtraNum()
         template_name = "../templates/admin/adminpage/input_extra_sq.html"
@@ -630,7 +625,7 @@ class Add_sequence_question(FormView):
             category = Category.objects.create(survey=survey,
                                                block_type="sequence"
                                                )
-            for form in formset:
+            for i,form in enumerate(formset):
                 try:
                     text = form.cleaned_data['text']
                 except KeyError:
@@ -639,9 +634,9 @@ class Add_sequence_question(FormView):
                     if text != None:
                         question = Question.objects.create(
                             text=text,
-                            choices=form.cleaned_data['choices'],
+                            choices=form.cleaned_data["choice_1_field"]+"|"+form.cleaned_data["choice_2_field"],
                             category=category,
-                            order=form.cleaned_data['order'],
+                            order=i+1,
                             survey=survey
                         )
                         question.save()
@@ -716,26 +711,27 @@ class Add_branch_question(FormView):
         if form.is_valid():
             jump_question_num = 0
             for key in form.cleaned_data:
-                for index in range(4,0,-1):
+                for index in range(2,0,-1):
                     if key == "jumping_"+str(index)+"_question_text":
                         if form.cleaned_data[key] != "":
                             jump_question_num += 1
-                            print("form.cleaned_data[key] :    ",form.cleaned_data[key] )
             category = Category.objects.create(survey=survey,
                                                block_type="branch"
                                                )
             question = Question.objects.create(survey=survey,
                                                category=category,
                                                text=form.cleaned_data["question_text"],
-                                               choices=form.cleaned_data["question_choices"],
+                                               choices=form.cleaned_data["choice_1_field"]+"|"+form.cleaned_data["choice_2_field"],
                                                jump_type="parent-question")
             for i in range(jump_question_num):
                 text_label = "jumping_"+str(i+1)+"_question_text"
-                choice_label = "jumping_"+str(i+1)+"_question_choices"
+                choice_1_label = "jumping_"+str(i+1)+"_choice_1_field"
+                choice_2_label = "jumping_" + str(i + 1) + "_choice_2_field"
+
                 question_1 = Question.objects.create(survey=survey,
                                                      category=category,
                                                      text=form.cleaned_data[text_label],
-                                                     choices=form.cleaned_data[choice_label],
+                                                     choices=form.cleaned_data[choice_1_label]+"|"+form.cleaned_data[choice_2_label],
                                                      jump_type=str(i+1))
                 question_1.save()
                 LogEntry.objects.log_action(
@@ -819,6 +815,7 @@ class Add_default_random_question(View):
             question.survey=survey
             question.survey = survey
             question.category=category
+            question.choices = form.data.get("choice_1_field") +"|"+ form.data.get("choice_2_field")
             question.save()
             num_question = int(survey.number_of_question)
             num_question += 1
@@ -898,3 +895,28 @@ class Surey_Summary(View):
         }
 
         return render(request, template_name, context)
+
+class Set_survey_public_ajax(View):
+    @global_value
+    @method_decorator(never_cache)
+    def post(self, request, *args, **kwargs):
+        survey_id = request.POST.get("survey-id")
+        global_value_dict = kwargs.pop("global_value_dict")
+        survey = get_object_or_404(
+            Survey,id=survey_id
+        )
+
+        if request.POST.get("publish_date") != '':
+            date_tag_val1 = request.POST.get("publish_date")
+            date_tag_val2 = datetime.strptime(date_tag_val1, '%Y-%m-%d')
+            date_tag_val = date_tag_val2.date()
+            survey.publish_date = date_tag_val
+        if request.POST.get("expire_date") != '':
+            date_tag_val1 = request.POST.get("expire_date")
+            date_tag_val2 = datetime.strptime(date_tag_val1, '%Y-%m-%d')
+            date_tag_val = date_tag_val2.date()
+            survey.expire_date = date_tag_val
+        survey.is_published=True
+        survey.save()
+        data = {}
+        return HttpResponse(json.dumps(data))

@@ -277,7 +277,7 @@ class SurveyDetail(View):
 
                 if question.number_of_responses < question.survey.diagnostic_page_indexing:
                     not_enough = True
-                    msg = "あなたの回答の結果はまだ十分に回答が集まっていないため、診断結果は後ほどまたログインして確かめてください."
+                    msg = "あなたの回答の正解・不正解はまだ十分に回答が集まっていないため、後ほどまたログインして確かめてください."
                 else:
                     not_enough = False
 

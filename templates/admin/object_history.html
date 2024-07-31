@@ -1,6 +1,8 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls %}
 
+{#模型实例的历史记录#}
+
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>

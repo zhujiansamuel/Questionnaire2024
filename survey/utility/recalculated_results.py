@@ -6,7 +6,7 @@ from ..utility.diagnostic_result import Diagnostic_Result
 
 def calculate_results(response):
     survey = response.survey
-    answers = Answer.objects.filter(response=response)
+    answers = Answer.objects.filter(response=response).prefetch_related("question")
     Majority_Rate = 0
     Correctness_Rate = 0
     if len(answers) == 0:
@@ -40,6 +40,7 @@ def calculate_results(response):
     response.number_of_questions = len(answers)
     response.Majority_Rate_num = Majority_Rate_num
     response.Correctness_Rate_num = Correctness_Rate_num
-    response.DIAGNOSTIC_RESULT, _ = Diagnostic_Result(Majority_Rate, Correctness_Rate,len(answers))
+    print(len(answers))
+    response.DIAGNOSTIC_RESULT, _ = Diagnostic_Result(Majority_Rate, Correctness_Rate, len(answers))
     response.save()
     return Majority_Rate_num, Correctness_Rate_num

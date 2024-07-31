@@ -9,6 +9,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.shortcuts import redirect
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 # from simpleui.admin import AjaxAdmin
 
@@ -33,7 +35,7 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ("date_joined", "last_login")
 
 
-class QuestionInline(admin.StackedInline):
+class QuestionInline(admin.ModelAdmin):
     model = Question
     ordering = ('category',"order")
     fieldsets = [
@@ -69,8 +71,14 @@ class QuestionInline(admin.StackedInline):
         survey.recalculation_number_of_questions()
         survey.save()
 
-
-
+    def response_post_save_change(self, request, obj):
+        if self.has_view_or_change_permission(request):
+            post_url = reverse(
+                "surey-summary", kwargs=dict(survey_id=obj.survey.id)
+            )
+        else:
+            post_url = reverse("admin:index", current_app=self.admin_site.name)
+        return HttpResponseRedirect(post_url)
 
 
 class CategoryInline(admin.StackedInline):
@@ -83,7 +91,6 @@ class CategoryInline(admin.StackedInline):
 
 
 class SurveyAdmin(admin.ModelAdmin):
-
     list_display = ("name", "hide_name", "number_of_question", "founder", "is_published", "expire_date")
     list_filter = ("is_published", "publish_date")
     ordering = ("name",)
@@ -95,14 +102,14 @@ class SurveyAdmin(admin.ModelAdmin):
         }),
         ("Privilege Management", {
             'description': 'The name of the survey and a brief description of that survey can be changed here.',
-            'fields': [('is_published', 'publish_date', 'expire_date')],
+            'fields': ['is_published', ('publish_date', 'expire_date')],
         }),
     ]
     readonly_fields = ('founder',)
-    inlines = [CategoryInline, QuestionInline]
+    # inlines = [CategoryInline, QuestionInline]
 
 
-    actions = [add_survey_button, add_question_button, survey_summary, Survey2Csv.export_as_csv, make_published]
+    actions = [add_survey_button, survey_summary, Survey2Csv.export_as_csv]
 
     add_survey_button.short_description = '　調査セットを作成する'
     add_survey_button.icon = 'fa-solid fa-file-circle-plus'
@@ -110,24 +117,13 @@ class SurveyAdmin(admin.ModelAdmin):
     add_survey_button.action_type = 0
     add_survey_button.action_url = '/dashboards/add-survey/'
 
-
-    add_question_button.short_description = '　質問を追加する'
-    add_question_button.icon = 'fa-solid fa-list-check'
-    add_question_button.type = 'warning'
-
-
-    survey_summary.short_description = '　概要'
+    survey_summary.short_description = '　調査セットの質問の編集'
     survey_summary.icon = 'fa-solid fa-clipboard-list'
-    survey_summary.type = 'info'
+    survey_summary.type = 'warning'
 
-
-    Survey2Csv.export_as_csv.short_description = '　エクスポート'
+    Survey2Csv.export_as_csv.short_description = '　回答のエクスポート'
     Survey2Csv.export_as_csv.icon = 'fa-solid fa-download'
     Survey2Csv.export_as_csv.type = 'primary'
-
-    make_published.short_description = '　公開'
-    make_published.icon = 'fa-solid fa-person-circle-check'
-    make_published.type = ''
 
     def has_add_permission(self, request):
         return False
@@ -218,8 +214,8 @@ class ResponseAdmin(admin.ModelAdmin):
             return queryset.filter(survey_founder=operator)
 
 
-# admin.site.register(Question, QuestionInline)
-# admin.site.register(Category, CategoryInline)
+
+admin.site.register(Question, QuestionInline)
 admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Response, ResponseAdmin)
 

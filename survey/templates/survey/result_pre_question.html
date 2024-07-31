@@ -37,7 +37,7 @@
                     <h2>{{ msg }}</h2>
                     <br/>
                     {% if not msg_diagnostic%}
-                        <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に</a></button>
+                        <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に進む</a></button>
                     {% endif %}
                 {% else %}
 
@@ -53,7 +53,7 @@
                     <h2>{{ msg_diagnostic }}</h2>
                     <h3>{{ diagnostic_result }}</h3>
                     <br/>
-                    <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に</a></button>
+                    <button class="btn btn-primary mb-3"><a style="color:white" href="{{ next_url }}">次に進む</a></button>
                 {% else %}
                 {% endif %}
             </div>

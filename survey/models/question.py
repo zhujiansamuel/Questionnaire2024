@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(__name__)
 
 CHOICES_HELP_TEXT = _(
     """
-When entering options, use "|" to separate different options. For example, a|b|c.
+例, a|b|c.
 
 """
 )
@@ -34,7 +34,7 @@ TEXT_HELP_TEXT = _("""
 """)
 
 ORDER_HELP_TEXT = _("""
-Only for SEQUENCE
+順番固定のブロックのみ必要
 """)
 
 REQUIRED_HELP_TEXT = _("""
@@ -67,7 +67,7 @@ CATEGORY_HELP_TEXT = _("""
 """)
 
 NUMBER_OF_RESPONSES = _("""
-Shows how many answers have been collected.
+
 """)
 
 
@@ -137,25 +137,25 @@ class Question(models.Model):
         ("certainty_degree",_("certainty_degree")),
     )
     markings = models.CharField(_("markings"), max_length=100, blank=True, null=True, help_text=MARKINGS)
-    text = CKEditor5Field(_("Question Body"), blank=True, null=True, help_text=TYPE_HELP_TEXT, config_name='extends')
+    text = CKEditor5Field(_("質問文"), blank=True, null=True, help_text=TYPE_HELP_TEXT, config_name='extends')
     # text = models.TextField(_("Text"), help_text=TEXT_HELP_TEXT)
-    order = models.IntegerField(_("Order"), help_text=ORDER_HELP_TEXT, default=0)
+    order = models.IntegerField(_("順番"), blank=True, null=True, help_text=ORDER_HELP_TEXT, default=0)
     required = models.BooleanField(_("Required"), default=True, help_text=REQUIRED_HELP_TEXT)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, verbose_name=_("Category"),blank=True, null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
+        Category, on_delete=models.SET_NULL, verbose_name=_("ブロック"),blank=True, null=True, related_name="questions", help_text=CATEGORY_HELP_TEXT
     )
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Survey"), related_name="questions")
     type = models.CharField(_("Type"), max_length=200, choices=QUESTION_TYPES, default=SELECT, help_text=TYPE_HELP_TEXT)
-    choices = models.CharField(_("Choices"), blank=True, null=True, max_length=100, help_text=CHOICES_HELP_TEXT)
+    choices = models.CharField(_("選択肢"), blank=True, null=True, max_length=100, help_text=CHOICES_HELP_TEXT)
     subsidiary_type = models.CharField(_("subsidiary_type"), max_length=100, choices=SUBSIDIARY_TYPE, default="majority_minority", help_text=SUBSIDIARY_TYPE_HELP_TEXT)
     majority_minority = models.CharField(_("majority_minority"), max_length=200, choices=MAJORITY_MINORITY, default="majority", help_text=MAJORITY_MINORITY_HELP_TEXT)
     certainty_degree = models.IntegerField(_("degree of certainty"), default=50, help_text=CERTAINTY_DEGREE_HELP_TEXT)
-    majority_choices = models.CharField(max_length=200, default="Null", help_text=MAJORITY_CHOICES_HELP_TEXT)
+    majority_choices = models.CharField(_("多数派の回答"), max_length=200, default="Null", help_text=MAJORITY_CHOICES_HELP_TEXT)
     hiding_question_category_order = models.IntegerField(_("Hiding question category order"), default=0, help_text=HIDING_QUESTION_CATEGORY_ORDER_HELP_TEXT)
     random_order_q = models.IntegerField(_("random_order_q"), blank=True, default=0)
-    number_of_responses = models.IntegerField(_("number_of_responses"), default=0, help_text=NUMBER_OF_RESPONSES)
+    number_of_responses = models.IntegerField(_("回答の数"), default=0, help_text=NUMBER_OF_RESPONSES)
     number_rate = models.CharField(_("number_rate"), max_length=100, default="0", )
-    jump_type = models.CharField(_("Jump Type"), default="no-jumping",blank=True,null=True,max_length=40)
+    jump_type = models.CharField(_("枝分けタイプ"), default="no-jumping",blank=True,null=True,max_length=40)
     class Meta:
         verbose_name = _("question")
         verbose_name_plural = _("questions")
@@ -163,7 +163,8 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         if self.type in [Question.RADIO, Question.SELECT, Question.SELECT_MULTIPLE]:
-            validate_choices(self.choices)
+            if self.choices is not None:
+                validate_choices(self.choices)
         super().save(*args, **kwargs)
 
     def get_clean_choices(self):

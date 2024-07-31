@@ -31,7 +31,8 @@ from dashboards.views import (HomeIndexView,
                               Add_sequence_question_ex,
                               Global_setup_page,
                               Get_survey_question_num_ajax,
-                              Surey_Summary)
+                              Surey_Summary,
+                              Set_survey_public_ajax)
 from django.contrib.auth.views import (LogoutView,
                                        LoginView,
                                        PasswordResetView,
@@ -119,6 +120,7 @@ urlpatterns += [
 
     path("ajax/add-question/", Get_survey_question_num_ajax.as_view()),
     # path("dashboards2/"),
+    path("ajax/set-public/", Set_survey_public_ajax.as_view()),
 ]
 
 urlpatterns += static(settings.MEDIA_ROOT, document_root=settings.MEDIA_ROOT)

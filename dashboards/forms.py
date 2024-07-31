@@ -35,9 +35,16 @@ class ListTextWidget(forms.TextInput):
 
 class GlobalSetupForm(forms.Form):
     # number_of_responses = forms.IntegerField(label="?")
-    diagnostic_page_indexing = forms.IntegerField(label="診断結果の表示の最低数")
-    download_top_number = forms.IntegerField(label="最高点数の回答をダウンロードする数")
-    number_of_question = forms.IntegerField(label="調査セットの問題の最低数")
+    diagnostic_page_indexing = forms.IntegerField(
+        label="診断結果の表示の最低数",
+        help_text='質問の回答数がこの値より多い場合のみ、正解/不正解の結果が表示される。'
+    )
+    # download_top_number = forms.IntegerField(label="最高点数の回答をダウンロードする数")
+    number_of_question = forms.IntegerField(
+        label="調査セットの問題の最低数",
+        help_text='質問数がこの値より多い場合のみ、調査セットが公開される。'
+    )
+
 
 
 
@@ -56,7 +63,7 @@ class ExperimenterCreationForm(UserCreationForm):
             # 'Gender',
             'affiliated_school',
             'field_1',
-            'nicknames',
+            # 'nicknames',
             # 'birthdays',
         ]
 
@@ -66,11 +73,6 @@ class ExperimenterCreationForm(UserCreationForm):
             raise ValidationError("This email is already in use.")
         return email_data
 
-    def clean_nicknames(self):
-        nicknames = self.cleaned_data.get("nicknames")
-        if ApplicationUser.objects.filter(nicknames=nicknames).exists():
-            raise ValidationError("This nicknames is already in use")
-        return nicknames
 
 class ParticipantCreationForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
@@ -103,26 +105,26 @@ class CreateSurveyForm(forms.ModelForm):
             'name',
             'hide_name',
             'description',
-            'is_published',
-            'publish_date',
-            'expire_date',
+            # 'is_published',
+            # 'publish_date',
+            # 'expire_date',
             # 'diagnostic_page_indexing',
             # 'download_top_number'
         ]
         labels = {
-            'name': _('Survey Name'),
-            'hide_name': _('Survey Hide Name'),
-            'description': _('Survey Category'),
-            'is_published': _('Is Published'),
-            'publish_date': _('Publish Date'),
-            'expire_date': _('Expire Date'),
+            'name': _('ゲームの名前'),
+            'hide_name': _('管理用の名前'),
+            'description': _('カテゴリー'),
+            # 'is_published': _('Is Published'),
+            # 'publish_date': _('Publish Date'),
+            # 'expire_date': _('Expire Date'),
             # 'diagnostic_page_indexing': _('Diagnostic Page Indexing'),
             # 'download_top_number': _('Download Top Number'),
         }
-        widgets = {
-            "publish_date": widgets. DateInput(),
-            "expire_date": widgets.DateInput(),
-        }
+        # widgets = {
+        #     "publish_date": widgets. DateInput(),
+        #     "expire_date": widgets.DateInput(),
+        # }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
@@ -152,13 +154,14 @@ class CreateSurveyForm(forms.ModelForm):
 
 
 class CreateQuestionForm(forms.ModelForm):
+    choice_1_field = forms.CharField(label="選択肢１", required=True)
+    choice_2_field = forms.CharField(label="選択肢２", required=True)
+
     class Meta:
         model = Question
-        fields = ['text', 'choices','order']
+        fields = ['text', ]
         labels = {
             'text': _('Text'),
-            'choices': _('Choices'),
-            'order': _('Order'),
         }
 
     def __init__(self, *args, **kwargs):
@@ -176,35 +179,42 @@ BLOCK_TYPE_HELP_TEXT = _("""
 class CreateEveryQuestionForm(forms.Form):
     Q1 = "1"
     Q2 = "2"
-    Q3 = "3"
-    Q4 = "4"
+    # Q3 = "3"
+    # Q4 = "4"
     JUMPING_CHOICES = (
         (Q1, _("1")),
         (Q2, _("2")),
-        (Q3, _("3")),
-        (Q4, _("4")),
+        # (Q3, _("3")),
+        # (Q4, _("4")),
     )
     # -------------------------------------------
     # -------------------------------------------
-    question_text = forms.CharField(label=_('Question Body'), widget=CKEditor5Widget(),required=False)
-    question_choices = forms.CharField(label=_('Question Choices'))
+    question_text = forms.CharField(label=_('Text'), widget=CKEditor5Widget(attrs={"class": "django_ckeditor_5"}, config_name="extends"),required=False)
+    choice_1_field = forms.CharField(label=_('選択肢１'), widget=forms.Textarea(attrs={"class": "choice-field",}), required=True)
+    choice_2_field = forms.CharField(label=_('選択肢２'), widget=forms.Textarea(attrs={"class": "choice-field",}), required=True)
+
     # -------------------------------------------
     # -------------------------------------------
     jumping_1_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='1',required=False)
-    jumping_1_question_text = forms.CharField(label=_('Question 1 Body'), widget=CKEditor5Widget(),required=False)
-    jumping_1_question_choices = forms.CharField(label=_('Question 1 Choices'))
+    jumping_1_question_text = forms.CharField(label=_('Question 1 Text'), widget=CKEditor5Widget(attrs={"class": "django_ckeditor_5"}, config_name="extends"),required=False)
+    jumping_1_choice_1_field = forms.CharField(label=_('選択肢１'), widget=forms.Textarea(attrs={"class": "choice-field",}), required=True)
+    jumping_1_choice_2_field = forms.CharField(label=_('選択肢２'),
+                                               widget=forms.Textarea(attrs={"class": "choice-field", }), required=True)
+
     # -------------------------------------------
     jumping_2_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='2',required=False)
-    jumping_2_question_text = forms.CharField(label=_('Question 2 Body'), widget=CKEditor5Widget(),required=False)
-    jumping_2_question_choices = forms.CharField(label=_('Question 2 Choices'),required=False)
-    # -------------------------------------------
-    jumping_3_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='3',required=False)
-    jumping_3_question_text = forms.CharField(label=_('Question 3 Body'), widget=CKEditor5Widget(),required=False)
-    jumping_3_question_choices = forms.CharField(label=_('Question 3 Choices'),required=False)
-    # -------------------------------------------
-    jumping_4_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='4',required=False)
-    jumping_4_question_text = forms.CharField(label=_('Question 4 Body'), widget=CKEditor5Widget(),required=False)
-    jumping_4_question_choices = forms.CharField(label=_('Question 4 Choices'),required=False)
+    jumping_2_question_text = forms.CharField(label=_('Question 2 Text'), widget=CKEditor5Widget(attrs={"class": "django_ckeditor_5"}, config_name="extends"),required=False)
+    jumping_2_choice_1_field = forms.CharField(label=_('選択肢１'), widget=forms.Textarea(attrs={"class": "choice-field",}), required=True)
+    jumping_2_choice_2_field = forms.CharField(label=_('選択肢２'),
+                                               widget=forms.Textarea(attrs={"class": "choice-field", }), required=True)
+    # # -------------------------------------------
+    # jumping_3_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='3',required=False)
+    # jumping_3_question_text = forms.CharField(label=_('Question 3 Body'), widget=CKEditor5Widget(),required=False)
+    # jumping_3_question_choices = forms.CharField(label=_('Question 3 Choices'),required=False)
+    # # -------------------------------------------
+    # jumping_4_choices_order = forms.ChoiceField(label=_('Choices Order'),choices=JUMPING_CHOICES, initial='4',required=False)
+    # jumping_4_question_text = forms.CharField(label=_('Question 4 Body'), widget=CKEditor5Widget(),required=False)
+    # jumping_4_question_choices = forms.CharField(label=_('Question 4 Choices'),required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -235,20 +245,27 @@ class InputExtraNum(forms.Form):
 
 
 class CreateDefaultRandomForm(forms.ModelForm):
+    choice_1_field = forms.CharField(label="選択肢１", required=True)
+    choice_2_field = forms.CharField(label="選択肢２", required=True)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["choice_1_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
+        self.fields["choice_2_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
         self.fields["text"].required = False
     class Meta:
         model = Question
-        fields = ['text', 'choices']
+        fields = ['text']
         labels = {
             'text': _('Text'),
-            'choices': _('Choices'),
         }
         widgets = {
             "text": CKEditor5Widget(
                 attrs={"class": "django_ckeditor_5"}, config_name="extends"
-            )
+            ),
         }
 
 

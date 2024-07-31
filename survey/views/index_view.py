@@ -16,6 +16,8 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 import django.dispatch
 from django.dispatch import receiver
+from django.db.models import Prefetch
+
 
 init_cache = django.dispatch.Signal()
 
@@ -42,11 +44,13 @@ class IndexView(PermissionRequiredMixin,TemplateView):
         context = super().get_context_data(**kwargs)
         surveys = Survey.objects.filter(
             is_published=True, expire_date__gte=date.today(), publish_date__lte=date.today()
+        ).prefetch_related(
+            Prefetch('responses', queryset=Response.objects.filter(user=request.user))
         )
         survey_unanswered = []
         for survey in surveys:
-            responses = Response.objects.filter(survey=survey, user=request.user).exists()
-            if not responses:
+            # responses = Response.objects.filter(survey=survey, user=request.user).exists()
+            if not survey.responses.exists():
                 survey_unanswered.append(survey)
             session_key = "survey_{}".format(survey.id)
             diagnostic_session_key = "diagnostic_{}_{}".format(request.user, survey.name)

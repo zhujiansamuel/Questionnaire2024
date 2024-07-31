@@ -1,13 +1,28 @@
 {% extends "admin/adminpage/addquestion.html" %}
-{% load bootstrap %}
+{% load bootstrap static i18n simpletags %}
 
 {% block one-random-checked %}checked{% endblock %}
 
+{% block hint %}{% endblock %}
 
 {% block content_title %}
     <div id="content-main">
+            <div class="page-header">
+            <el-page-header title="{% trans 'Back' %}" @back="goBack" content="{{ title }}"/>
+        </div>
         <div class="module filtered" id="changelist">
-            <h3>調査セット「{{ survey }}」への質問追加</h3>
+        
+            <h3>調査セット「{{ survey }}
+                <span id="span-public">
+                {% if survey.is_published %}
+                    <string style="color:PaleGreen;">(公開済み)</string>
+                {% elif not survey.is_published %}
+                    <string style="color:Salmon;">(未公開)</string>
+                {% endif %}
+                </span>
+                」への質問追加
+            </h3>
+        
             <p id="survey-id" hidden>{{ survey.id }}</p>
             <p id="question_num_0" style="color:{{ color }}" nowrap>現在、調査セットの質問数：<span id="question_num" style="color:{{ color }}" nowrap></span> / {{ number_of_question }}</p>
         </div>
@@ -15,16 +30,29 @@
     <div>
 
     <script>
-            $(document).ready(function () {
-            var survey_id = $("#survey-id").text();
-            $.get('/ajax/add-question/', {survey_id: survey_id}, function (data) {
-                data = JSON.parse(data);
-                $('#question_num').text(data["num_question"]);
-                $('#question_num').css("color",data["color"]);
-                $('#question_num_0').css("color",data["color"]);
-            });
-
-        });
+        {#    new Vue({#}
+        {#    el: '.page-header',#}
+        {#    methods: {#}
+        {#        goBack: function () {#}
+        {#            window.location.href = '{% url "surey-summary" survey.id %}'#}
+        {#        }#}
+        {#    }#}
+        {#})#}
+        {##}
+        {##}
+        {#    $(document).ready(function () {#}
+        {#    var survey_id = $("#survey-id").text();#}
+        {#    $.get('/ajax/add-question/', {survey_id: survey_id}, function (data) {#}
+        {#        data = JSON.parse(data);#}
+        {#        $('#question_num').text(data["num_question"]);#}
+        {#        $('#question_num').css("color",data["color"]);#}
+        {#        $('#question_num_0').css("color",data["color"]);#}
+        {#                        if (data["color"] != 'red') {#}
+        {#            $('#public').css("display", "block");#}
+        {#        }#}
+        {#    });#}
+        {##}
+        {#});#}
 
     </script>
 
@@ -47,7 +75,7 @@
             <br>
             <br/>
 
-            <button name="btn_submit" type="submit" class="btn btn-success">次に</button>
+            <button name="btn_submit" type="submit" class="btn btn-success">次に進む</button>
             <br>
         </div>
     </form>

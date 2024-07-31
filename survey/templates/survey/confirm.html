@@ -35,7 +35,7 @@
 {#        </div>#}
 
       <div class="container section-title" data-aos="fade-up">
-        <h2>{% trans "Survey submitted"%}</h2>
+        <h2>{% trans "ゲームの終了"%}</h2>
 
 
       </div><!-- End Section Title -->
@@ -51,15 +51,26 @@
                 <div class="card" style="width: auto;">
                   <img src="{% static 'assets/img/7.jpg' %}" class="card-img-top" alt="...">
                   <div class="card-body">
-                    <h1 class="card-title">{{survey}}</h1>
-                      <h1 class="card-title">Diagnostic Result</h1>
-                      <br>
-                      <br>
+                      <h1 class="card-title">{{ survey }}</h1>
+                      <h1 class="card-title">診断結果</h1>
+                        <br>
+                      <h3>多数派率（自分の答えが多数派に属する度合い）：</h3>
+                        <br>
+                      <h5>このスコアは、あなたがどれだけ「普通」か「ユニーク」かを示している。</h5>
+                        <br>
+                        <br>
+                      <h3>正答率（多数派か少数派かについてのメタ判断がどれくらいの頻度で正しかったか）：</h3>
+                        <br>
+                      <h5>このスコアは、あなたが他人との関係において自分自身をどの程度理解しているかを示すものである。</h5>
+                        <br>
                       <h2>{{ msg }}</h2>
-                    <h2 class="card-text">{{ diagnostic_result_msg|safe }}</h2>
+                        <br>
+                      <h2 class="card-text">{{ diagnostic_result_msg|safe }}</h2>
+                        <br>
+                      <h2> ＊また後で診断結果を見直してください。データが増えることで、より正確な診断になっています。 </h2>
 
 
-                        <div class="row container_row">
+                      <div class="row container_row">
                         {#    ----------------------#}
                         <div class="col">
                             <div class="fb-share-button" data-href="https://developers.facebook.com/docs/plugins/" data-layout="" data-size=""><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
@@ -84,7 +95,7 @@
                             <br>
 
 
-                    <a href="{% url "survey-list" %}" class="btn btn-primary">Back to survey list</a>
+                    <a href="{% url "survey-list" %}" class="btn btn-primary">調査セットのリストに戻る</a>
                   </div>
                 </div>
 

@@ -78,10 +78,10 @@ class Survey(models.Model):
         (ALL_IN_ONE_PAGE, _("All in one page")),
     ]
 
-    name = models.CharField(_("名前"), max_length=400, help_text=NAME_HELP_TEXT)
-    hide_name = models.CharField(_("非表示の名前"), max_length=400, help_text=HIDE_NAME_HELP_TEXT)
+    name = models.CharField(_("ゲームの名前"), max_length=400, help_text=NAME_HELP_TEXT)
+    hide_name = models.CharField(_("管理用の名前"), max_length=400, help_text=HIDE_NAME_HELP_TEXT)
     description = models.CharField(_("カテゴリー（分野）"), max_length=40, help_text=DESCRIPTION_HELP_TEXT)
-    is_published = models.BooleanField(_("answer-able"), default=True, help_text=IS_PUBLISHED_HELP_TEXT)
+    is_published = models.BooleanField(_("未公開・公開済み"), default=False, help_text=IS_PUBLISHED_HELP_TEXT)
     founder = models.ForeignKey(UserModel, on_delete=models.SET_NULL, verbose_name=_("作成者"), null=True, blank=True, help_text=FOUNDER)
     need_logged_user = models.BooleanField(_("Only authenticated users can see it and answer it"), default=True)
     editable_answers = models.BooleanField(_("Users can edit their answers afterwards"), default=True)
@@ -90,8 +90,8 @@ class Survey(models.Model):
     )
 
     template = models.CharField(_("Template"), max_length=255, null=True, blank=True)
-    publish_date = models.DateField(_("Publication date"), blank=True, null=False, default=now, help_text=PUBLISH_DATE_HELP_TEXT)
-    expire_date = models.DateField(_("Expiration date"), blank=True, null=False, default=in_duration_day, help_text=EXPIRE_DATE_HELP_TEXT)
+    publish_date = models.DateField(_("公開日付"), blank=True, null=False, default=now, help_text=PUBLISH_DATE_HELP_TEXT)
+    expire_date = models.DateField(_("終了日付"), blank=True, null=False, default=in_duration_day, help_text=EXPIRE_DATE_HELP_TEXT)
     redirect_url = models.URLField(_("Redirect URL"), blank=True)
     diagnosis_stages_qs_num = models.IntegerField(_("Diagnosis of stages"), default=0, help_text=DIAGNOSIS_STAGES_QS_NUM_HELP_TEXT)
 

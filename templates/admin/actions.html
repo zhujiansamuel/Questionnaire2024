@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load admin_urls static admin_list simpletags %}
+
 <div class="actions">
 
     <input type="hidden" name="action" value=""/>
@@ -15,42 +16,81 @@
 
 
 
+        {% for field in action_form.fields.action.choices %}
+            {% if field.0 %}
+
+                {% if field.0 == 'delete_selected' %}
+{#                    <el-button size="small" type="danger" data-name="{{ field.0 }}" class="stop-submit"#}
+{#                               icon="el-icon-delete" @click="delSelected('{{ field.0 }}')">{% trans 'Delete' %}</el-button>#}
+{#                    <input type="hidden" name="select_across" v-model="select_across" value="0" class="select-across">#}
+                {% else %}
+                    <input type="hidden" name="select_across" v-model="select_across" value="0" class="select-across">
+                    <input type="hidden" name="file_format" v-model="file_format">
+                    {% if field.0 == 'export_admin_action' %}
+                        <el-select size="small" filterable v-model="file_format" style="width: 80px;">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <el-button size="small" icon="fas fa-download" data-name="{{ field.0 }}">{{ field.1 }}</el-button>
+                    {% else %}
+
+                        <el-button v-if="customButton.{{ field.0 }}.layer" size="small"
+                                   :eid="customButton.{{ field.0 }}.eid"
+                                   :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"
+                                   :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}
+                        </el-button>
+                        <el-button v-else size="small" :eid="customButton.{{ field.0 }}.eid"
+                                   :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"
+                                   :confirm="customButton.{{ field.0 }}.confirm"
+                                   :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}
+                        </el-button>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
     {% for field in action_form.fields.action.choices %}
         {% if field.0 %}
-
-            {% if field.0 == 'delete_selected' %}
+            
+            {% if field.0 != 'delete_selected' %}
+{#                <input type="hidden" name="select_across" v-model="select_across" value="0" class="select-across">#}
+{#                <input type="hidden" name="file_format" v-model="file_format">#}
+{#                {% if field.0 == 'export_admin_action' %}#}
+{#                    <el-select size="small" filterable v-model="file_format" style="width: 80px;">#}
+{#                        <el-option#}
+{#                                v-for="item in options"#}
+{#                                :key="item.value"#}
+{#                                :label="item.label"#}
+{#                                :value="item.value">#}
+{#                        </el-option>#}
+{#                    </el-select>#}
+{#                    <el-button size="small" icon="fas fa-download" data-name="{{ field.0 }}">{{ field.1 }}</el-button>#}
+{#                {% else %}#}
+{##}
+{#                    <el-button v-if="customButton.{{ field.0 }}.layer" size="small"#}
+{#                               :eid="customButton.{{ field.0 }}.eid"#}
+{#                               :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"#}
+{#                               :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}#}
+{#                    </el-button>#}
+{#                    <el-button v-else size="small" :eid="customButton.{{ field.0 }}.eid"#}
+{#                               :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"#}
+{#                               :confirm="customButton.{{ field.0 }}.confirm"#}
+{#                               :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}#}
+{#                    </el-button>#}
+{#                {% endif %}#}
+{#                #}
+            {% else %}
                 <el-button size="small" type="danger" data-name="{{ field.0 }}" class="stop-submit"
                            icon="el-icon-delete" @click="delSelected('{{ field.0 }}')">{% trans 'Delete' %}</el-button>
                 <input type="hidden" name="select_across" v-model="select_across" value="0" class="select-across">
-            {% else %}
-                <input type="hidden" name="select_across" v-model="select_across" value="0" class="select-across">
-                <input type="hidden" name="file_format" v-model="file_format">
-                {% if field.0 == 'export_admin_action' %}
-                    <el-select size="small" filterable v-model="file_format" style="width: 80px;">
-                        <el-option
-                                v-for="item in options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                        </el-option>
-                    </el-select>
-                    <el-button size="small" icon="fas fa-download" data-name="{{ field.0 }}">{{ field.1 }}</el-button>
-                {% else %}
-
-                    <el-button v-if="customButton.{{ field.0 }}.layer" size="small"
-                               :eid="customButton.{{ field.0 }}.eid"
-                               :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"
-                               :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}
-                    </el-button>
-                    <el-button v-else size="small" :eid="customButton.{{ field.0 }}.eid"
-                               :icon="customButton.{{ field.0 }}.icon" :style="customButton.{{ field.0 }}.style"
-                               :confirm="customButton.{{ field.0 }}.confirm"
-                               :type="customButton.{{ field.0 }}.type" data-name="{{ field.0 }}">{{ field.1 }}
-                    </el-button>
-                {% endif %}
             {% endif %}
         {% endif %}
     {% endfor %}
+
 
     {% if cl.formset and cl.result_count %}
         <input type="hidden" name="_save" value="{% trans 'Save' %}"/>
@@ -64,6 +104,7 @@
         <span v-text="item.name"></span>
     </el-button>
 
+
     {% block actions-counter %}
         {% if actions_selection_counter %}
             <span class="action-counter" data-actions-icnt="{{ cl.result_list|length }}">{{ selection_note }}</span>
@@ -72,7 +113,8 @@
                 <span class="question">
             <a href="#"
                onclick="selectAll()"
-               title="{% trans "Click here to select the objects across all pages" %}">{% blocktrans with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktrans %}</a>
+               title="{% trans "Click here to select the objects across all pages" %}">{% blocktrans with cl.result_count as total_count %}
+                Select all {{ total_count }} {{ module_name }}{% endblocktrans %}</a>
         </span>
                 <span class="clear">
             <a href="#" onclick="unSelect()">{% trans "Clear selection" %}</a>
@@ -194,9 +236,9 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="layerSubmit()" v-text="layer.confirm_button||'确定'"
+            <el-button type="primary" @click="layerSubmit()" v-text="layer.confirm_button||'OK'"
                        :disabled="dialogConfirmDisabled" v-loading="dialogConfirmDisabled"></el-button>
-            <el-button @click="visible = false" v-text="layer.cancel_button||'取消'"></el-button>
+            <el-button @click="visible = false" v-text="layer.cancel_button||'Cancel'"></el-button>
         </span>
     </el-dialog>
 </div>
@@ -237,7 +279,7 @@
                 let selecteds = [];
                 $("#result_list .selected input[name='_selected_action']").each((index, item) => selecteds.push(item.value));
                 data.append('_selected', selecteds.join(','));
-                data.append('select_across',document.querySelector("input[name='select_across']").value)
+                data.append('select_across', document.querySelector("input[name='select_across']").value)
                 //获取选中的数据
 
                 data.append('csrfmiddlewaretoken', document.querySelector('[name="csrfmiddlewaretoken"]').value);
@@ -250,7 +292,7 @@
                     }
                 }
                 this.dialogConfirmDisabled = true;
-                axios.post('{% get_model_ajax_url %}'+window.location.search, data).then(res => {
+                axios.post('{% get_model_ajax_url %}' + window.location.search, data).then(res => {
                     if (res.data.status === 'redirect') {
                         self.visible = false;
                         window.location.href = res.data.url;

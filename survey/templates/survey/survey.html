@@ -33,6 +33,7 @@
 
 
 {% block body %}
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     {% if response_form.step == 0 %}
             <div class="toast-container position-absolute top-0 end-0 p-3">
             <!-- Then put toasts within -->
@@ -96,9 +97,9 @@
                 <br>
                 {% if survey.editable_answers or response_form.response is None %}
                     {% if response_form.has_next_step %}
-                        <button type="submit" class="btn btn-primary mb-3">次に</button>
+                        <button id="submit-button" type="submit" class="btn btn-primary mb-3">次に進む</button>
                     {% else %}
-                        <button type="submit" class="btn btn-primary mb-3">I'm done!</button>
+                        <button id="submit-button" type="submit" class="btn btn-primary mb-3">提出し、ゲームを終了する!</button>
                     {% endif %}
                 {% endif %}
                 </form>
@@ -137,6 +138,17 @@
 </style>
 
 <script>
+
+    $('#submit-button').prop("disabled", true);
+    $('.question-select').on('change', function() {
+        if (!this.value){
+            $('#submit-button').prop("disabled", true);
+        }
+        else{
+            $('#submit-button').prop("disabled", false);
+        }
+    });
+
   {#function click()#}
   {#{#}
   {# if(event.button==2)#}
@@ -147,5 +159,6 @@
   {#document.onmousedown=click#}
 
 </script>
+
 <body oncontextmenu=self.event.returnValue=false>
 {% endblock %}

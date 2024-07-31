@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "simpleui",
     # 'simplepro',
+    'django_extensions',
     'easyaudit',
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -390,3 +391,12 @@ DJANGO_EASY_AUDIT_UNREGISTERED_URLS_DEFAULT = [r'^/admin/',
                                                r'^/ckeditor5/',
                                                r'^/api-auth/',
                                                ]
+
+
+
+NOTEBOOK_ARGUMENTS = [
+    '--ip', '0.0.0.0',
+    '--port', '8888',
+]
+IPYTHON_KERNEL_DISPLAY_NAME = 'Django Kernel'
+
