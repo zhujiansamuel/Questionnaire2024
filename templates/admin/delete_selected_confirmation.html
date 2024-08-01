@@ -49,7 +49,7 @@
     <h1>{% blocktranslate %}選択した {{ objects_name }} を削除すると関連オブジェクトが削除されますが、あなたのアカウントには以下の種類のオブジェクトを削除する権限がありません：{% endblocktranslate %}</h1>
     <ul>
     {% for obj in perms_lacking %}
-        <li>回答のセット</li>
+        <li>{{ obj }}</li>
     {% endfor %}
     </ul>
     <a href="#" class="button cancel-link" style="color: black!important;">{% translate "戻る" %}</a>

@@ -169,6 +169,12 @@ class CreateQuestionForm(forms.ModelForm):
         self.requests = kwargs.pop("requests")
         self.survey = kwargs.pop("survey")
         super().__init__(*args, **kwargs)
+        self.fields["choice_1_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
+        self.fields["choice_2_field"].widget = forms.Textarea(attrs={
+            "class": "choice-field",
+        })
 
 
 
