@@ -64,20 +64,31 @@ class QuestionInline(admin.ModelAdmin):
             formset.form.base_fields["category"].queryset = survey_obj.categories.all()
         return formset
 
-    def delate_model(self, request, obj):
+    def delete_model(self, request, obj):
+        self.survey_id = obj.survey.id
         print(obj)
         survey = obj.survey
-        obj.delate()
+        if obj.category.questions.count() == 0:
+            obj.category.delete()
+        obj.delete()
         survey.recalculation_number_of_questions()
         survey.save()
 
     def response_post_save_change(self, request, obj):
+
         if self.has_view_or_change_permission(request):
             post_url = reverse(
                 "surey-summary", kwargs=dict(survey_id=obj.survey.id)
             )
         else:
             post_url = reverse("admin:index", current_app=self.admin_site.name)
+        return HttpResponseRedirect(post_url)
+
+    def response_delete(self, request, obj_display, obj_id):
+
+        post_url = reverse(
+            "surey-summary", kwargs=dict(survey_id=self.survey_id)
+        )
         return HttpResponseRedirect(post_url)
 
 

@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media }}
+    <script src="{% static 'admin/js/cancel.js' %}" async></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation delete-selected-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% translate 'Delete multiple objects' %}
+</div>
+{% endblock %}
+
+{% block content %}
+        <style type="text/css">
+        .inline-group .tabular td.original p {
+            margin-top: -50px;
+            height: 1.2em;
+        }
+
+        .page-header {
+            padding: 10px;
+        }
+
+        .choice-field {
+            width: 100%;
+            height: 70px;
+        }
+            </style>
+    
+        <div id="content-main" style="margin-bottom: 30px;">
+
+        <div class="module filtered" id="changelist">
+            <div class="el-col el-col-24">
+                <div class="el-card box-card is-always-shadow">
+                    <div class="el-card__body">
+
+                        <div class="clearfix">
+    
+        
+{% if perms_lacking %}
+    <h1>{% blocktranslate %}選択した {{ objects_name }} を削除すると関連オブジェクトが削除されますが、あなたのアカウントには以下の種類のオブジェクトを削除する権限がありません：{% endblocktranslate %}</h1>
+    <ul>
+    {% for obj in perms_lacking %}
+        <li>回答のセット</li>
+    {% endfor %}
+    </ul>
+    <a href="#" class="button cancel-link" style="color: black!important;">{% translate "戻る" %}</a>
+{% elif protected %}
+    <h1 style="color:red;">{% blocktranslate %}選択した{{ objects_name }}を削除するには、以下の保護された関連オブジェクトを削除する必要がある：{% endblocktranslate %}</h1>
+    <ul>
+    {% for obj in protected %}
+        <li>{{ obj }}</li>
+    {% endfor %}
+    </ul>
+    <a href="#" class="button cancel-link">{% translate "戻る" %}</a>
+{% else %}
+    <h1 style="color:red;">{% blocktranslate %}選択した {{ objects_name }} を本当に削除しますか？以下の関連項目がすべて削除されます：{% endblocktranslate %}</h1>
+    {% include "admin/includes/object_delete_summary.html" %}
+    <h1>{% translate "Objects" %}</h1>
+    {% for deletable_object in deletable_objects %}
+        <ul>{{ deletable_object|unordered_list }}</ul>
+    {% endfor %}
+    <form method="post">{% csrf_token %}
+    <div>
+    {% for obj in queryset %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="delete_selected">
+    <input type="hidden" name="post" value="yes">
+    <input type="submit" value="{% translate 'はい、削除します。' %}">
+    <a href="#" class="button cancel-link">{% translate "いや、戻します。" %}</a>
+    </div>
+    </form>
+{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+{% endblock %}
