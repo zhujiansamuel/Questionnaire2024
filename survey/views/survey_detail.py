@@ -19,7 +19,7 @@ from django.contrib import messages
 LOGGER = logging.getLogger(__name__)
 
 class SurveyDetail(View):
-    @method_decorator(never_cache)
+
     @survey_available
     def get(self, request, *args, **kwargs):
         survey = kwargs.get("survey")
@@ -90,7 +90,6 @@ class SurveyDetail(View):
         }
         return render(request, template_name, context)
 
-    @method_decorator(never_cache)
     @survey_available
     def post(self, request, *args, **kwargs):
         survey = kwargs.get("survey")

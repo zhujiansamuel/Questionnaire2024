@@ -539,7 +539,6 @@ class Add_one_random_question(FormView):
         return render(request, template_name, context)
 
 
-
 class Add_sequence_question_ex(FormView):
 
     @global_value
