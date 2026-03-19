@@ -3,6 +3,8 @@ def Diagnostic_Result(majority_rate, correctness_rate, number_of_questions):
     step = int(number_of_questions)
     majority_rate = int(majority_rate)
     correctness_rate = int(correctness_rate)
+    if step == 0:
+        return "Zero-Zero", "まだ十分な回答が集まっていないため、診断を表示できません。"
     majority_rate_r = majority_rate/step
     if majority_rate_r < 0.55:
         msg_1 = "D"
