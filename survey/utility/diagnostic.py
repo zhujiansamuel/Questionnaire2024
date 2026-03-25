@@ -1,16 +1,29 @@
 from ..models.response import Response
 
-def Diagnostic_Analyze(majority_rate, correctness_rate, kwargs):
-
-    kwargs_step = kwargs.get("step")
-    if kwargs_step is None:
-        response = Response.objects.get(interview_uuid=kwargs["uuid"])
-        step = int(response.number_of_questions)
+def Diagnostic_Analyze(majority_rate, correctness_rate, valid_questions_or_kwargs):
+    """诊断分析函数。
+    valid_questions_or_kwargs: 可以是有效题数(int)，也可以是旧的kwargs(dict)以保持向后兼容。
+    """
+    if isinstance(valid_questions_or_kwargs, (int, float)):
+        step = int(valid_questions_or_kwargs)
     else:
-        step = int(kwargs_step)+1
+        # 向后兼容：从 kwargs 获取
+        kwargs = valid_questions_or_kwargs
+        kwargs_step = kwargs.get("valid_questions")
+        if kwargs_step is not None and int(kwargs_step) > 0:
+            step = int(kwargs_step)
+        else:
+            kwargs_step = kwargs.get("step")
+            if kwargs_step is None:
+                response = Response.objects.get(interview_uuid=kwargs["uuid"])
+                step = int(response.number_of_questions)
+            else:
+                step = int(kwargs_step) + 1
 
-    print("Step:  ",step)
-    majority_rate_r = majority_rate/step
+    if step == 0:
+        return "Zero-Zero", "まだ十分な回答が集まっていないため、診断を表示できません。", 0, 0
+
+    majority_rate_r = majority_rate / step
     if majority_rate_r < 0.55:
         msg_1 = "D"
     elif majority_rate_r < 0.65:
